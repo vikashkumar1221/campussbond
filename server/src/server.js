@@ -4,6 +4,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 
 import { connectDB } from './config/db.js';
+import { seedDemoDataIfEmpty } from './utils/seedDemoData.js';
 import authRoutes from './routes/authRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
 import lostRoutes from './routes/lostRoutes.js';
@@ -52,7 +53,8 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 
 // Connect to the database, then start listening.
-connectDB().then(() => {
+connectDB().then(async () => {
+  await seedDemoDataIfEmpty();
   app.listen(PORT, () => {
     console.log(`🚀 Campus Bond API running on http://localhost:${PORT}`);
   });

@@ -4,6 +4,7 @@ A verified campus app that connects students across all branches and semesters �
 
 ## Tech stack
 
+- **Web app:** React 19 + Vite + Tailwind CSS
 - **Mobile app:** React Native (Expo)
 - **Backend:** Node.js + Express (MERN)
 - **Database:** MongoDB
@@ -15,6 +16,7 @@ A verified campus app that connects students across all branches and semesters �
 Campus-Bond/
   server/     # Express + MongoDB API   (Phase 0 ✅ done)
   mobile/     # Expo React Native app    (Phase 1 ✅ done)
+  client/     # React 19 + Vite Web app  (✅ done)
 ```
 
 ## Roadmap
@@ -37,4 +39,6 @@ Built in layers — each phase is runnable before the next begins.
 
 ## Getting started
 
-See [`server/README.md`](server/README.md) to run the backend. The mobile app will live in `mobile/`.
+- **Backend:** See [`server/README.md`](server/README.md) to run the backend API (`npm run dev`).
+- **Web App:** In `client/`, run `npm run dev` to launch the React 19 web app on `http://localhost:5173`.
+- **Mobile App:** The mobile app lives in `mobile/` (`npm start`).
