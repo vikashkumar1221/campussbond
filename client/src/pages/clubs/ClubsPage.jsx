@@ -350,9 +350,11 @@ export default function ClubsPage() {
   return (
     <div className="max-w-7xl xl:max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
       {/* Interactive Top Hub (Minimal text, max interactivity) */}
-      <div className="bg-[#121417] border border-[#1E2228] rounded-3xl p-5 sm:p-6 shadow-sm relative overflow-hidden space-y-4">
-        {/* Subtle ambient light */}
-        <div className="absolute -top-24 -right-24 w-80 h-80 bg-white/[0.02] rounded-full blur-3xl pointer-events-none" />
+      <div className="bg-[#121417] border border-[#1E2228] rounded-3xl p-5 sm:p-6 shadow-sm relative z-20 space-y-4">
+        {/* Subtle ambient light with isolated overflow containment */}
+        <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
+          <div className="absolute -top-24 -right-24 w-80 h-80 bg-white/[0.02] rounded-full blur-3xl" />
+        </div>
 
         {/* Header Row: Title & Action Controls */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
@@ -439,7 +441,7 @@ export default function ClubsPage() {
             </button>
 
             {dropdownOpen && (
-              <div className="absolute left-0 mt-2 w-full sm:w-64 bg-[#121417] border border-[#20242B] rounded-2xl p-1.5 shadow-2xl z-40 animate-in fade-in slide-in-from-top-2 duration-150">
+              <div className="absolute left-0 top-full mt-2 w-full sm:w-64 bg-[#121417] border border-[#20242B] rounded-2xl p-1.5 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                 <div className="px-3 py-1.5 text-[10px] uppercase font-semibold text-[#7C8592] tracking-wider border-b border-[#1E2228] mb-1">
                   Filter by Category
                 </div>

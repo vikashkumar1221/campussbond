@@ -35,7 +35,7 @@ export async function createItem(req, res) {
     seller: req.user._id,
   });
 
-  await item.populate('seller', 'name branch semester');
+  await item.populate('seller', 'name branch semester email avatar');
   res.status(201).json({ item });
 }
 
@@ -63,7 +63,7 @@ export async function getItems(req, res) {
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
-      .populate('seller', 'name branch semester'),
+      .populate('seller', 'name branch semester email avatar'),
     MarketItem.countDocuments(filter),
   ]);
 
@@ -72,7 +72,7 @@ export async function getItems(req, res) {
 
 /** GET /api/market/:id */
 export async function getItemById(req, res) {
-  const item = await MarketItem.findById(req.params.id).populate('seller', 'name branch semester');
+  const item = await MarketItem.findById(req.params.id).populate('seller', 'name branch semester email avatar');
   if (!item) return res.status(404).json({ message: 'Item not found.' });
   res.status(200).json({ item });
 }
