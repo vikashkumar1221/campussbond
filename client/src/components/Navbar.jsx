@@ -22,6 +22,7 @@ export default function Navbar() {
   const profileMenuRef = useRef(null);
 
   const displayName = (user?.name && user.name !== 'Test Student') ? user.name : 'Vikash';
+  const isEditorial = location.pathname === '/' || location.pathname.startsWith('/events');
 
   const navItems = [
     { name: 'Home', path: '/', icon: Home },
@@ -48,20 +49,20 @@ export default function Navbar() {
 
   return (
     <>
-      {/* ─── Top Header (Matching Screenshot) ─── */}
-      <header className="sticky top-0 z-40 bg-[#0A0B0D]/95 backdrop-blur-md border-b border-[#181B20]">
+      {/* ─── Top Header ─── */}
+      <header className="sticky top-0 z-40 backdrop-blur-md bg-white/95 border-b border-gray-200 shadow-xs">
         <div className="max-w-7xl xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Left: Clean Brand Logo */}
             <div className="flex items-center flex-shrink-0">
               <Link to="/" className="flex items-center gap-2">
-                <span className="font-black text-lg sm:text-xl tracking-tight text-white whitespace-nowrap">
+                <span className="font-display text-gray-950 font-black text-xl sm:text-2xl tracking-[-0.03em] whitespace-nowrap">
                   Campus Bond
                 </span>
               </Link>
             </div>
 
-            {/* Center: Clean Systematic Tab Navigation matching screenshot */}
+            {/* Center: Clean Systematic Tab Navigation */}
             <nav className="hidden md:flex items-center justify-center flex-1 mx-2 lg:mx-4">
               <div className="flex items-center gap-1">
                 {navItems.map((item) => {
@@ -71,10 +72,10 @@ export default function Navbar() {
                     <Link
                       key={item.name}
                       to={item.path}
-                      className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs transition-all ${
+                      className={`font-display flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs tracking-tight transition-all ${
                         active
-                          ? 'bg-[#181B20] text-white border border-[#272C35] font-semibold shadow-xs'
-                          : 'text-[#7C8592] hover:text-white font-medium hover:bg-[#14161A]'
+                          ? 'bg-gray-950 text-white font-bold shadow-xs'
+                          : 'text-gray-600 hover:text-black font-semibold hover:bg-gray-100'
                       }`}
                     >
                       <Icon className="w-3.5 h-3.5 flex-shrink-0" />
@@ -85,7 +86,7 @@ export default function Navbar() {
               </div>
             </nav>
 
-            {/* Right: Clean Student Profile Avatar (Image only, details on click) */}
+            {/* Right: Clean Student Profile Avatar */}
             <div className="flex items-center justify-end flex-shrink-0">
               {user ? (
                 <div className="relative" ref={profileMenuRef}>
@@ -93,7 +94,7 @@ export default function Navbar() {
                     onClick={() => setProfileOpen(!profileOpen)}
                     title={displayName}
                     aria-label="User Profile"
-                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#1C1F26] border-2 border-[#20242B] hover:border-[#4B5563] focus:border-[#4B5563] focus:outline-none transition-all cursor-pointer overflow-hidden flex items-center justify-center p-0.5 active:scale-95 shadow-sm"
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-100 border-2 border-gray-300 hover:border-[#05A86B] focus:outline-none transition-all cursor-pointer overflow-hidden flex items-center justify-center p-0.5 active:scale-95 shadow-sm"
                   >
                     {user.avatar ? (
                       <img
@@ -102,7 +103,7 @@ export default function Navbar() {
                         className="w-full h-full object-cover rounded-full"
                       />
                     ) : (
-                      <span className="font-bold text-xs sm:text-sm text-white">
+                      <span className="font-bold text-xs sm:text-sm text-gray-900">
                         {displayName.charAt(0).toUpperCase()}
                       </span>
                     )}
@@ -110,22 +111,24 @@ export default function Navbar() {
 
                   {/* Clean Profile Details Dropdown */}
                   {profileOpen && (
-                    <div className="absolute right-0 mt-2 w-64 bg-[#121417] border border-[#20242B] rounded-2xl p-2.5 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                      <div className="p-3 border-b border-[#1E2228] mb-1.5 flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-[#1C1F26] border border-[#2B303A] text-white flex items-center justify-center overflow-hidden flex-shrink-0 font-bold text-sm">
+                    <div className="absolute right-0 mt-2 w-64 rounded-2xl p-2.5 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-150 bg-white border-2 border-gray-200 text-gray-900">
+                      <div className="p-3 border-b border-gray-100 mb-1.5 flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0 font-bold text-sm bg-[#E8F8F0] text-[#05A86B] border border-[#05A86B]/30">
                           {user.avatar ? (
                             <img src={user.avatar} alt={displayName} className="w-full h-full object-cover" />
                           ) : (
-                            <span className="font-bold text-sm text-white">
-                              {displayName.charAt(0).toUpperCase()}
-                            </span>
+                            <span>{displayName.charAt(0).toUpperCase()}</span>
                           )}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-xs sm:text-sm font-bold text-white truncate">{displayName}</p>
-                          <p className="text-[11px] text-[#7C8592] truncate">{user.email}</p>
+                          <p className="font-display text-xs sm:text-sm font-bold truncate text-gray-950 tracking-tight">
+                            {displayName}
+                          </p>
+                          <p className="text-[11px] truncate text-gray-500 font-medium">
+                            {user.email}
+                          </p>
                           <div className="mt-1 flex items-center gap-1.5">
-                            <span className="text-[10px] bg-[#181B20] text-[#A6B0BC] border border-[#242932] px-2 py-0.5 rounded-md font-medium">
+                            <span className="font-mono-code text-[10px] px-2 py-0.5 rounded-md font-semibold bg-gray-100 text-gray-700 border border-gray-200">
                               {user.branch || 'CSE'}
                             </span>
                           </div>
@@ -135,29 +138,29 @@ export default function Navbar() {
                       <Link
                         to="/profile"
                         onClick={() => setProfileOpen(false)}
-                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#A6B0BC] hover:text-white hover:bg-[#181B20] transition-colors"
+                        className="font-display flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold tracking-tight transition-colors text-gray-700 hover:text-black hover:bg-gray-100"
                       >
-                        <User className="w-4 h-4 text-[#7C8592]" />
-                        <span>My Profile & Activity</span>
+                        <User className="w-4 h-4 text-gray-500" />
+                        <span>My Profile &amp; Activity</span>
                       </Link>
 
                       <Link
                         to="/profile"
                         onClick={() => setProfileOpen(false)}
-                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#A6B0BC] hover:text-white hover:bg-[#181B20] transition-colors"
+                        className="font-display flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold tracking-tight transition-colors text-gray-700 hover:text-black hover:bg-gray-100"
                       >
-                        <Award className="w-4 h-4 text-[#7C8592]" />
+                        <Award className="w-4 h-4 text-[#F59E0B]" />
                         <span>Campus Score</span>
                       </Link>
 
-                      <div className="my-1 border-t border-[#1E2228]" />
+                      <div className="my-1 border-t border-gray-100" />
 
                       <button
                         onClick={() => {
                           setProfileOpen(false);
                           logout();
                         }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#FF6B6B] hover:bg-[#251515] transition-colors cursor-pointer text-left"
+                        className="font-display w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold tracking-tight text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer text-left"
                       >
                         <LogOut className="w-4 h-4" />
                         <span>Sign out</span>
@@ -169,13 +172,13 @@ export default function Navbar() {
                 <div className="flex items-center gap-2">
                   <Link
                     to="/login"
-                    className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-[#8A94A0] hover:text-white transition-colors"
+                    className="font-display px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold tracking-tight transition-colors text-gray-700 hover:text-black"
                   >
                     Log in
                   </Link>
                   <Link
                     to="/register"
-                    className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold bg-[#E58A3C] text-white hover:bg-[#D97724] transition-all shadow-md shadow-[#E58A3C]/20"
+                    className="font-display px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold tracking-tight bg-[#05A86B] text-white hover:bg-[#048E5A] transition-all shadow-md shadow-[#05A86B]/25"
                   >
                     Register
                   </Link>
@@ -186,21 +189,21 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* ─── Mobile Bottom Navigation Bar (< md) matching screenshot ─── */}
+      {/* ─── Mobile Bottom Navigation Bar (< md) ─── */}
       {user && (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0F1012]/95 backdrop-blur-lg border-t border-[#22262B] px-2 sm:px-4 pt-1.5 pb-[max(env(safe-area-inset-bottom),0.65rem)] shadow-2xl">
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 backdrop-blur-lg border-t px-2 sm:px-4 pt-1.5 pb-[max(env(safe-area-inset-bottom),0.65rem)] shadow-2xl bg-white/95 border-gray-200 text-gray-900">
           <div className="grid grid-cols-5 gap-1 items-center max-w-md mx-auto">
             {/* 1. Home */}
             <Link
               to="/"
               className={`flex flex-col items-center justify-center py-1 rounded-xl transition-all ${
                 location.pathname === '/' || location.pathname.startsWith('/events')
-                  ? 'text-[#E58A3C]'
-                  : 'text-[#8A94A0] hover:text-white'
+                  ? 'text-[#05A86B]'
+                  : 'text-gray-500 hover:text-black'
               }`}
             >
               <Home className="w-5 h-5" />
-              <span className="text-[10px] font-semibold mt-0.5">Home</span>
+              <span className="font-display text-[10px] font-bold tracking-tight mt-0.5">Home</span>
             </Link>
 
             {/* 2. Club */}
@@ -208,21 +211,21 @@ export default function Navbar() {
               to="/clubs"
               className={`flex flex-col items-center justify-center py-1 rounded-xl transition-all ${
                 location.pathname.startsWith('/clubs')
-                  ? 'text-[#E58A3C]'
-                  : 'text-[#8A94A0] hover:text-white'
+                  ? 'text-[#05A86B]'
+                  : 'text-gray-500 hover:text-black'
               }`}
             >
               <Users className="w-5 h-5" />
-              <span className="text-[10px] font-semibold mt-0.5">Club</span>
+              <span className="font-display text-[10px] font-bold tracking-tight mt-0.5">Club</span>
             </Link>
 
             {/* 3. Center + Action Button */}
             <div className="flex justify-center items-center">
               <Link
                 to="/?create=true"
-                className="w-10 h-10 rounded-full bg-[#23272D] border border-[#343A42] flex items-center justify-center shadow-lg hover:border-[#E58A3C] transition-all group active:scale-95"
+                className="w-10 h-10 rounded-full bg-[#05A86B] hover:bg-[#048E5A] text-white flex items-center justify-center shadow-lg transition-all group active:scale-95"
               >
-                <Plus className="w-5 h-5 text-[#E58A3C] group-hover:scale-110 transition-transform" />
+                <Plus className="w-5 h-5 stroke-[3] group-hover:scale-110 transition-transform" />
               </Link>
             </div>
 
@@ -231,21 +234,23 @@ export default function Navbar() {
               to="/market"
               className={`flex flex-col items-center justify-center py-1 rounded-xl transition-all ${
                 location.pathname.startsWith('/market')
-                  ? 'text-[#E58A3C]'
-                  : 'text-[#8A94A0] hover:text-white'
+                  ? 'text-[#05A86B]'
+                  : 'text-gray-500 hover:text-black'
               }`}
             >
               <ShoppingBag className="w-5 h-5" />
-              <span className="text-[10px] font-semibold mt-0.5">Market</span>
+              <span className="font-display text-[10px] font-bold tracking-tight mt-0.5">Market</span>
             </Link>
 
             {/* 5. More (Profile & Activities) */}
             <Link
               to="/profile"
               className={`flex flex-col items-center justify-center py-1 rounded-xl transition-all ${
-                location.pathname.startsWith('/profile') || location.pathname.startsWith('/lostfound') || location.pathname.startsWith('/chat')
-                  ? 'text-[#E58A3C]'
-                  : 'text-[#8A94A0] hover:text-white'
+                location.pathname.startsWith('/profile') ||
+                location.pathname.startsWith('/lostfound') ||
+                location.pathname.startsWith('/chat')
+                  ? 'text-[#05A86B]'
+                  : 'text-gray-500 hover:text-black'
               }`}
             >
               <div className="flex items-center gap-0.5 my-1">
@@ -253,7 +258,7 @@ export default function Navbar() {
                 <span className="w-1 h-1 rounded-full bg-current" />
                 <span className="w-1 h-1 rounded-full bg-current" />
               </div>
-              <span className="text-[10px] font-semibold mt-0.5">More</span>
+              <span className="font-display text-[10px] font-bold tracking-tight mt-0.5">More</span>
             </Link>
           </div>
         </div>

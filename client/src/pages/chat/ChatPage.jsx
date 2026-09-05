@@ -114,33 +114,33 @@ export default function ChatPage() {
 
   return (
     <div className="max-w-7xl xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-      <div className="bg-[#121417] border border-[#1E2228] rounded-2xl overflow-hidden shadow-sm flex flex-col md:flex-row h-[calc(100dvh-7.5rem)] md:h-[750px]">
+      <div className="bg-white border-2 border-gray-200 rounded-2xl overflow-hidden shadow-xs flex flex-col md:flex-row h-[calc(100dvh-7.5rem)] md:h-[750px]">
         {/* Left Column: Conversations List */}
         <div
-          className={`w-full md:w-80 lg:w-96 border-r border-[#1E2228] flex flex-col bg-[#121417] ${
+          className={`w-full md:w-80 lg:w-96 border-r border-gray-200 flex flex-col bg-white ${
             activeConvId ? 'hidden md:flex' : 'flex'
           }`}
         >
           {/* Header */}
-          <div className="p-4 border-b border-[#1E2228] flex items-center justify-between bg-[#121417]">
+          <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-white">
             <div className="flex items-center gap-2">
-              <MessageSquare className="w-5 h-5 text-white" />
-              <h2 className="font-bold text-base text-white">Direct Messages</h2>
+              <MessageSquare className="w-5 h-5 text-[#05A86B]" />
+              <h2 className="font-bold text-base text-gray-950">Direct Messages</h2>
             </div>
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-lg bg-[#181B20] text-[#7C8592] border border-[#242932]">
+            <span className="text-xs font-bold px-2.5 py-0.5 rounded-lg bg-gray-100 text-gray-700 border border-gray-200">
               {conversations.length}
             </span>
           </div>
 
           {/* List */}
-          <div className="flex-1 overflow-y-auto divide-y divide-[#1C1F26]">
+          <div className="flex-1 overflow-y-auto divide-y divide-gray-100">
             {loadingConvs ? (
               <LoadingSpinner message="Loading messages..." />
             ) : conversations.length === 0 ? (
               <div className="p-8 text-center space-y-2">
-                <MessageSquare className="w-8 h-8 text-[#7C8592] mx-auto" />
-                <p className="text-sm font-bold text-white">No chats open yet</p>
-                <p className="text-xs text-[#7C8592] leading-relaxed">
+                <MessageSquare className="w-8 h-8 text-gray-400 mx-auto" />
+                <p className="text-sm font-bold text-gray-900">No chats open yet</p>
+                <p className="text-xs text-gray-500 leading-relaxed">
                   When you approve team applicants on your posts, direct chats open here automatically!
                 </p>
               </div>
@@ -154,30 +154,30 @@ export default function ChatPage() {
                     key={conv._id}
                     onClick={() => setActiveConvId(conv._id)}
                     className={`w-full p-4 text-left flex items-start gap-3 transition-colors cursor-pointer ${
-                      isSelected ? 'bg-[#181B20] border-l-2 border-white' : 'hover:bg-[#15181C]'
+                      isSelected ? 'bg-[#E8F8F0] border-l-4 border-[#05A86B]' : 'hover:bg-gray-50'
                     }`}
                   >
-                    <div className="w-10 h-10 rounded-full bg-[#1C1F26] border border-[#2B303A] text-white font-bold text-sm flex items-center justify-center flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-gray-100 border border-gray-200 text-gray-900 font-bold text-sm flex items-center justify-center flex-shrink-0">
                       {other?.name?.charAt(0) || 'U'}
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-0.5">
-                        <h4 className="text-sm font-bold text-white truncate">
+                        <h4 className="text-sm font-bold text-gray-950 truncate">
                           {other?.name || 'Student'}
                         </h4>
-                        <span className="text-[10px] text-[#5C6572]">
+                        <span className="text-[10px] text-gray-400">
                           {conv.lastMessageAt ? new Date(conv.lastMessageAt).toLocaleDateString() : ''}
                         </span>
                       </div>
 
                       {conv.event?.title && (
-                        <p className="text-[11px] text-[#A6B0BC] truncate font-medium">
+                        <p className="text-[11px] text-[#05A86B] truncate font-semibold">
                           Post: {conv.event.title}
                         </p>
                       )}
 
-                      <p className="text-xs text-[#7C8592] truncate mt-0.5">
+                      <p className="text-xs text-gray-500 truncate mt-0.5">
                         {conv.lastMessage || 'Chat started'}
                       </p>
                     </div>
@@ -190,31 +190,31 @@ export default function ChatPage() {
 
         {/* Right Column: Chat History & Input */}
         <div
-          className={`flex-1 flex flex-col bg-[#0A0B0D] ${
+          className={`flex-1 flex flex-col bg-[#FBFBFA] ${
             !activeConvId ? 'hidden md:flex items-center justify-center' : 'flex'
           }`}
         >
           {activeConv ? (
             <>
               {/* Active Conversation Topbar */}
-              <div className="p-4 bg-[#121417] border-b border-[#1E2228] flex items-center justify-between shadow-xs">
+              <div className="p-4 bg-white border-b border-gray-200 flex items-center justify-between shadow-xs">
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => setActiveConvId(null)}
-                    className="md:hidden p-1.5 rounded-lg text-[#7C8592] hover:text-white cursor-pointer"
+                    className="md:hidden p-1.5 rounded-lg text-gray-500 hover:text-gray-900 cursor-pointer"
                   >
                     <ArrowLeft className="w-5 h-5" />
                   </button>
 
-                  <div className="w-9 h-9 rounded-full bg-[#1C1F26] border border-[#2B303A] text-white font-bold text-sm flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-full bg-[#E8F8F0] border border-[#05A86B]/30 text-[#05A86B] font-bold text-sm flex items-center justify-center">
                     {getOtherParticipant(activeConv)?.name?.charAt(0) || 'U'}
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-sm text-white">
+                    <h3 className="font-bold text-sm text-gray-950">
                       {getOtherParticipant(activeConv)?.name || 'Teammate'}
                     </h3>
-                    <p className="text-[11px] text-[#7C8592]">
+                    <p className="text-[11px] text-gray-500">
                       {getOtherParticipant(activeConv)?.branch}
                       {activeConv.event?.title ? ` • ${activeConv.event.title}` : ''}
                     </p>
@@ -228,7 +228,7 @@ export default function ChatPage() {
                   <LoadingSpinner message="Fetching messages..." />
                 ) : messages.length === 0 ? (
                   <div className="text-center py-16 space-y-2">
-                    <p className="text-xs text-[#7C8592]">
+                    <p className="text-xs text-gray-500">
                       Say hello to your new teammate! Discuss roles and project timelines.
                     </p>
                   </div>
@@ -244,14 +244,14 @@ export default function ChatPage() {
                         <div
                           className={`max-w-md px-4 py-2.5 rounded-2xl text-xs sm:text-sm leading-relaxed ${
                             isMe
-                              ? 'bg-[#20242B] text-white border border-[#2D333E] rounded-br-none'
-                              : 'bg-[#121417] text-white border border-[#1E2228] rounded-bl-none shadow-xs'
+                              ? 'bg-[#05A86B] text-white rounded-br-none shadow-xs font-medium'
+                              : 'bg-white text-gray-900 border border-gray-200 rounded-bl-none shadow-xs'
                           }`}
                         >
                           <p className="whitespace-pre-line">{m.text}</p>
                           <span
                             className={`block text-[10px] mt-1 ${
-                              isMe ? 'text-[#7C8592] text-right' : 'text-[#5C6572]'
+                              isMe ? 'text-white/80 text-right' : 'text-gray-400'
                             }`}
                           >
                             {new Date(m.createdAt).toLocaleTimeString([], {
@@ -270,19 +270,19 @@ export default function ChatPage() {
               {/* Send Form */}
               <form
                 onSubmit={handleSendMessage}
-                className="p-4 bg-[#121417] border-t border-[#1E2228] flex gap-2"
+                className="p-4 bg-white border-t border-gray-200 flex gap-2"
               >
                 <input
                   type="text"
                   value={messageText}
                   onChange={(e) => setMessageText(e.target.value)}
                   placeholder="Type a message..."
-                  className="flex-1 px-4 py-2.5 bg-[#0F1114] border border-[#1E2228] rounded-xl text-xs sm:text-sm text-white placeholder-[#687280] focus:outline-none focus:border-[#383F4D]"
+                  className="flex-1 px-4 py-2.5 bg-white border-2 border-gray-200 rounded-xl text-xs sm:text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#05A86B]"
                 />
                 <button
                   type="submit"
                   disabled={!messageText.trim() || sending}
-                  className="px-5 py-2.5 rounded-xl bg-[#20242B] hover:bg-[#282D36] text-white border border-[#2D333E] font-semibold flex items-center justify-center transition-all disabled:opacity-40 cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl bg-[#05A86B] hover:bg-[#048E5A] text-white font-bold flex items-center justify-center transition-all disabled:opacity-40 cursor-pointer shadow-md shadow-[#05A86B]/20"
                 >
                   <Send className="w-4 h-4" />
                 </button>
@@ -290,9 +290,9 @@ export default function ChatPage() {
             </>
           ) : (
             <div className="text-center p-8 space-y-3">
-              <MessageSquare className="w-12 h-12 text-[#7C8592]/40 mx-auto" />
-              <h3 className="text-base font-bold text-white">Select a Conversation</h3>
-              <p className="text-xs text-[#7C8592]">
+              <MessageSquare className="w-12 h-12 text-gray-300 mx-auto" />
+              <h3 className="text-base font-bold text-gray-900">Select a Conversation</h3>
+              <p className="text-xs text-gray-500">
                 Choose from the left pane to view discussions and collaborate.
               </p>
             </div>

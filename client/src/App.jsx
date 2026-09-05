@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -21,7 +21,7 @@ function ProtectedRoute({ children }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0A0B0D]">
+      <div className="min-h-screen flex items-center justify-center bg-[#FBFBFA]">
         <LoadingSpinner message="Authenticating session..." />
       </div>
     );
@@ -40,7 +40,7 @@ function GuestRoute({ children }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0A0B0D]">
+      <div className="min-h-screen flex items-center justify-center bg-[#FBFBFA]">
         <LoadingSpinner message="Restoring session..." />
       </div>
     );
@@ -53,14 +53,12 @@ function GuestRoute({ children }) {
   return children;
 }
 
-export default function App() {
+function AppLayout() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <div className="min-h-screen flex flex-col bg-[#0A0B0D] text-[#E6E9EC]">
-          <Navbar />
-          <main className="flex-1 pb-24 sm:pb-24 md:pb-10">
-            <Routes>
+    <div className="min-h-screen flex flex-col bg-[#FBFBFA] text-[#0A0B0D]">
+      <Navbar />
+      <main className="flex-1 pb-24 sm:pb-24 md:pb-10">
+        <Routes>
               {/* Public/Guest Routes */}
               <Route
                 path="/login"
@@ -141,7 +139,15 @@ export default function App() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
-        </div>
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <AppLayout />
       </AuthProvider>
     </BrowserRouter>
   );

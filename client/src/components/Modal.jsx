@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
 
-export default function Modal({ isOpen, onClose, title, children, maxWidth = 'max-w-lg' }) {
+export default function Modal({ isOpen, onClose, title, children, maxWidth = 'max-w-lg', isLight = true }) {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose();
@@ -22,28 +22,32 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 'ma
     <div className="fixed inset-0 z-50 overflow-y-auto">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity animate-fade-in"
+        className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity animate-fade-in"
         onClick={onClose}
       />
 
       <div className="flex min-h-full items-center justify-center p-3 sm:p-4 text-center">
         <div
-          className={`relative transform rounded-2xl sm:rounded-3xl bg-[#121417] border border-[#1E2228] text-left shadow-2xl transition-all w-full ${maxWidth} max-h-[88vh] flex flex-col my-auto sm:my-8 overflow-hidden`}
+          className={`relative transform rounded-2xl sm:rounded-3xl bg-white border-2 border-gray-200 text-gray-900 shadow-2xl text-left transition-all w-full ${maxWidth} max-h-[88vh] flex flex-col my-auto sm:my-8 overflow-hidden`}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-[#1E2228] flex-shrink-0">
-            <h3 className="text-base sm:text-lg font-bold text-white truncate pr-2">{title}</h3>
+          <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 bg-gray-50/50 flex-shrink-0">
+            <h3 className="font-display text-base sm:text-lg font-bold text-gray-950 truncate pr-2 tracking-tight">
+              {title}
+            </h3>
             <button
               onClick={onClose}
-              className="rounded-xl p-1.5 text-[#7C8592] hover:text-white hover:bg-[#181B20] transition-colors cursor-pointer flex-shrink-0"
+              className="rounded-xl p-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors cursor-pointer flex-shrink-0"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* Content */}
-          <div className="px-4 sm:px-6 py-4 sm:py-5 text-[#E6E9EC] overflow-y-auto flex-1">{children}</div>
+          <div className="px-4 sm:px-6 py-4 sm:py-5 text-gray-900 overflow-y-auto flex-1">
+            {children}
+          </div>
         </div>
       </div>
     </div>
