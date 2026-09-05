@@ -7,6 +7,8 @@ import Club from '../models/Club.js';
 
 export async function seedDemoDataIfEmpty() {
   try {
+    await User.updateMany({ email: 'test@campusbond.edu' }, { $set: { name: 'Vikash' } });
+
     const eventCount = await Event.countDocuments();
     if (eventCount > 0) {
       // Database already has data
@@ -34,7 +36,7 @@ export async function seedDemoDataIfEmpty() {
     let testUser = await User.findOne({ email: 'test@campusbond.edu' });
     if (!testUser) {
       testUser = await User.create({
-        name: 'Test Student',
+        name: 'Vikash',
         email: 'test@campusbond.edu',
         passwordHash,
         branch: 'CSE',
@@ -244,12 +246,36 @@ export async function seedDemoDataIfEmpty() {
         members: [devUser._id],
       },
       {
+        name: 'Sports & Athletics Council',
+        description:
+          'Inter-college tournaments, cricket leagues, badminton championships, football friendlies, and annual athletic meets.',
+        category: 'sports',
+        createdBy: demoUser._id,
+        members: [demoUser._id, devUser._id],
+      },
+      {
+        name: 'AI & Astronomy Research Society',
+        description:
+          'Student researchers exploring machine learning papers, astronomical observations, telescope nights, and academic publications.',
+        category: 'academic',
+        createdBy: devUser._id,
+        members: [demoUser._id, devUser._id],
+      },
+      {
         name: 'Campus Photography & Media Guild',
         description:
           'Photographers, filmmakers, and digital artists. Official event coverage, photo-walks, and cinematography workshops.',
         category: 'arts',
         createdBy: demoUser._id,
         members: [demoUser._id, devUser._id],
+      },
+      {
+        name: 'Campus Gaming & Esports League',
+        description:
+          'LAN gaming events, BGMI/Valorant campus scrims, game development showcases, and student tournaments.',
+        category: 'other',
+        createdBy: demoUser._id,
+        members: [demoUser._id],
       },
     ]);
 

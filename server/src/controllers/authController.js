@@ -70,9 +70,11 @@ export async function register(req, res) {
     text: `Welcome to Campus Bond! Your verification code is ${code}. It expires in ${minutes} minutes.`,
   });
 
+  const isDev = !process.env.SMTP_HOST;
   res.status(200).json({
     message: `Verification code sent to ${normalizedEmail}. It expires in ${minutes} minutes.`,
     email: normalizedEmail,
+    ...(isDev ? { devOtp: code } : {}),
   });
 }
 
@@ -149,7 +151,11 @@ export async function resendOtp(req, res) {
     text: `Your new verification code is ${code}. It expires in ${minutes} minutes.`,
   });
 
-  res.status(200).json({ message: `A new code was sent to ${normalizedEmail}.` });
+  const isDev = !process.env.SMTP_HOST;
+  res.status(200).json({
+    message: `A new code was sent to ${normalizedEmail}.`,
+    ...(isDev ? { devOtp: code } : {}),
+  });
 }
 
 /**

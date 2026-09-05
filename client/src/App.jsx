@@ -21,7 +21,7 @@ function ProtectedRoute({ children }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0F1012]">
+      <div className="min-h-screen flex items-center justify-center bg-[#0A0B0D]">
         <LoadingSpinner message="Authenticating session..." />
       </div>
     );
@@ -40,7 +40,7 @@ function GuestRoute({ children }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0F1012]">
+      <div className="min-h-screen flex items-center justify-center bg-[#0A0B0D]">
         <LoadingSpinner message="Restoring session..." />
       </div>
     );
@@ -57,9 +57,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <div className="min-h-screen flex flex-col bg-[#0F1012] text-[#E6E9EC]">
+        <div className="min-h-screen flex flex-col bg-[#0A0B0D] text-[#E6E9EC]">
           <Navbar />
-          <main className="flex-1 pb-20 md:pb-8">
+          <main className="flex-1 pb-24 sm:pb-24 md:pb-10">
             <Routes>
               {/* Public/Guest Routes */}
               <Route

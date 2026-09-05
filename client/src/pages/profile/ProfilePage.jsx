@@ -24,6 +24,7 @@ import {
 
 export default function ProfilePage() {
   const { user } = useAuth();
+  const displayName = (user?.name && user.name !== 'Test Student') ? user.name : 'Vikash';
 
   const [activeTab, setActiveTab] = useState('posts');
   const [loading, setLoading] = useState(true);
@@ -70,32 +71,30 @@ export default function ProfilePage() {
   ];
 
   return (
-    <div className="max-w-7xl xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+    <div className="max-w-7xl xl:max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
       {/* Student Identity Card */}
-      <div className="bg-[#1A1D21] border border-[#282D33] rounded-2xl sm:rounded-3xl p-5 sm:p-8 relative overflow-hidden shadow-md">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[#E58A3C]/5 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 relative z-10">
-          <div className="flex items-center gap-3.5 sm:gap-5">
-            <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-[#23272D] border border-[#343A42] text-white font-black text-xl sm:text-2xl flex items-center justify-center shadow-lg flex-shrink-0">
-              {user?.name?.charAt(0).toUpperCase() || 'U'}
+      <div className="bg-[#121417] border border-[#1E2228] rounded-2xl p-5 sm:p-7 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#1C1F26] border border-[#2B303A] text-white font-bold text-xl sm:text-2xl flex items-center justify-center flex-shrink-0 shadow-sm">
+              {displayName.charAt(0).toUpperCase()}
             </div>
 
             <div className="space-y-1">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-lg sm:text-2xl font-black text-white">{user?.name}</h1>
-                <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#16221A] text-[#4ADE80] border border-[#4ADE80]/30">
+                <h1 className="text-lg sm:text-xl font-bold text-white">{displayName}</h1>
+                <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-[#121E16] text-[#4ADE80] border border-[#4ADE80]/30">
                   VERIFIED STUDENT
                 </span>
               </div>
-              <p className="text-xs text-[#8A94A0]">{user?.email}</p>
-              <div className="flex flex-wrap items-center gap-2 sm:gap-3 pt-1 text-xs text-[#8A94A0]">
-                <span className="flex items-center gap-1 bg-[#131518] border border-[#282D33] px-2.5 py-1 rounded-xl">
-                  <GraduationCap className="w-3.5 h-3.5 text-[#60A5FA]" />
-                  {user?.branch || 'Campus Student'}
+              <p className="text-xs text-[#7C8592] truncate">{user?.email}</p>
+              <div className="flex flex-wrap items-center gap-2 pt-0.5 text-xs text-[#7C8592]">
+                <span className="flex items-center gap-1.5 bg-[#181B20] border border-[#242932] px-2.5 py-1 rounded-xl text-[11px] text-[#A6B0BC]">
+                  <GraduationCap className="w-3.5 h-3.5 text-[#7C8592]" />
+                  {user?.branch || 'CSE'}
                 </span>
                 {user?.semester && (
-                  <span className="bg-[#131518] border border-[#282D33] px-2.5 py-1 rounded-xl">
+                  <span className="bg-[#181B20] border border-[#242932] px-2.5 py-1 rounded-xl text-[11px] text-[#A6B0BC]">
                     Semester {user.semester}
                   </span>
                 )}
@@ -103,10 +102,10 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center p-3 sm:p-0 bg-[#131518] sm:bg-transparent rounded-xl sm:rounded-none border border-[#282D33] sm:border-0">
-            <span className="text-[11px] sm:text-xs text-[#8A94A0] font-medium">Campus Score</span>
-            <div className="flex items-center gap-1.5 text-lg sm:text-xl font-black text-[#F59E0B]">
-              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-[#F59E0B]" />
+          <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center p-3 sm:p-0 bg-[#181B20] sm:bg-transparent rounded-xl sm:rounded-none border border-[#242932] sm:border-0">
+            <span className="text-xs text-[#7C8592]">Campus Score</span>
+            <div className="flex items-center gap-1.5 text-base sm:text-lg font-bold text-[#F59E0B]">
+              <Sparkles className="w-4 h-4 text-[#F59E0B]" />
               <span>{user?.campusScore || 0} pts</span>
             </div>
           </div>
@@ -114,7 +113,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none border-b border-[#282D33]">
+      <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none border-b border-[#1E2228] -mx-1 px-1">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const active = activeTab === tab.id;
@@ -122,17 +121,17 @@ export default function ProfilePage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-3 border-b-2 text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+              className={`flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
                 active
-                  ? 'border-[#E58A3C] text-[#E58A3C]'
-                  : 'border-transparent text-[#8A94A0] hover:text-white'
+                  ? 'bg-[#1C2027] text-white border border-[#2E3542] font-semibold shadow-xs'
+                  : 'text-[#7C8592] hover:text-white hover:bg-[#121417]'
               }`}
             >
-              <Icon className="w-4 h-4" />
+              <Icon className="w-3.5 h-3.5" />
               <span>{tab.label}</span>
               <span
-                className={`text-[10px] px-2 py-0.2 rounded-full ${
-                  active ? 'bg-[#2A2014] text-[#E58A3C]' : 'bg-[#1A1D21] text-[#8A94A0]'
+                className={`text-[10px] px-1.5 py-0.2 rounded-md ${
+                  active ? 'bg-[#2E3542] text-white' : 'bg-[#181B20] text-[#7C8592]'
                 }`}
               >
                 {tab.count}
@@ -151,7 +150,7 @@ export default function ProfilePage() {
           {activeTab === 'posts' && (
             <div>
               {myPosts.length === 0 ? (
-                <div className="bg-[#1A1D21] border border-[#282D33] rounded-3xl p-12 text-center text-sm text-[#8A94A0] shadow-md">
+                <div className="bg-[#121417] border border-[#1E2228] rounded-2xl p-12 text-center text-xs sm:text-sm text-[#7C8592] shadow-sm">
                   You haven't posted any team collaboration requests yet.
                 </div>
               ) : (
@@ -159,21 +158,21 @@ export default function ProfilePage() {
                   {myPosts.map((p) => (
                     <div
                       key={p._id}
-                      className="bg-[#1A1D21] border border-[#282D33] rounded-2xl p-5 flex items-center justify-between gap-4 shadow-sm hover:border-[#383F47] transition-all"
+                      className="bg-[#121417] border border-[#1E2228] rounded-2xl p-5 flex items-center justify-between gap-4 shadow-sm hover:border-[#272C35] transition-all"
                     >
                       <div className="space-y-1">
-                        <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-[#162238] text-[#60A5FA] border border-[#60A5FA]/30">
+                        <span className="text-[10px] font-medium capitalize px-2.5 py-0.5 rounded-lg bg-[#181B20] text-[#A6B0BC] border border-[#242932]">
                           {p.category}
                         </span>
                         <h4 className="font-bold text-sm text-white">{p.title}</h4>
-                        <p className="text-xs text-[#8A94A0]">
+                        <p className="text-xs text-[#7C8592]">
                           {p.approvedCount || 0} / {p.teamSize} spots filled • {p.applicants?.length || 0} applicants
                         </p>
                       </div>
 
                       <Link
                         to={`/events/${p._id}`}
-                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#23272D] text-white border border-[#282D33] hover:border-[#E58A3C] transition-all shadow-xs"
+                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-[#20242B] hover:bg-[#282D36] text-white border border-[#2D333E] transition-all shadow-xs"
                       >
                         <span>Manage Applicants</span>
                         <ChevronRight className="w-3.5 h-3.5" />
@@ -189,7 +188,7 @@ export default function ProfilePage() {
           {activeTab === 'applications' && (
             <div>
               {myApplications.length === 0 ? (
-                <div className="bg-[#1A1D21] border border-[#282D33] rounded-3xl p-12 text-center text-sm text-[#8A94A0] shadow-md">
+                <div className="bg-[#121417] border border-[#1E2228] rounded-2xl p-12 text-center text-xs sm:text-sm text-[#7C8592] shadow-sm">
                   You haven't applied to any team posts yet.
                 </div>
               ) : (
@@ -197,20 +196,20 @@ export default function ProfilePage() {
                   {myApplications.map((app, idx) => (
                     <div
                       key={idx}
-                      className="bg-[#1A1D21] border border-[#282D33] rounded-2xl p-5 flex items-center justify-between gap-4 shadow-sm hover:border-[#383F47] transition-all"
+                      className="bg-[#121417] border border-[#1E2228] rounded-2xl p-5 flex items-center justify-between gap-4 shadow-sm hover:border-[#272C35] transition-all"
                     >
                       <div className="space-y-1">
                         <h4 className="font-bold text-sm text-white">{app.event?.title || 'Post'}</h4>
-                        <p className="text-xs text-[#8A94A0] italic">Pitch: "{app.message}"</p>
+                        <p className="text-xs text-[#7C8592] italic">Pitch: "{app.message}"</p>
                       </div>
 
                       <span
-                        className={`text-xs font-bold px-3 py-1 rounded-xl uppercase border ${
+                        className={`text-xs font-semibold px-3 py-1 rounded-xl capitalize border ${
                           app.status === 'approved'
-                            ? 'bg-[#18261F] text-[#4ADE80] border-[#4ADE80]/30'
+                            ? 'bg-[#121E16] text-[#4ADE80] border-[#4ADE80]/30'
                             : app.status === 'rejected'
-                            ? 'bg-[#2B1818] text-[#FF6B6B] border-[#FF6B6B]/30'
-                            : 'bg-[#2B2215] text-[#F59E0B] border-[#F59E0B]/30'
+                            ? 'bg-[#251515] text-[#FF6B6B] border-[#FF6B6B]/30'
+                            : 'bg-[#20242B] text-[#A6B0BC] border-[#2D333E]'
                         }`}
                       >
                         {app.status}
@@ -226,7 +225,7 @@ export default function ProfilePage() {
           {activeTab === 'market' && (
             <div>
               {myListings.length === 0 ? (
-                <div className="bg-[#1A1D21] border border-[#282D33] rounded-3xl p-12 text-center text-sm text-[#8A94A0] shadow-md">
+                <div className="bg-[#121417] border border-[#1E2228] rounded-2xl p-12 text-center text-xs sm:text-sm text-[#7C8592] shadow-sm">
                   You have no active listings on the marketplace.
                 </div>
               ) : (
@@ -234,17 +233,17 @@ export default function ProfilePage() {
                   {myListings.map((item) => (
                     <div
                       key={item._id}
-                      className="bg-[#1A1D21] border border-[#282D33] rounded-2xl p-4 flex items-center justify-between gap-3 shadow-sm hover:border-[#383F47] transition-all"
+                      className="bg-[#121417] border border-[#1E2228] rounded-2xl p-4 flex items-center justify-between gap-3 shadow-sm hover:border-[#272C35] transition-all"
                     >
                       <div className="space-y-1">
                         <h4 className="font-bold text-sm text-white">{item.title}</h4>
-                        <p className="text-xs font-black text-[#F59E0B]">₹{item.price}</p>
+                        <p className="text-xs font-bold text-white">₹{item.price}</p>
                       </div>
                       <span
                         className={`text-xs font-semibold px-2.5 py-1 rounded-lg capitalize border ${
                           item.status === 'sold'
-                            ? 'bg-[#131518] text-[#8A94A0] border-[#282D33]'
-                            : 'bg-[#18261F] text-[#4ADE80] border-[#4ADE80]/30'
+                            ? 'bg-[#181B20] text-[#7C8592] border-[#242932]'
+                            : 'bg-[#121E16] text-[#4ADE80] border-[#4ADE80]/30'
                         }`}
                       >
                         {item.status}
@@ -260,7 +259,7 @@ export default function ProfilePage() {
           {activeTab === 'lost' && (
             <div>
               {myLostItems.length === 0 ? (
-                <div className="bg-[#1A1D21] border border-[#282D33] rounded-3xl p-12 text-center text-sm text-[#8A94A0] shadow-md">
+                <div className="bg-[#121417] border border-[#1E2228] rounded-2xl p-12 text-center text-xs sm:text-sm text-[#7C8592] shadow-sm">
                   You haven't reported any lost or found items.
                 </div>
               ) : (
@@ -268,24 +267,24 @@ export default function ProfilePage() {
                   {myLostItems.map((item) => (
                     <div
                       key={item._id}
-                      className="bg-[#1A1D21] border border-[#282D33] rounded-2xl p-4 flex items-center justify-between gap-3 shadow-sm hover:border-[#383F47] transition-all"
+                      className="bg-[#121417] border border-[#1E2228] rounded-2xl p-4 flex items-center justify-between gap-3 shadow-sm hover:border-[#272C35] transition-all"
                     >
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <span
-                            className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full border ${
+                            className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-md border ${
                               item.type === 'lost'
-                                ? 'bg-[#2B1818] text-[#FF6B6B] border-[#FF6B6B]/30'
-                                : 'bg-[#18261F] text-[#4ADE80] border-[#4ADE80]/30'
+                                ? 'bg-[#251515] text-[#FF6B6B] border-[#FF6B6B]/30'
+                                : 'bg-[#121E16] text-[#4ADE80] border-[#4ADE80]/30'
                             }`}
                           >
                             {item.type}
                           </span>
                           <h4 className="font-bold text-sm text-white">{item.title}</h4>
                         </div>
-                        <p className="text-xs text-[#8A94A0]">{item.location}</p>
+                        <p className="text-xs text-[#7C8592]">{item.location}</p>
                       </div>
-                      <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-[#131518] text-[#8A94A0] border border-[#282D33] capitalize">
+                      <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-[#181B20] text-[#7C8592] border border-[#242932] capitalize">
                         {item.status}
                       </span>
                     </div>
@@ -299,7 +298,7 @@ export default function ProfilePage() {
           {activeTab === 'clubs' && (
             <div>
               {myClubs.length === 0 ? (
-                <div className="bg-[#1A1D21] border border-[#282D33] rounded-3xl p-12 text-center text-sm text-[#8A94A0] shadow-md">
+                <div className="bg-[#121417] border border-[#1E2228] rounded-2xl p-12 text-center text-xs sm:text-sm text-[#7C8592] shadow-sm">
                   You haven't joined any campus clubs yet. Check out the Clubs tab!
                 </div>
               ) : (
@@ -307,15 +306,20 @@ export default function ProfilePage() {
                   {myClubs.map((club) => (
                     <div
                       key={club._id}
-                      className="bg-[#1A1D21] border border-[#282D33] rounded-2xl p-4 flex items-center justify-between shadow-sm hover:border-[#383F47] transition-all"
+                      className="bg-[#121417] border border-[#1E2228] rounded-2xl p-4 flex items-center justify-between shadow-sm hover:border-[#272C35] transition-all"
                     >
-                      <div>
-                        <h4 className="font-bold text-sm text-white">{club.name}</h4>
-                        <span className="text-[10px] text-[#C084FC] uppercase font-semibold">{club.category}</span>
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-9 h-9 rounded-xl bg-[#141B26] border border-[#60A5FA]/25 flex items-center justify-center font-mono font-bold text-xs text-[#60A5FA] flex-shrink-0">
+                          {club.category === 'tech' || (club.name || '').toLowerCase().includes('code') ? '</>' : club.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="font-bold text-sm text-white truncate">{club.name}</h4>
+                          <span className="text-[10px] text-[#A6B0BC] uppercase font-medium">{club.category}</span>
+                        </div>
                       </div>
                       <Link
                         to="/clubs"
-                        className="text-xs font-semibold text-[#E58A3C] hover:underline"
+                        className="text-xs font-semibold text-white hover:text-gray-300"
                       >
                         View Society
                       </Link>

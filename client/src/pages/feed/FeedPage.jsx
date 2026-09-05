@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { eventService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import Modal from '../../components/Modal';
@@ -17,20 +17,45 @@ import {
   Send,
   Calendar,
   Layers,
-  ChevronRight,
   AlertCircle,
   CheckCircle,
-  ShoppingBag,
+  ChevronDown,
+  Check,
+  Trophy,
+  Theater,
+  Briefcase,
 } from 'lucide-react';
 
 export default function FeedPage() {
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState('');
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
+  const categoryDropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target)) {
+        setCategoryDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Auto-open create modal if navigated with ?create=true
+  useEffect(() => {
+    if (searchParams.get('create') === 'true') {
+      setCreateModalOpen(true);
+      searchParams.delete('create');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams]);
 
   // Modals & form state
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -153,7 +178,7 @@ export default function FeedPage() {
   };
 
   const categories = [
-    { label: 'All Categories', value: '' },
+    { label: 'All Topics', value: '' },
     { label: 'Hackathon', value: 'hackathon' },
     { label: 'Project Team', value: 'project' },
     { label: 'Competition', value: 'competition' },
@@ -162,92 +187,128 @@ export default function FeedPage() {
   ];
 
   return (
-    <div className="max-w-7xl xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Main Feed Column */}
-        <div className="lg:col-span-8 space-y-6">
-          {/* Top Banner / Hero */}
-          <div className="bg-[#1A1D21] border border-[#282D33] rounded-2xl sm:rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 relative overflow-hidden shadow-xl">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#1E7A43]/5 rounded-full blur-3xl pointer-events-none" />
+    <div className="max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-4 sm:space-y-5">
+      {/* Top Search & Filter Bar */}
+      <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 items-stretch sm:items-center justify-between">
+        <div className="relative flex-1 w-full">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7C8592]" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search hackathons, project teams, competitions..."
+            className="w-full pl-10 pr-4 py-2.5 bg-[#121417] border border-[#20242B] rounded-xl text-xs sm:text-sm text-white placeholder-[#687280] focus:outline-none focus:border-[#383F4D] transition-all"
+          />
+        </div>
 
-            <div className="relative z-10 space-y-2">
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">
-                Form Teams, Build Projects, Win Hackathons
-              </h1>
-              <p className="text-xs sm:text-sm text-[#8A94A0] max-w-xl leading-relaxed">
-                Find teammates across departments with complementary skills.
-              </p>
-            </div>
-
+        <div className="flex items-center gap-2.5 flex-shrink-0">
+          {/* Category Dropdown */}
+          <div className="relative flex-1 sm:flex-initial" ref={categoryDropdownRef}>
             <button
-              onClick={() => setCreateModalOpen(true)}
-              className="w-full sm:w-auto relative z-10 flex items-center justify-center gap-2 px-5 py-3 rounded-xl sm:rounded-2xl bg-[#1E7A43] hover:bg-[#166534] text-white font-bold text-xs sm:text-sm transition-all shadow-md shadow-[#1E7A43]/20 flex-shrink-0 cursor-pointer"
+              type="button"
+              onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+              className="w-full sm:w-auto flex items-center justify-between gap-3 px-4 py-2.5 bg-[#121417] border border-[#20242B] hover:border-[#383F4D] rounded-xl text-xs sm:text-sm text-white transition-all cursor-pointer shadow-xs min-w-[180px]"
             >
-              <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span>Create Team Post</span>
+              <div className="flex items-center gap-2">
+                <Filter className="w-3.5 h-3.5 text-[#7C8592]" />
+                <span className="font-medium text-white truncate">
+                  {categories.find((c) => c.value === category)?.label || 'All Topics'}
+                </span>
+              </div>
+              <ChevronDown
+                className={`w-3.5 h-3.5 text-[#7C8592] transition-transform duration-200 flex-shrink-0 ${
+                  categoryDropdownOpen ? 'rotate-180' : ''
+                }`}
+              />
             </button>
+
+            {categoryDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-full sm:w-56 bg-[#121417] border border-[#20242B] rounded-2xl p-1.5 shadow-2xl z-40 animate-in fade-in slide-in-from-top-2 duration-150">
+                <div className="px-3 py-1.5 text-[10px] uppercase font-semibold text-[#7C8592] tracking-wider border-b border-[#1E2228] mb-1">
+                  Filter by Topic
+                </div>
+                <div className="max-h-60 overflow-y-auto space-y-0.5 scrollbar-none">
+                  {categories.map((c) => {
+                    const isSelected = category === c.value;
+                    return (
+                      <button
+                        key={c.value}
+                        type="button"
+                        onClick={() => {
+                          setCategory(c.value);
+                          setCategoryDropdownOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm transition-all cursor-pointer text-left ${
+                          isSelected
+                            ? 'bg-[#1C2027] text-white font-semibold'
+                            : 'text-[#A6B0BC] hover:text-white hover:bg-[#181B20]'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          {c.value === 'hackathon' ? (
+                            <span className="font-mono font-black text-xs text-[#60A5FA]">&lt;/&gt;</span>
+                          ) : c.value === 'project' ? (
+                            <Briefcase className="w-3.5 h-3.5 text-[#A78BFA]" />
+                          ) : c.value === 'competition' ? (
+                            <Trophy className="w-3.5 h-3.5 text-[#FBBF24]" />
+                          ) : c.value === 'cultural' ? (
+                            <Theater className="w-3.5 h-3.5 text-[#F472B6]" />
+                          ) : c.value === 'other' ? (
+                            <Sparkles className="w-3.5 h-3.5 text-[#94A3B8]" />
+                          ) : null}
+                          <span>{c.label}</span>
+                        </div>
+                        {isSelected && <Check className="w-3.5 h-3.5 text-white flex-shrink-0" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
+
+          {/* Create Post Button */}
+          <button
+            onClick={() => setCreateModalOpen(true)}
+            title="Create Post"
+            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#20242B] hover:bg-[#282D36] border border-[#2D333E] text-white text-xs sm:text-sm font-semibold whitespace-nowrap transition-all cursor-pointer flex-shrink-0 active:scale-98 shadow-xs"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Create Post</span>
+          </button>
+        </div>
+      </div>
 
           {feedback.message && (
             <div
-              className={`p-4 rounded-2xl border flex items-center gap-3 text-sm animate-fade-in ${
+              className={`p-3.5 rounded-xl border flex items-center gap-3 text-xs sm:text-sm animate-fade-in ${
                 feedback.type === 'success'
-                  ? 'bg-[#16221A] border-[#4ADE80]/30 text-[#4ADE80]'
-                  : 'bg-[#2B1818] border-[#3D2020] text-[#F87171]'
+                  ? 'bg-[#121E16] border-[#4ADE80]/30 text-[#4ADE80]'
+                  : 'bg-[#251515] border-[#FF6B6B]/30 text-[#FF6B6B]'
               }`}
             >
-              <CheckCircle className="w-5 h-5 flex-shrink-0" />
+              <CheckCircle className="w-4 h-4 flex-shrink-0" />
               <span>{feedback.message}</span>
             </div>
           )}
 
-          {/* Filters & Search */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8A94A0]" />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by topic, hackathon, or skills (e.g. React, Python)..."
-                className="w-full pl-10 pr-4 py-3 bg-[#1A1D21] border border-[#282D33] rounded-2xl text-sm text-[#E6E9EC] placeholder-[#8A94A0]/60 focus:outline-none focus:border-[#E58A3C] transition-all shadow-xs"
-              />
-            </div>
-
-            <div className="flex gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-              {categories.map((c) => (
-                <button
-                  key={c.value}
-                  onClick={() => setCategory(c.value)}
-                  className={`px-4 py-2.5 rounded-2xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                    category === c.value
-                      ? 'bg-[#1E2228] text-white border border-[#3A414A] shadow-xs font-bold'
-                      : 'bg-[#1A1D21] border border-[#282D33] text-[#8A94A0] hover:text-white hover:border-[#383F47] shadow-2xs'
-                  }`}
-                >
-                  {c.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* Feed List */}
           {loading ? (
-            <LoadingSpinner message="Fetching campus collaboration posts..." />
+            <LoadingSpinner message="Fetching posts..." />
           ) : events.length === 0 ? (
-            <div className="bg-[#1A1D21] border border-[#282D33] rounded-3xl p-12 text-center space-y-4 shadow-md">
-              <div className="w-12 h-12 rounded-2xl bg-[#23272D] border border-[#343A42] text-[#8A94A0] flex items-center justify-center mx-auto">
+            <div className="bg-[#121417] border border-[#1E2228] rounded-2xl p-12 text-center space-y-4 shadow-sm">
+              <div className="w-12 h-12 rounded-xl bg-[#1C1F26] border border-[#2B303A] text-[#7C8592] flex items-center justify-center mx-auto">
                 <Compass className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-bold text-white">No posts found</h3>
-              <p className="text-sm text-[#8A94A0] max-w-sm mx-auto">
+              <h3 className="text-base font-bold text-white">No posts found</h3>
+              <p className="text-xs text-[#7C8592] max-w-sm mx-auto">
                 {search || category
-                  ? 'Try adjusting your filters or search keywords.'
-                  : 'Be the first one to assemble a team for a hackathon or project!'}
+                  ? 'Try adjusting your search keywords or filter.'
+                  : 'Be the first one to create a team post!'}
               </p>
               <button
                 onClick={() => setCreateModalOpen(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1E7A43] text-white font-bold text-xs hover:bg-[#166534] transition-colors cursor-pointer shadow-md shadow-[#1E7A43]/20"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#20242B] hover:bg-[#282D36] border border-[#2E3542] text-white font-semibold text-xs transition-colors cursor-pointer"
               >
                 <Plus className="w-4 h-4" /> Create Post
               </button>
@@ -270,185 +331,142 @@ export default function FeedPage() {
                 return (
                   <div
                     key={post._id}
-                    className="bg-[#1A1D21] border border-[#282D33] hover:border-[#383F47] rounded-2xl sm:rounded-3xl p-4 sm:p-6 transition-all space-y-3 sm:space-y-4 shadow-md group"
+                    className="bg-[#121417] border border-[#1E2228] hover:border-[#272C35] rounded-2xl p-5 sm:p-6 transition-all space-y-3 shadow-sm group"
                   >
-                    {/* Post Creator Header */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2.5 sm:gap-3">
-                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#23272D] border border-[#343A42] text-white font-bold text-xs sm:text-sm flex items-center justify-center overflow-hidden flex-shrink-0">
+                    {/* Top: Topic (Title) & Category */}
+                    <div className="flex items-start justify-between gap-4">
+                      <Link
+                        to={`/events/${post._id}`}
+                        className="text-base sm:text-lg font-bold text-white hover:text-gray-200 transition-colors leading-snug"
+                      >
+                        {post.title}
+                      </Link>
+                      <span className="text-xs font-medium capitalize px-3 py-1 rounded-xl bg-[#181B20] text-[#A6B0BC] border border-[#242932] flex-shrink-0">
+                        {post.category}
+                      </span>
+                    </div>
+
+                    {/* Description */}
+                    <p className="text-xs sm:text-sm text-[#7C8592] leading-relaxed line-clamp-2">
+                      {post.description}
+                    </p>
+
+                    {/* Skills pills */}
+                    {post.skillsNeeded && post.skillsNeeded.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                        {post.skillsNeeded.map((skill, idx) => (
+                          <span
+                            key={idx}
+                            className="text-xs font-medium px-2.5 py-1 rounded-lg bg-[#181B20] text-[#A6B0BC] border border-[#242932]"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Bottom row: Naam (Creator Avatar + Name + Branch + Date) on left, Comments & Apply on right */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#1C1F26]">
+                      {/* Creator Info (Niche) */}
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-full bg-[#1C1F26] border border-[#2B303A] text-white font-bold text-xs flex items-center justify-center overflow-hidden flex-shrink-0">
                           {post.createdBy?.avatar ? (
                             <img
                               src={post.createdBy.avatar}
                               alt={post.createdBy.name}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-cover rounded-full"
                             />
                           ) : (
                             post.createdBy?.name?.charAt(0).toUpperCase() || 'U'
                           )}
                         </div>
                         <div>
-                          <h4 className="text-xs sm:text-sm font-bold text-white flex flex-wrap items-center gap-1.5">
-                            <span>{post.createdBy?.name || 'Anonymous Student'}</span>
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-xs sm:text-sm font-semibold text-white">
+                              {post.createdBy?.name || 'Aarav Sharma'}
+                            </h4>
                             {post.createdBy?.branch && (
-                              <span className="text-[9px] sm:text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#131518] text-[#8A94A0] border border-[#282D33]">
+                              <span className="text-[11px] text-[#7C8592] font-medium">
                                 {post.createdBy.branch}
                               </span>
                             )}
-                          </h4>
-                          <p className="text-[11px] sm:text-xs text-[#8A94A0]">
-                            Posted {new Date(post.createdAt).toLocaleDateString()}
+                          </div>
+                          <p className="text-[10px] text-[#5C6572]">
+                            {new Date(post.createdAt).toLocaleDateString('en-GB', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric',
+                            })}
                           </p>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1.5 sm:gap-2">
-                        <span
-                          className={`text-[10px] sm:text-xs font-semibold uppercase px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full border ${
-                            post.category === 'hackathon' || post.category === 'project'
-                              ? 'bg-[#18261F] text-[#4ADE80] border-[#4ADE80]/30'
-                              : post.category === 'competition'
-                              ? 'bg-[#162238] text-[#60A5FA] border-[#60A5FA]/30'
-                              : post.category === 'cultural'
-                              ? 'bg-[#241B38] text-[#C084FC] border-[#C084FC]/30'
-                              : 'bg-[#2B1818] text-[#FF6B6B] border-[#FF6B6B]/30'
-                          }`}
-                        >
-                          {post.category}
-                        </span>
-                        {post.status === 'closed' && (
-                          <span className="text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-[#2B1818] text-[#FF6B6B] border border-[#FF6B6B]/30">
-                            Closed
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Title & Body */}
-                    <div className="space-y-1.5">
-                      <Link
-                        to={`/events/${post._id}`}
-                        className="text-base sm:text-lg font-bold text-white hover:text-[#E58A3C] transition-colors block leading-snug"
-                      >
-                        {post.title}
-                      </Link>
-                      <p className="text-xs sm:text-sm text-[#8A94A0] whitespace-pre-line leading-relaxed">
-                        {post.description}
-                      </p>
-                    </div>
-
-                    {/* Skills needed & Meta */}
-                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-                      {post.skillsNeeded && post.skillsNeeded.length > 0 && (
-                        <div className="flex flex-wrap items-center gap-1.5">
-                          {post.skillsNeeded.map((skill, idx) => (
-                            <span
-                              key={idx}
-                              className="text-[11px] font-medium px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg bg-[#131518] text-[#4ADE80] border border-[#282D33]"
-                            >
-                              #{skill}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-[#8A94A0]">
-                        <div className="flex items-center gap-1 bg-[#131518] px-2.5 py-1 rounded-lg border border-[#282D33]">
-                          <Users className="w-3.5 h-3.5 text-[#4ADE80]" />
-                          <span>
-                            {post.approvedCount || 0} / {post.teamSize} joined
-                          </span>
-                        </div>
-
-                        {post.deadline && (
-                          <div className="flex items-center gap-1 bg-[#131518] px-2.5 py-1 rounded-lg border border-[#282D33]">
-                            <Clock className="w-3.5 h-3.5 text-[#F59E0B]" />
-                            <span>Due {new Date(post.deadline).toLocaleDateString()}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Actions Strip */}
-                    <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-[#252A30]">
-                      <div className="flex items-center gap-1.5 sm:gap-2">
-                        <button
-                          onClick={() => handleInterest(post._id)}
-                          className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-[#8A94A0] hover:text-[#E58A3C] hover:bg-[#23272D] transition-all cursor-pointer"
-                        >
-                          <ThumbsUp className="w-3.5 h-3.5" />
-                          <span>Interested</span>
-                        </button>
-
+                      {/* Comments & Apply Action */}
+                      <div className="flex items-center gap-3 sm:gap-4">
                         <button
                           onClick={() =>
                             setActiveCommentPostId(
                               activeCommentPostId === post._id ? null : post._id
                             )
                           }
-                          className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-[#8A94A0] hover:text-white hover:bg-[#23272D] transition-all cursor-pointer"
+                          className="flex items-center gap-1.5 text-xs text-[#7C8592] hover:text-white transition-colors cursor-pointer"
                         >
                           <MessageSquare className="w-3.5 h-3.5" />
-                          <span>Comments ({post.comments?.length || 0})</span>
-                        </button>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        {isOwner ? (
-                          <Link
-                            to={`/events/${post._id}`}
-                            className="flex items-center gap-1 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs font-bold bg-[#23272D] hover:bg-[#2C323A] text-white border border-[#282D33] transition-all"
-                          >
-                            <span>Manage ({post.applicants?.length || 0})</span>
-                            <ChevronRight className="w-3.5 h-3.5" />
-                          </Link>
-                        ) : hasApplied ? (
-                          <span
-                            className={`text-xs font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl capitalize border ${
-                              myApplication?.status === 'approved'
-                                ? 'bg-[#18261F] text-[#4ADE80] border-[#4ADE80]/30'
-                                : myApplication?.status === 'rejected'
-                                ? 'bg-[#2B1818] text-[#FF6B6B] border-[#FF6B6B]/30'
-                                : 'bg-[#2B2215] text-[#F59E0B] border-[#F59E0B]/30'
-                            }`}
-                          >
-                            {myApplication?.status || 'Pending'}
+                          <span>
+                            {post.comments?.length || 0}{' '}
+                            {post.comments?.length === 1 ? 'comment' : 'comments'}
                           </span>
-                        ) : post.status === 'closed' ? (
-                          <span className="text-xs text-[#8A94A0]">Team Full</span>
-                        ) : (
-                          <button
-                            onClick={() => {
-                              setSelectedEvent(post);
-                              setApplyModalOpen(true);
-                            }}
-                            className="px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs font-bold bg-[#1E7A43] hover:bg-[#166534] text-white transition-all shadow-md shadow-[#1E7A43]/20 cursor-pointer"
-                          >
-                            Apply to Join
-                          </button>
-                        )}
+                        </button>
+
+                        <div>
+                          {isOwner ? (
+                            <Link
+                              to={`/events/${post._id}`}
+                              className="px-4 py-2 rounded-xl text-xs font-semibold bg-[#20242B] hover:bg-[#282D36] text-white border border-[#2D333E] transition-all inline-block"
+                            >
+                              Manage ({post.applicants?.length || 0})
+                            </Link>
+                          ) : hasApplied ? (
+                            <span className="px-4 py-2 rounded-xl text-xs font-semibold bg-[#181B20] text-[#A6B0BC] border border-[#242932] capitalize inline-block">
+                              {myApplication?.status || 'Applied'}
+                            </span>
+                          ) : post.status === 'closed' ? (
+                            <span className="text-xs text-[#7C8592]">Closed</span>
+                          ) : (
+                            <button
+                              onClick={() => {
+                                setSelectedEvent(post);
+                                setApplyModalOpen(true);
+                              }}
+                              className="px-4 py-2 rounded-xl text-xs font-semibold bg-[#20242B] hover:bg-[#282D36] text-white border border-[#2D333E] transition-all cursor-pointer active:scale-98"
+                            >
+                              Apply to Join
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
 
-                    {/* Inline Comments Section */}
+                    {/* Inline Comments Drawer */}
                     {activeCommentPostId === post._id && (
-                      <div className="pt-4 mt-2 border-t border-[#252A30] space-y-3">
+                      <div className="pt-3 mt-2 border-t border-[#1E2228] space-y-3">
                         <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
                           {post.comments && post.comments.length > 0 ? (
                             post.comments.map((comment, idx) => (
-                              <div key={idx} className="flex gap-2 text-xs bg-[#131518] border border-[#252A30] p-2.5 rounded-xl">
-                                <div className="w-6 h-6 rounded-full bg-[#23272D] text-white font-bold flex items-center justify-center flex-shrink-0 text-[10px]">
+                              <div key={idx} className="flex gap-2 text-xs bg-[#0F1114] border border-[#1E2228] p-2.5 rounded-xl">
+                                <div className="w-6 h-6 rounded-full bg-[#1C1F26] text-white font-bold flex items-center justify-center flex-shrink-0 text-[10px]">
                                   {comment.user?.name?.charAt(0) || 'U'}
                                 </div>
                                 <div className="space-y-0.5">
                                   <span className="font-semibold text-white">
                                     {comment.user?.name || 'Student'}
                                   </span>
-                                  <p className="text-[#8A94A0]">{comment.text}</p>
+                                  <p className="text-[#7C8592]">{comment.text}</p>
                                 </div>
                               </div>
                             ))
                           ) : (
-                            <p className="text-xs text-[#8A94A0] italic">No comments yet. Ask a question below!</p>
+                            <p className="text-xs text-[#7C8592] italic">No comments yet.</p>
                           )}
                         </div>
 
@@ -460,11 +478,11 @@ export default function FeedPage() {
                               onChange={(e) => setCommentText(e.target.value)}
                               onKeyDown={(e) => e.key === 'Enter' && handleAddComment(post._id)}
                               placeholder="Ask a question or comment..."
-                              className="flex-1 px-3.5 py-2 rounded-xl bg-[#131518] border border-[#282D33] text-xs text-white placeholder-[#8A94A0]/60 focus:outline-none focus:border-[#E58A3C]"
+                              className="flex-1 px-3 py-2 rounded-xl bg-[#0F1114] border border-[#1E2228] text-xs text-white placeholder-[#687280] focus:outline-none focus:border-[#2D333E]"
                             />
                             <button
                               onClick={() => handleAddComment(post._id)}
-                              className="p-2 rounded-xl bg-[#1E7A43] text-white hover:bg-[#166534] cursor-pointer shadow-sm"
+                              className="px-3 py-2 rounded-xl bg-[#20242B] hover:bg-[#282D36] text-white border border-[#2D333E] cursor-pointer"
                             >
                               <Send className="w-3.5 h-3.5" />
                             </button>
@@ -477,120 +495,6 @@ export default function FeedPage() {
               })}
             </div>
           )}
-        </div>
-
-        {/* Right Sidebar Column (Sticky on Desktop) */}
-        <div className="hidden lg:block lg:col-span-4 space-y-6 sticky top-24 self-start">
-          {/* User Widget */}
-          {user && (
-            <div className="bg-[#1A1D21] border border-[#282D33] rounded-3xl p-6 space-y-4 shadow-md">
-              <div className="flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-2xl bg-[#23272D] border border-[#343A42] text-white font-black text-base flex items-center justify-center flex-shrink-0">
-                  {user.avatar ? (
-                    <img src={user.avatar} alt={user.name} className="w-full h-full object-cover rounded-2xl" />
-                  ) : (
-                    user.name?.charAt(0).toUpperCase() || 'U'
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-bold text-sm text-white truncate">{user.name}</h3>
-                  <p className="text-xs text-[#8A94A0] truncate">
-                    {user.branch || 'Campus Student'} • Sem {user.semester || 'N/A'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="p-3.5 bg-[#131518] rounded-2xl flex items-center justify-between border border-[#282D33]">
-                <span className="text-xs text-[#8A94A0] font-medium">Campus Score</span>
-                <span className="text-sm font-black text-[#F59E0B] flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-[#F59E0B]" />
-                  {user.campusScore || 0} pts
-                </span>
-              </div>
-
-              <Link
-                to="/profile"
-                className="block text-center py-2.5 rounded-xl text-xs font-bold text-white bg-[#1E2228] border border-[#2D333B] hover:border-[#E58A3C] hover:bg-[#23272D] transition-all shadow-2xs"
-              >
-                View Full Activity & Profile →
-              </Link>
-            </div>
-          )}
-
-          {/* In-Demand Skills Widget */}
-          <div className="bg-[#1A1D21] border border-[#282D33] rounded-3xl p-6 space-y-3 shadow-md">
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-sm text-white flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#E58A3C]" />
-                <span>Trending Skills</span>
-              </h3>
-              {search && (
-                <button
-                  onClick={() => setSearch('')}
-                  className="text-[11px] text-[#8A94A0] hover:text-white cursor-pointer"
-                >
-                  Clear filter
-                </button>
-              )}
-            </div>
-            <p className="text-xs text-[#8A94A0]">Click any skill tag to filter team posts</p>
-            <div className="flex flex-wrap gap-2 pt-1">
-              {['React', 'Python', 'AI/ML', 'PyTorch', 'UI/UX', 'Figma', 'Flutter', 'ROS', 'C++', 'Tailwind'].map((skill) => (
-                <button
-                  key={skill}
-                  onClick={() => setSearch(skill)}
-                  className={`text-xs font-semibold px-2.5 py-1 rounded-xl transition-all cursor-pointer ${
-                    search.toLowerCase() === skill.toLowerCase()
-                      ? 'bg-[#1E7A43] text-white shadow-xs border border-[#1E7A43]'
-                      : 'bg-[#131518] text-[#8A94A0] hover:text-[#4ADE80] hover:border-[#1E7A43]/40 border border-[#282D33]'
-                  }`}
-                >
-                  #{skill}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Quick Shortcuts Widget */}
-          <div className="bg-[#1A1D21] border border-[#282D33] rounded-3xl p-6 space-y-3 shadow-md">
-            <h3 className="font-bold text-sm text-white">Campus Quick Access</h3>
-            <div className="space-y-2">
-              <Link
-                to="/market"
-                className="flex items-center justify-between p-3 rounded-2xl bg-[#131518] hover:bg-[#23272D] transition-colors group border border-[#252A30] hover:border-[#282D33]"
-              >
-                <div className="flex items-center gap-2.5">
-                  <ShoppingBag className="w-4 h-4 text-[#F59E0B]" />
-                  <span className="text-xs font-semibold text-[#E6E9EC]">Student Marketplace</span>
-                </div>
-                <span className="text-xs text-[#8A94A0] group-hover:text-white transition-colors">Explore →</span>
-              </Link>
-
-              <Link
-                to="/lostfound"
-                className="flex items-center justify-between p-3 rounded-2xl bg-[#131518] hover:bg-[#23272D] transition-colors group border border-[#252A30] hover:border-[#282D33]"
-              >
-                <div className="flex items-center gap-2.5">
-                  <Search className="w-4 h-4 text-[#60A5FA]" />
-                  <span className="text-xs font-semibold text-[#E6E9EC]">Lost & Found Board</span>
-                </div>
-                <span className="text-xs text-[#8A94A0] group-hover:text-white transition-colors">Explore →</span>
-              </Link>
-
-              <Link
-                to="/clubs"
-                className="flex items-center justify-between p-3 rounded-2xl bg-[#131518] hover:bg-[#23272D] transition-colors group border border-[#252A30] hover:border-[#282D33]"
-              >
-                <div className="flex items-center gap-2.5">
-                  <Users className="w-4 h-4 text-[#C084FC]" />
-                  <span className="text-xs font-semibold text-[#E6E9EC]">Student Societies</span>
-                </div>
-                <span className="text-xs text-[#8A94A0] group-hover:text-white transition-colors">Explore →</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Create Team Post Modal */}
       <Modal
@@ -601,7 +505,7 @@ export default function FeedPage() {
       >
         <form onSubmit={handleCreatePost} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-[#8A94A0] uppercase mb-1.5">
+            <label className="block text-xs font-semibold text-[#7C8592] uppercase mb-1.5">
               Post Title
             </label>
             <input
@@ -610,12 +514,12 @@ export default function FeedPage() {
               value={newPost.title}
               onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
               placeholder="e.g. Smart India Hackathon: Need Frontend & ML Teammate"
-              className="w-full px-4 py-2.5 bg-[#131518] border border-[#282D33] rounded-xl text-sm text-white placeholder-[#8A94A0]/50 focus:outline-none focus:border-[#E58A3C]"
+              className="w-full px-4 py-2.5 bg-[#0F1114] border border-[#1E2228] rounded-xl text-sm text-white placeholder-[#7C8592]/50 focus:outline-none focus:border-[#3D4554]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#8A94A0] uppercase mb-1.5">
+            <label className="block text-xs font-semibold text-[#7C8592] uppercase mb-1.5">
               Description & Requirements
             </label>
             <textarea
@@ -624,19 +528,19 @@ export default function FeedPage() {
               value={newPost.description}
               onChange={(e) => setNewPost({ ...newPost, description: e.target.value })}
               placeholder="Describe the problem, hackathon theme, and what skills you are looking for..."
-              className="w-full px-4 py-2.5 bg-[#131518] border border-[#282D33] rounded-xl text-sm text-white placeholder-[#8A94A0]/50 focus:outline-none focus:border-[#E58A3C]"
+              className="w-full px-4 py-2.5 bg-[#0F1114] border border-[#1E2228] rounded-xl text-sm text-white placeholder-[#7C8592]/50 focus:outline-none focus:border-[#3D4554]"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-[#8A94A0] uppercase mb-1.5">
+              <label className="block text-xs font-semibold text-[#7C8592] uppercase mb-1.5">
                 Category
               </label>
               <select
                 value={newPost.category}
                 onChange={(e) => setNewPost({ ...newPost, category: e.target.value })}
-                className="w-full px-4 py-2.5 bg-[#131518] border border-[#282D33] rounded-xl text-sm text-white focus:outline-none focus:border-[#E58A3C] cursor-pointer"
+                className="w-full px-4 py-2.5 bg-[#0F1114] border border-[#1E2228] rounded-xl text-sm text-white focus:outline-none focus:border-[#3D4554] cursor-pointer"
               >
                 <option value="hackathon">Hackathon</option>
                 <option value="project">Course / Capstone Project</option>
@@ -647,7 +551,7 @@ export default function FeedPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#8A94A0] uppercase mb-1.5">
+              <label className="block text-xs font-semibold text-[#7C8592] uppercase mb-1.5">
                 Teammates Needed
               </label>
               <input
@@ -657,13 +561,13 @@ export default function FeedPage() {
                 required
                 value={newPost.teamSize}
                 onChange={(e) => setNewPost({ ...newPost, teamSize: e.target.value })}
-                className="w-full px-4 py-2.5 bg-[#131518] border border-[#282D33] rounded-xl text-sm text-white focus:outline-none focus:border-[#E58A3C]"
+                className="w-full px-4 py-2.5 bg-[#0F1114] border border-[#1E2228] rounded-xl text-sm text-white focus:outline-none focus:border-[#3D4554]"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#8A94A0] uppercase mb-1.5">
+            <label className="block text-xs font-semibold text-[#7C8592] uppercase mb-1.5">
               Skills Needed (Comma-separated)
             </label>
             <input
@@ -671,19 +575,19 @@ export default function FeedPage() {
               value={newPost.skillsNeeded}
               onChange={(e) => setNewPost({ ...newPost, skillsNeeded: e.target.value })}
               placeholder="React, Flutter, Python, Figma, Pitching"
-              className="w-full px-4 py-2.5 bg-[#131518] border border-[#282D33] rounded-xl text-sm text-white placeholder-[#8A94A0]/50 focus:outline-none focus:border-[#E58A3C]"
+              className="w-full px-4 py-2.5 bg-[#0F1114] border border-[#1E2228] rounded-xl text-sm text-white placeholder-[#7C8592]/50 focus:outline-none focus:border-[#3D4554]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#8A94A0] uppercase mb-1.5">
+            <label className="block text-xs font-semibold text-[#7C8592] uppercase mb-1.5">
               Deadline (Optional)
             </label>
             <input
               type="date"
               value={newPost.deadline}
               onChange={(e) => setNewPost({ ...newPost, deadline: e.target.value })}
-              className="w-full px-4 py-2.5 bg-[#131518] border border-[#282D33] rounded-xl text-sm text-white focus:outline-none focus:border-[#E58A3C]"
+              className="w-full px-4 py-2.5 bg-[#0F1114] border border-[#1E2228] rounded-xl text-sm text-white focus:outline-none focus:border-[#3D4554]"
             />
           </div>
 
@@ -691,14 +595,14 @@ export default function FeedPage() {
             <button
               type="button"
               onClick={() => setCreateModalOpen(false)}
-              className="px-4 py-2.5 rounded-xl text-xs font-semibold text-[#8A94A0] hover:text-white bg-[#23272D] cursor-pointer"
+              className="px-4 py-2.5 rounded-xl text-xs font-semibold text-[#A6B0BC] hover:text-white bg-[#181B20] border border-[#242932] cursor-pointer transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={actionLoading}
-              className="px-6 py-2.5 rounded-xl text-xs font-bold bg-[#1E7A43] hover:bg-[#166534] text-white transition-all shadow-md shadow-[#1E7A43]/20 disabled:opacity-50 cursor-pointer"
+              className="px-6 py-2.5 rounded-xl text-xs font-bold bg-[#20242B] hover:bg-[#282D36] text-white border border-[#2D333E] transition-all disabled:opacity-50 cursor-pointer"
             >
               {actionLoading ? 'Publishing...' : 'Publish Post'}
             </button>
@@ -713,11 +617,11 @@ export default function FeedPage() {
         title={`Apply to "${selectedEvent?.title}"`}
       >
         <form onSubmit={handleApply} className="space-y-4">
-          <p className="text-xs text-[#8A94A0]">
+          <p className="text-xs text-[#7C8592]">
             Introduce yourself and tell the team owner why you're a good fit. If they accept your request, a direct chat will open!
           </p>
           <div>
-            <label className="block text-xs font-semibold text-[#8A94A0] uppercase mb-1.5">
+            <label className="block text-xs font-semibold text-[#7C8592] uppercase mb-1.5">
               Pitch / Message
             </label>
             <textarea
@@ -726,7 +630,7 @@ export default function FeedPage() {
               value={applyMessage}
               onChange={(e) => setApplyMessage(e.target.value)}
               placeholder="Hi! I am a 3rd-year CSE student with strong React & Node experience. I have built 2 hackathon projects previously..."
-              className="w-full px-4 py-2.5 bg-[#131518] border border-[#282D33] rounded-xl text-sm text-white placeholder-[#8A94A0]/50 focus:outline-none focus:border-[#1E7A43]"
+              className="w-full px-4 py-2.5 bg-[#0F1114] border border-[#1E2228] rounded-xl text-sm text-white placeholder-[#7C8592]/50 focus:outline-none focus:border-[#3D4554]"
             />
           </div>
 
@@ -734,14 +638,14 @@ export default function FeedPage() {
             <button
               type="button"
               onClick={() => setApplyModalOpen(false)}
-              className="px-4 py-2.5 rounded-xl text-xs font-semibold text-[#8A94A0] bg-[#23272D] hover:text-white cursor-pointer"
+              className="px-4 py-2.5 rounded-xl text-xs font-semibold text-[#A6B0BC] bg-[#181B20] border border-[#242932] hover:text-white cursor-pointer transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={actionLoading}
-              className="px-6 py-2.5 rounded-xl text-xs font-bold bg-[#1E7A43] hover:bg-[#166534] text-white transition-all shadow-md shadow-[#1E7A43]/20 disabled:opacity-50 cursor-pointer"
+              className="px-6 py-2.5 rounded-xl text-xs font-bold bg-[#20242B] hover:bg-[#282D36] text-white border border-[#2D333E] transition-all disabled:opacity-50 cursor-pointer"
             >
               {actionLoading ? 'Sending...' : 'Send Application'}
             </button>

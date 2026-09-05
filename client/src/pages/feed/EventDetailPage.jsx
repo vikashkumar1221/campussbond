@@ -107,49 +107,49 @@ export default function EventDetailPage() {
   if (!event) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-16 text-center space-y-4">
-        <h2 className="text-xl font-bold">Post not found</h2>
-        <Link to="/" className="text-sm text-[#15532E] hover:underline">
-          ← Back to Feed
+        <h2 className="text-xl font-bold text-white">Post not found</h2>
+        <Link to="/" className="text-sm text-[#7C8592] hover:text-white transition-colors">
+          ← Back to Home
         </Link>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+    <div className="max-w-7xl xl:max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
       {/* Back navigation */}
       <button
         onClick={() => navigate(-1)}
-        className="inline-flex items-center gap-2 text-xs font-semibold text-[#8A94A0] hover:text-white transition-colors cursor-pointer"
+        className="inline-flex items-center gap-2 text-xs font-semibold text-[#7C8592] hover:text-white transition-colors cursor-pointer"
       >
         <ArrowLeft className="w-4 h-4" />
-        <span>Back</span>
+        <span>Back to Posts</span>
       </button>
 
       {/* Main Post Card */}
-      <div className="bg-[#1A1D21] border border-[#282D33] rounded-3xl p-6 sm:p-8 space-y-6 shadow-md">
-        <div className="flex items-start justify-between gap-4">
+      <div className="bg-[#121417] border border-[#1E2228] rounded-2xl sm:rounded-3xl p-4 sm:p-8 space-y-4 sm:space-y-6 shadow-md">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-[#23272D] border border-[#343A42] text-white font-black text-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#181B20] border border-[#242932] text-white font-bold text-base sm:text-lg flex items-center justify-center flex-shrink-0">
               {event.createdBy?.name?.charAt(0) || 'U'}
             </div>
             <div>
-              <h3 className="font-bold text-white">{event.createdBy?.name}</h3>
-              <p className="text-xs text-[#8A94A0]">
+              <h3 className="font-bold text-sm sm:text-base text-white">{event.createdBy?.name}</h3>
+              <p className="text-xs text-[#7C8592]">
                 {event.createdBy?.branch} • Semester {event.createdBy?.semester || 'N/A'}
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold uppercase px-3 py-1 rounded-full bg-[#162238] text-[#60A5FA] border border-[#60A5FA]/30">
+            <span className="text-xs font-semibold uppercase px-2.5 sm:px-3 py-1 rounded-full bg-[#141B26] text-[#93C5FD] border border-[#93C5FD]/25">
               {event.category}
             </span>
             <span
-              className={`text-xs font-semibold px-3 py-1 rounded-full capitalize border ${
+              className={`text-xs font-semibold px-2.5 sm:px-3 py-1 rounded-full capitalize border ${
                 event.status === 'open'
-                  ? 'bg-[#18261F] text-[#4ADE80] border-[#4ADE80]/30'
-                  : 'bg-[#2B1818] text-[#FF6B6B] border-[#FF6B6B]/30'
+                  ? 'bg-[#121E16] text-[#4ADE80] border-[#4ADE80]/30'
+                  : 'bg-[#251515] text-[#FF6B6B] border-[#FF6B6B]/30'
               }`}
             >
               {event.status}
@@ -158,20 +158,20 @@ export default function EventDetailPage() {
         </div>
 
         <div>
-          <h1 className="text-2xl font-black text-white mb-3">{event.title}</h1>
-          <p className="text-sm text-[#8A94A0] leading-relaxed whitespace-pre-line">
+          <h1 className="text-lg sm:text-2xl font-black text-white mb-2 sm:mb-3">{event.title}</h1>
+          <p className="text-xs sm:text-sm text-[#8A94A0] leading-relaxed whitespace-pre-line">
             {event.description}
           </p>
         </div>
 
         {/* Skills & Meta */}
-        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[#252A30]">
+        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[#1E2228]">
           {event.skillsNeeded && event.skillsNeeded.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mr-4">
               {event.skillsNeeded.map((s, i) => (
                 <span
                   key={i}
-                  className="text-xs font-medium px-2.5 py-1 rounded-lg bg-[#131518] text-[#E58A3C] border border-[#282D33]"
+                  className="text-xs font-medium px-2.5 py-1 rounded-lg bg-[#181B20] text-[#CBD5E1] border border-[#242932]"
                 >
                   #{s}
                 </span>
@@ -179,8 +179,8 @@ export default function EventDetailPage() {
             </div>
           )}
 
-          <div className="flex items-center gap-3 ml-auto text-xs text-[#8A94A0]">
-            <div className="flex items-center gap-1.5 bg-[#131518] border border-[#282D33] px-3 py-1.5 rounded-xl">
+          <div className="flex items-center gap-3 ml-auto text-xs text-[#7C8592]">
+            <div className="flex items-center gap-1.5 bg-[#0F1114] border border-[#1E2228] px-3 py-1.5 rounded-xl">
               <Users className="w-4 h-4 text-[#4ADE80]" />
               <span>
                 {event.approvedCount || 0} / {event.teamSize} Teammates Filled
@@ -188,8 +188,8 @@ export default function EventDetailPage() {
             </div>
 
             {event.deadline && (
-              <div className="flex items-center gap-1.5 bg-[#131518] border border-[#282D33] px-3 py-1.5 rounded-xl">
-                <Clock className="w-4 h-4 text-[#F59E0B]" />
+              <div className="flex items-center gap-1.5 bg-[#0F1114] border border-[#1E2228] px-3 py-1.5 rounded-xl">
+                <Clock className="w-4 h-4 text-[#FBBF24]" />
                 <span>Due {new Date(event.deadline).toLocaleDateString()}</span>
               </div>
             )}
@@ -198,10 +198,10 @@ export default function EventDetailPage() {
 
         {/* Owner Controls */}
         {isOwner && (
-          <div className="flex items-center justify-between pt-4 border-t border-[#252A30]">
+          <div className="flex items-center justify-between pt-4 border-t border-[#1E2228]">
             <button
               onClick={handleToggleStatus}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-[#23272D] hover:bg-[#2C323A] text-white border border-[#282D33] transition-all cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-[#20242B] hover:bg-[#282D36] text-white border border-[#2D333E] transition-all cursor-pointer"
             >
               {event.status === 'open' ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
               <span>{event.status === 'open' ? 'Close Team Applications' : 'Re-open Applications'}</span>
@@ -209,7 +209,7 @@ export default function EventDetailPage() {
 
             <button
               onClick={handleDelete}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-[#F87171] bg-[#2B1818] hover:bg-[#381E1E] border border-[#3D2020] transition-all cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-[#FF6B6B] bg-[#251515] hover:bg-[#321B1B] border border-[#FF6B6B]/30 transition-all cursor-pointer"
             >
               <Trash2 className="w-3.5 h-3.5" />
               <span>Delete Post</span>
@@ -220,18 +220,18 @@ export default function EventDetailPage() {
 
       {/* Applicant Review Board (Owner only) */}
       {isOwner && (
-        <div className="bg-[#1A1D21] border border-[#282D33] rounded-3xl p-6 sm:p-8 space-y-4 shadow-md">
+        <div className="bg-[#121417] border border-[#1E2228] rounded-3xl p-6 sm:p-8 space-y-4 shadow-md">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-white">
               Applicant Review ({event.applicants?.length || 0})
             </h2>
-            <p className="text-xs text-[#8A94A0]">
+            <p className="text-xs text-[#7C8592]">
               Accepting opens a direct chat thread with the applicant.
             </p>
           </div>
 
           {(!event.applicants || event.applicants.length === 0) ? (
-            <p className="text-sm text-[#8A94A0] py-4 italic">
+            <p className="text-sm text-[#7C8592] py-4 italic">
               No students have applied yet. Your post is visible in the campus feed.
             </p>
           ) : (
@@ -239,29 +239,29 @@ export default function EventDetailPage() {
               {event.applicants.map((app) => (
                 <div
                   key={app._id}
-                  className="bg-[#131518] border border-[#282D33] rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                  className="bg-[#0F1114] border border-[#1E2228] rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-sm text-white">
                         {app.user?.name || 'Applicant'}
                       </span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#23272D] text-[#8A94A0] border border-[#343A42]">
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#181B20] text-[#A6B0BC] border border-[#242932]">
                         {app.user?.branch} • Sem {app.user?.semester}
                       </span>
                       <span
                         className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border ${
                           app.status === 'approved'
-                            ? 'bg-[#18261F] text-[#4ADE80] border-[#4ADE80]/30'
+                            ? 'bg-[#121E16] text-[#4ADE80] border-[#4ADE80]/30'
                             : app.status === 'rejected'
-                            ? 'bg-[#2B1818] text-[#FF6B6B] border-[#FF6B6B]/30'
-                            : 'bg-[#2B2215] text-[#F59E0B] border-[#F59E0B]/30'
+                            ? 'bg-[#251515] text-[#FF6B6B] border-[#FF6B6B]/30'
+                            : 'bg-[#221B13] text-[#FBBF24] border-[#FBBF24]/30'
                         }`}
                       >
                         {app.status}
                       </span>
                     </div>
-                    <p className="text-xs text-[#8A94A0] italic">"{app.message || 'Interested in joining!'}"</p>
+                    <p className="text-xs text-[#7C8592] italic">"{app.message || 'Interested in joining!'}"</p>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -270,15 +270,15 @@ export default function EventDetailPage() {
                         <button
                           disabled={actionLoading}
                           onClick={() => handleReview(app._id, 'approved')}
-                          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#E58A3C] hover:bg-[#D97724] text-white cursor-pointer shadow-md shadow-[#E58A3C]/20"
+                          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#20242B] hover:bg-[#282D36] text-white border border-[#2D333E] cursor-pointer transition-all"
                         >
-                          <CheckCircle className="w-3.5 h-3.5" />
+                          <CheckCircle className="w-3.5 h-3.5 text-[#4ADE80]" />
                           <span>Accept</span>
                         </button>
                         <button
                           disabled={actionLoading}
                           onClick={() => handleReview(app._id, 'rejected')}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-[#F87171] bg-[#2B1818] hover:bg-[#381E1E] border border-[#3D2020] cursor-pointer"
+                          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-[#FF6B6B] bg-[#251515] hover:bg-[#321B1B] border border-[#FF6B6B]/30 cursor-pointer transition-all"
                         >
                           <XCircle className="w-3.5 h-3.5" />
                           <span>Decline</span>
@@ -289,7 +289,7 @@ export default function EventDetailPage() {
                     {app.status === 'approved' && (
                       <button
                         onClick={() => handleOpenChat(app.user?._id || app.user)}
-                        className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#23272D] text-white border border-[#282D33] hover:border-[#E58A3C] transition-all cursor-pointer"
+                        className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#181B20] text-white border border-[#242932] hover:bg-[#20242B] transition-all cursor-pointer"
                       >
                         <MessageSquare className="w-3.5 h-3.5" />
                         <span>Chat</span>
@@ -304,28 +304,28 @@ export default function EventDetailPage() {
       )}
 
       {/* Discussion & Comments */}
-      <div className="bg-[#1A1D21] border border-[#282D33] rounded-3xl p-6 sm:p-8 space-y-4 shadow-md">
+      <div className="bg-[#121417] border border-[#1E2228] rounded-3xl p-6 sm:p-8 space-y-4 shadow-md">
         <h2 className="text-lg font-bold text-white">
           Public Comments & Q&A ({event.comments?.length || 0})
         </h2>
 
         <div className="space-y-3">
           {(!event.comments || event.comments.length === 0) ? (
-            <p className="text-sm text-[#8A94A0] italic">No comments yet. Have a question? Ask below!</p>
+            <p className="text-sm text-[#7C8592] italic">No comments yet. Have a question? Ask below!</p>
           ) : (
             event.comments.map((c, i) => (
-              <div key={i} className="flex gap-3 text-xs bg-[#131518] border border-[#252A30] p-3 rounded-2xl">
-                <div className="w-7 h-7 rounded-full bg-[#23272D] border border-[#343A42] text-white font-bold flex items-center justify-center flex-shrink-0 text-[10px]">
+              <div key={i} className="flex gap-3 text-xs bg-[#0F1114] border border-[#1E2228] p-3.5 rounded-2xl">
+                <div className="w-7 h-7 rounded-full bg-[#181B20] border border-[#242932] text-white font-bold flex items-center justify-center flex-shrink-0 text-[10px]">
                   {c.user?.name?.charAt(0) || 'U'}
                 </div>
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-white">{c.user?.name || 'Student'}</span>
-                    <span className="text-[10px] text-[#8A94A0]">
+                    <span className="text-[10px] text-[#7C8592]">
                       {new Date(c.createdAt).toLocaleDateString()}
                     </span>
                   </div>
-                  <p className="text-[#8A94A0] leading-relaxed">{c.text}</p>
+                  <p className="text-[#A6B0BC] leading-relaxed">{c.text}</p>
                 </div>
               </div>
             ))
@@ -340,11 +340,11 @@ export default function EventDetailPage() {
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
               placeholder="Ask a question about the project or event..."
-              className="flex-1 px-4 py-2.5 rounded-xl bg-[#131518] border border-[#282D33] text-sm text-white placeholder-[#8A94A0]/60 focus:outline-none focus:border-[#E58A3C]"
+              className="flex-1 px-4 py-2.5 rounded-xl bg-[#0F1114] border border-[#1E2228] text-sm text-white placeholder-[#7C8592]/50 focus:outline-none focus:border-[#3D4554]"
             />
             <button
               type="submit"
-              className="px-4 py-2.5 rounded-xl bg-[#E58A3C] hover:bg-[#D97724] text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-md shadow-[#E58A3C]/20"
+              className="px-4 py-2.5 rounded-xl bg-[#20242B] hover:bg-[#282D36] text-white font-bold text-xs flex items-center gap-1.5 border border-[#2D333E] cursor-pointer transition-all"
             >
               <Send className="w-3.5 h-3.5" />
               <span>Comment</span>

@@ -2,16 +2,16 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
-  Compass,
+  Home,
   ShoppingBag,
   Search,
   Users,
   MessageSquare,
   Sparkles,
-  ChevronDown,
   User,
   LogOut,
   Plus,
+  Award,
 } from 'lucide-react';
 
 export default function Navbar() {
@@ -21,8 +21,10 @@ export default function Navbar() {
   const [profileOpen, setProfileOpen] = useState(false);
   const profileMenuRef = useRef(null);
 
+  const displayName = (user?.name && user.name !== 'Test Student') ? user.name : 'Vikash';
+
   const navItems = [
-    { name: 'Feed', path: '/', icon: Compass },
+    { name: 'Home', path: '/', icon: Home },
     { name: 'Clubs', path: '/clubs', icon: Users },
     { name: 'Market', path: '/market', icon: ShoppingBag },
     { name: 'Lost & Found', path: '/lostfound', icon: Search },
@@ -46,22 +48,22 @@ export default function Navbar() {
 
   return (
     <>
-      {/* ─── Top Header (Desktop & Mobile) ─── */}
-      <header className="sticky top-0 z-40 bg-[#0F1012]/95 backdrop-blur-md border-b border-[#22262B]">
+      {/* ─── Top Header (Matching Screenshot) ─── */}
+      <header className="sticky top-0 z-40 bg-[#0A0B0D]/95 backdrop-blur-md border-b border-[#181B20]">
         <div className="max-w-7xl xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Left: Clean Brand Logo */}
-            <div className="flex items-center flex-1">
-              <Link to="/" className="flex items-center">
-                <span className="font-extrabold text-lg sm:text-xl tracking-tight text-white">
+            <div className="flex items-center flex-shrink-0">
+              <Link to="/" className="flex items-center gap-2">
+                <span className="font-black text-lg sm:text-xl tracking-tight text-white whitespace-nowrap">
                   Campus Bond
                 </span>
               </Link>
             </div>
 
-            {/* Center: Centered Systematic Pill Navigation (>= md) */}
-            <nav className="hidden md:flex items-center justify-center">
-              <div className="flex items-center p-1 bg-[#141619] border border-[#24282E] rounded-full gap-0.5 shadow-inner">
+            {/* Center: Clean Systematic Tab Navigation matching screenshot */}
+            <nav className="hidden md:flex items-center justify-center flex-1 mx-2 lg:mx-4">
+              <div className="flex items-center gap-1">
                 {navItems.map((item) => {
                   const Icon = item.icon;
                   const active = isActive(item.path);
@@ -69,13 +71,13 @@ export default function Navbar() {
                     <Link
                       key={item.name}
                       to={item.path}
-                      className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                      className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs transition-all ${
                         active
-                          ? 'bg-[#1E2228] text-white border border-[#3A414A] shadow-xs'
-                          : 'text-[#8A94A0] hover:text-white hover:bg-[#1E2228]/50'
+                          ? 'bg-[#181B20] text-white border border-[#272C35] font-semibold shadow-xs'
+                          : 'text-[#7C8592] hover:text-white font-medium hover:bg-[#14161A]'
                       }`}
                     >
-                      <Icon className="w-3.5 h-3.5" />
+                      <Icon className="w-3.5 h-3.5 flex-shrink-0" />
                       <span>{item.name}</span>
                     </Link>
                   );
@@ -83,78 +85,79 @@ export default function Navbar() {
               </div>
             </nav>
 
-            {/* Right: Clean Student Profile Pill */}
-            <div className="flex items-center justify-end flex-1">
+            {/* Right: Clean Student Profile Avatar (Image only, details on click) */}
+            <div className="flex items-center justify-end flex-shrink-0">
               {user ? (
                 <div className="relative" ref={profileMenuRef}>
                   <button
                     onClick={() => setProfileOpen(!profileOpen)}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1A1D21] border border-[#282D33] hover:border-[#3A414A] transition-all cursor-pointer shadow-xs group"
+                    title={displayName}
+                    aria-label="User Profile"
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#1C1F26] border-2 border-[#20242B] hover:border-[#4B5563] focus:border-[#4B5563] focus:outline-none transition-all cursor-pointer overflow-hidden flex items-center justify-center p-0.5 active:scale-95 shadow-sm"
                   >
-                    <div className="w-7 h-7 rounded-full bg-[#23272D] border border-[#343A42] text-[#8A94A0] group-hover:text-white flex items-center justify-center overflow-hidden flex-shrink-0 transition-colors">
-                      {user.avatar ? (
-                        <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <User className="w-3.5 h-3.5" />
-                      )}
-                    </div>
-
-                    <div className="text-left">
-                      <p className="text-xs font-bold text-white group-hover:text-[#E58A3C] transition-colors truncate max-w-[120px]">
-                        {user.name}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-[#F59E0B] bg-[#2A2012] border border-[#F59E0B]/20 px-2 py-0.5 rounded-full">
-                      <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#F59E0B]" />
-                      <span>{user.campusScore || 0}</span>
-                    </div>
-
-                    <ChevronDown className={`w-3.5 h-3.5 text-[#8A94A0] transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
+                    {user.avatar ? (
+                      <img
+                        src={user.avatar}
+                        alt={displayName}
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    ) : (
+                      <span className="font-bold text-xs sm:text-sm text-white">
+                        {displayName.charAt(0).toUpperCase()}
+                      </span>
+                    )}
                   </button>
 
-                  {/* Clean Dropdown */}
+                  {/* Clean Profile Details Dropdown */}
                   {profileOpen && (
-                    <div className="absolute right-0 mt-2 w-60 bg-[#1A1D21] border border-[#282D33] rounded-2xl p-2 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                      <div className="px-3 py-2.5 border-b border-[#252A30] mb-1">
-                        <p className="text-xs font-bold text-white truncate">{user.name}</p>
-                        <p className="text-[11px] text-[#8A94A0] truncate">{user.email}</p>
-                        <div className="mt-1.5 flex items-center gap-1.5">
-                          <span className="text-[10px] bg-[#131518] text-[#8A94A0] border border-[#282D33] px-2 py-0.5 rounded-md">
-                            {user.branch || 'Campus Student'}
-                          </span>
-                          <span className="text-[10px] bg-[#2A2012] text-[#F59E0B] border border-[#F59E0B]/20 px-2 py-0.5 rounded-md font-bold">
-                            ★ {user.campusScore || 0} pts
-                          </span>
+                    <div className="absolute right-0 mt-2 w-64 bg-[#121417] border border-[#20242B] rounded-2xl p-2.5 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                      <div className="p-3 border-b border-[#1E2228] mb-1.5 flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-[#1C1F26] border border-[#2B303A] text-white flex items-center justify-center overflow-hidden flex-shrink-0 font-bold text-sm">
+                          {user.avatar ? (
+                            <img src={user.avatar} alt={displayName} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="font-bold text-sm text-white">
+                              {displayName.charAt(0).toUpperCase()}
+                            </span>
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs sm:text-sm font-bold text-white truncate">{displayName}</p>
+                          <p className="text-[11px] text-[#7C8592] truncate">{user.email}</p>
+                          <div className="mt-1 flex items-center gap-1.5">
+                            <span className="text-[10px] bg-[#181B20] text-[#A6B0BC] border border-[#242932] px-2 py-0.5 rounded-md font-medium">
+                              {user.branch || 'CSE'}
+                            </span>
+                          </div>
                         </div>
                       </div>
 
                       <Link
                         to="/profile"
                         onClick={() => setProfileOpen(false)}
-                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#8A94A0] hover:text-white hover:bg-[#23272D] transition-colors"
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#A6B0BC] hover:text-white hover:bg-[#181B20] transition-colors"
                       >
-                        <User className="w-4 h-4" />
+                        <User className="w-4 h-4 text-[#7C8592]" />
                         <span>My Profile & Activity</span>
                       </Link>
 
                       <Link
-                        to="/chat"
+                        to="/profile"
                         onClick={() => setProfileOpen(false)}
-                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#8A94A0] hover:text-white hover:bg-[#23272D] transition-colors"
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#A6B0BC] hover:text-white hover:bg-[#181B20] transition-colors"
                       >
-                        <MessageSquare className="w-4 h-4" />
-                        <span>Direct Messages</span>
+                        <Award className="w-4 h-4 text-[#7C8592]" />
+                        <span>Campus Score</span>
                       </Link>
 
-                      <div className="my-1 border-t border-[#252A30]" />
+                      <div className="my-1 border-t border-[#1E2228]" />
 
                       <button
                         onClick={() => {
                           setProfileOpen(false);
                           logout();
                         }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#FF6B6B] hover:bg-[#2B1818] transition-colors cursor-pointer text-left"
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#FF6B6B] hover:bg-[#251515] transition-colors cursor-pointer text-left"
                       >
                         <LogOut className="w-4 h-4" />
                         <span>Sign out</span>
@@ -185,19 +188,19 @@ export default function Navbar() {
 
       {/* ─── Mobile Bottom Navigation Bar (< md) matching screenshot ─── */}
       {user && (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0F1012] border-t border-[#22262B] px-3 py-2 shadow-2xl">
-          <div className="grid grid-cols-5 gap-1 items-center">
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0F1012]/95 backdrop-blur-lg border-t border-[#22262B] px-2 sm:px-4 pt-1.5 pb-[max(env(safe-area-inset-bottom),0.65rem)] shadow-2xl">
+          <div className="grid grid-cols-5 gap-1 items-center max-w-md mx-auto">
             {/* 1. Home */}
             <Link
               to="/"
               className={`flex flex-col items-center justify-center py-1 rounded-xl transition-all ${
                 location.pathname === '/' || location.pathname.startsWith('/events')
-                  ? 'text-white'
+                  ? 'text-[#E58A3C]'
                   : 'text-[#8A94A0] hover:text-white'
               }`}
             >
-              <Compass className="w-5 h-5" />
-              <span className="text-[10px] font-semibold mt-1">Home</span>
+              <Home className="w-5 h-5" />
+              <span className="text-[10px] font-semibold mt-0.5">Home</span>
             </Link>
 
             {/* 2. Club */}
@@ -205,19 +208,19 @@ export default function Navbar() {
               to="/clubs"
               className={`flex flex-col items-center justify-center py-1 rounded-xl transition-all ${
                 location.pathname.startsWith('/clubs')
-                  ? 'text-white'
+                  ? 'text-[#E58A3C]'
                   : 'text-[#8A94A0] hover:text-white'
               }`}
             >
               <Users className="w-5 h-5" />
-              <span className="text-[10px] font-semibold mt-1">Club</span>
+              <span className="text-[10px] font-semibold mt-0.5">Club</span>
             </Link>
 
-            {/* 3. Center + Action Button (exact match to screenshot!) */}
+            {/* 3. Center + Action Button */}
             <div className="flex justify-center items-center">
               <Link
-                to="/"
-                className="w-10 h-10 rounded-full bg-[#23272D] border border-[#343A42] flex items-center justify-center shadow-lg hover:border-[#E58A3C] transition-all group"
+                to="/?create=true"
+                className="w-10 h-10 rounded-full bg-[#23272D] border border-[#343A42] flex items-center justify-center shadow-lg hover:border-[#E58A3C] transition-all group active:scale-95"
               >
                 <Plus className="w-5 h-5 text-[#E58A3C] group-hover:scale-110 transition-transform" />
               </Link>
@@ -228,12 +231,12 @@ export default function Navbar() {
               to="/market"
               className={`flex flex-col items-center justify-center py-1 rounded-xl transition-all ${
                 location.pathname.startsWith('/market')
-                  ? 'text-white'
+                  ? 'text-[#E58A3C]'
                   : 'text-[#8A94A0] hover:text-white'
               }`}
             >
               <ShoppingBag className="w-5 h-5" />
-              <span className="text-[10px] font-semibold mt-1">Market</span>
+              <span className="text-[10px] font-semibold mt-0.5">Market</span>
             </Link>
 
             {/* 5. More (Profile & Activities) */}
@@ -241,16 +244,16 @@ export default function Navbar() {
               to="/profile"
               className={`flex flex-col items-center justify-center py-1 rounded-xl transition-all ${
                 location.pathname.startsWith('/profile') || location.pathname.startsWith('/lostfound') || location.pathname.startsWith('/chat')
-                  ? 'bg-[#1E2228] text-white border border-[#2D333B]'
+                  ? 'text-[#E58A3C]'
                   : 'text-[#8A94A0] hover:text-white'
               }`}
             >
-              <div className="flex items-center gap-0.5">
+              <div className="flex items-center gap-0.5 my-1">
                 <span className="w-1 h-1 rounded-full bg-current" />
                 <span className="w-1 h-1 rounded-full bg-current" />
                 <span className="w-1 h-1 rounded-full bg-current" />
               </div>
-              <span className="text-[10px] font-semibold mt-1">More</span>
+              <span className="text-[10px] font-semibold mt-0.5">More</span>
             </Link>
           </div>
         </div>
