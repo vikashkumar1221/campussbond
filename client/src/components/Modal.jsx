@@ -28,24 +28,24 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 'ma
 
       <div className="flex min-h-full items-center justify-center p-3 sm:p-4 text-center">
         <div
-          className={`relative transform rounded-2xl sm:rounded-3xl bg-white border-2 border-gray-200 text-gray-900 shadow-2xl text-left transition-all w-full ${maxWidth} max-h-[88vh] flex flex-col my-auto sm:my-8 overflow-hidden`}
+          className={`relative transform rounded-2xl sm:rounded-3xl bg-white dark:bg-[#0E1626] border-2 border-gray-200 dark:border-slate-800 text-gray-900 dark:text-slate-100 shadow-2xl text-left transition-all w-full ${maxWidth} max-h-[88vh] flex flex-col my-auto sm:my-8 overflow-hidden`}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 bg-gray-50/50 flex-shrink-0">
-            <h3 className="font-display text-base sm:text-lg font-bold text-gray-950 truncate pr-2 tracking-tight">
+          <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 flex-shrink-0">
+            <h3 className="font-display text-base sm:text-lg font-bold text-gray-950 dark:text-white truncate pr-2 tracking-tight">
               {title}
             </h3>
             <button
               onClick={onClose}
-              className="rounded-xl p-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors cursor-pointer flex-shrink-0"
+              className="rounded-xl p-1.5 text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors cursor-pointer flex-shrink-0"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* Content */}
-          <div className="px-4 sm:px-6 py-4 sm:py-5 text-gray-900 overflow-y-auto flex-1">
+          <div className="px-4 sm:px-6 py-4 sm:py-5 text-gray-900 dark:text-slate-100 overflow-y-auto flex-1">
             {children}
           </div>
         </div>

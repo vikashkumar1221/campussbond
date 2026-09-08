@@ -27,10 +27,10 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white border-2 border-gray-200 rounded-3xl p-8 shadow-xl relative overflow-hidden text-gray-900">
+    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 sm:p-6">
+      <div className="w-full max-w-md bg-white border border-gray-200/90 hover:border-gray-300 rounded-3xl p-8 sm:p-10 shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden text-gray-900">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#E8F8F0] border border-[#05A86B]/30 text-[#05A86B] mb-4 shadow-sm">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gray-100 border border-gray-200 text-gray-950 mb-4 shadow-sm">
             <GraduationCap className="w-7 h-7" />
           </div>
           <h1 className="text-2xl font-black text-gray-950 tracking-tight">Welcome Back</h1>
@@ -45,27 +45,27 @@ export default function Login() {
         )}
 
         {/* Quick Demo Credentials Box */}
-        <div className="mb-6 p-3.5 rounded-2xl bg-gray-50 border border-gray-200">
-          <div className="text-xs text-gray-500 font-medium mb-2.5 flex items-center justify-between">
+        <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-gray-50/90 border border-gray-200 hover:border-gray-300 transition-all duration-200">
+          <div className="text-xs text-gray-500 font-medium mb-3 flex items-center justify-between">
             <span className="font-bold text-gray-700">Quick Demo Accounts:</span>
             <span className="text-[10px] bg-white text-gray-700 font-bold px-2 py-0.5 rounded-md border border-gray-200">1-Click Fill</span>
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2.5">
             <button
               type="button"
               onClick={() => setFormData({ email: 'student@campusbond.edu', password: 'password123' })}
-              className="p-2.5 text-left bg-white hover:bg-gray-50 border border-gray-200 hover:border-[#05A86B] rounded-xl transition-all cursor-pointer group shadow-2xs"
+              className="p-3 text-left bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-400 hover:shadow-sm rounded-xl transition-all duration-200 cursor-pointer group shadow-2xs"
             >
-              <div className="text-xs font-bold text-gray-900 group-hover:text-[#05A86B] transition-colors">Aarav (Student)</div>
-              <div className="text-[11px] text-gray-500 truncate">student@campusbond.edu</div>
+              <div className="text-xs font-bold text-gray-900 group-hover:text-black transition-colors">Aarav (Student)</div>
+              <div className="text-[11px] text-gray-500 truncate mt-0.5">student@campusbond.edu</div>
             </button>
             <button
               type="button"
               onClick={() => setFormData({ email: 'test@campusbond.edu', password: 'password123' })}
-              className="p-2.5 text-left bg-white hover:bg-gray-50 border border-gray-200 hover:border-[#05A86B] rounded-xl transition-all cursor-pointer group shadow-2xs"
+              className="p-3 text-left bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-400 hover:shadow-sm rounded-xl transition-all duration-200 cursor-pointer group shadow-2xs"
             >
-              <div className="text-xs font-bold text-gray-900 group-hover:text-[#05A86B] transition-colors">Vikash (Test)</div>
-              <div className="text-[11px] text-gray-500 truncate">test@campusbond.edu</div>
+              <div className="text-xs font-bold text-gray-900 group-hover:text-black transition-colors">Vikash (Test)</div>
+              <div className="text-[11px] text-gray-500 truncate mt-0.5">test@campusbond.edu</div>
             </button>
           </div>
         </div>
@@ -85,7 +85,7 @@ export default function Login() {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="student@campusbond.edu"
-                className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#05A86B] transition-all"
+                className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#0B1528] transition-all"
               />
             </div>
           </div>
@@ -104,7 +104,7 @@ export default function Login() {
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#05A86B] transition-all"
+                className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#0B1528] transition-all"
               />
             </div>
           </div>
@@ -112,7 +112,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-2 py-3.5 px-4 bg-[#05A86B] hover:bg-[#048E5A] text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-[#05A86B]/25 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-98"
+            className="w-full mt-2 py-3.5 px-4 bg-[#0B1528] hover:bg-black text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-98"
           >
             {loading ? (
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -127,7 +127,7 @@ export default function Login() {
 
         <div className="mt-8 text-center text-xs text-gray-500">
           Don't have an account yet?{' '}
-          <Link to="/register" className="font-bold text-[#05A86B] hover:underline">
+          <Link to="/register" className="font-bold text-[#0B1528] hover:underline">
             Register with college ID
           </Link>
         </div>

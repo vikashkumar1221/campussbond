@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { lostFoundService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import Modal from '../../components/Modal';
@@ -21,12 +22,23 @@ import {
 
 export default function LostFoundPage() {
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlType = searchParams.get('type') || '';
+  const urlCategory = searchParams.get('category') || '';
 
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [typeFilter, setTypeFilter] = useState(''); // '' | 'lost' | 'found'
-  const [categoryFilter, setCategoryFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState(urlType);
+  const [categoryFilter, setCategoryFilter] = useState(urlCategory);
   const [search, setSearch] = useState('');
+
+  // Keep state in sync with URL searchParams
+  useEffect(() => {
+    const t = searchParams.get('type') || '';
+    const c = searchParams.get('category') || '';
+    setTypeFilter(t);
+    setCategoryFilter(c);
+  }, [searchParams]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -127,251 +139,169 @@ export default function LostFoundPage() {
     }
   };
 
-  const categories = [
-    { label: 'All Items', value: '' },
-    { label: 'Electronics', value: 'electronics' },
-    { label: 'ID Cards', value: 'id-card' },
-    { label: 'Keys', value: 'keys' },
-    { label: 'Books', value: 'books' },
-    { label: 'Accessories', value: 'accessories' },
-    { label: 'Clothing', value: 'clothing' },
-    { label: 'Other', value: 'other' },
-  ];
 
   return (
-    <div className="max-w-7xl xl:max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
-      {/* Header Banner */}
-      <div className="bg-white border-2 border-gray-200 rounded-2xl p-6 sm:p-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs relative overflow-hidden">
-        <div className="space-y-1.5 relative z-10">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-[#05A86B] bg-[#E8F8F0] px-3 py-1 rounded-xl border border-[#05A86B]/30">
-            Campus Recovery
-          </span>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-950">
-            Lost & Found Board
-          </h1>
-          <p className="text-xs sm:text-sm text-gray-500 max-w-xl leading-relaxed">
-            Lost your student ID, calculator, or water bottle? Report lost items or help fellow students recover belongings found on campus.
-          </p>
+    <div className="w-full max-w-7xl xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
+      {/* ─── Search & Actions Bar (Matching Home) ─── */}
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+        <div className="relative flex-1 w-full group">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500 group-hover:text-gray-600 dark:group-hover:text-slate-300 transition-colors" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search lost IDs, calculators, keys, bottles, headphones..."
+            className="w-full pl-11 pr-5 py-3 sm:py-3.5 bg-white dark:bg-[#0E1626] border border-gray-200 dark:border-slate-800 hover:border-gray-400 dark:hover:border-slate-600 focus:border-[#0B1528] dark:focus:border-blue-500 rounded-2xl text-xs sm:text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none transition-all duration-200 shadow-2xs hover:shadow-sm"
+          />
         </div>
 
         <button
           onClick={() => setModalOpen(true)}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#05A86B] hover:bg-[#048E5A] text-white font-bold text-xs sm:text-sm transition-all flex-shrink-0 cursor-pointer active:scale-98 shadow-md shadow-[#05A86B]/20"
+          title="Report Item"
+          className="flex items-center justify-center gap-2 px-6 py-3 sm:py-3.5 rounded-2xl bg-[#0B1528] dark:bg-blue-600 hover:bg-black dark:hover:bg-blue-500 text-white text-xs sm:text-sm font-bold tracking-tight whitespace-nowrap transition-all duration-200 cursor-pointer flex-shrink-0 active:scale-98 shadow-sm hover:shadow-md"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-4 h-4 stroke-[3]" />
           <span>Report Item</span>
         </button>
       </div>
 
-      {/* Tabs & Filters */}
-      <div className="flex flex-col lg:flex-row gap-2.5 sm:gap-3 items-stretch lg:items-center justify-between">
-        <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 flex-1 items-stretch sm:items-center">
-          {/* Type Toggle: All / Lost / Found */}
-          <div className="flex bg-gray-100 p-1 rounded-xl border border-gray-200 shadow-xs flex-shrink-0">
-            {[
-              { label: 'All', value: '' },
-              { label: 'Lost Items', value: 'lost' },
-              { label: 'Found Items', value: 'found' },
-            ].map((tab) => (
-              <button
-                key={tab.value}
-                onClick={() => setTypeFilter(tab.value)}
-                className={`flex-1 sm:flex-initial px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs font-medium transition-all cursor-pointer ${
-                  typeFilter === tab.value
-                    ? 'bg-white text-gray-950 border border-gray-200 font-bold shadow-xs'
-                    : 'text-gray-600 hover:text-gray-950'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Search */}
-          <div className="relative flex-1 w-full">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by title or description..."
-              className="w-full pl-10 pr-4 py-2 sm:py-2.5 bg-white border-2 border-gray-200 rounded-xl text-xs sm:text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#05A86B] transition-all"
-            />
-          </div>
-        </div>
-
-        {/* Category Dropdown */}
-        <div className="relative flex-shrink-0" ref={dropdownRef}>
-          <button
-            type="button"
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="w-full sm:w-auto flex items-center justify-between gap-3 px-4 py-2.5 bg-white border-2 border-gray-200 hover:border-gray-300 rounded-xl text-xs sm:text-sm text-gray-900 transition-all cursor-pointer shadow-xs min-w-[190px]"
-          >
-            <div className="flex items-center gap-2">
-              <Filter className="w-3.5 h-3.5 text-gray-500" />
-              <span className="font-semibold text-gray-900 truncate">
-                {categories.find((c) => c.value === categoryFilter)?.label || 'All Categories'}
-              </span>
+      {/* ─── Reports Feed (Full Width, Matching Home) ─── */}
+      <div className="w-full space-y-4">
+        {loading ? (
+          <LoadingSpinner message="Loading lost & found reports..." />
+        ) : items.length === 0 ? (
+          <div className="bg-white border border-gray-300 rounded-3xl p-12 text-center space-y-4 shadow-xs">
+            <div className="w-14 h-14 rounded-2xl bg-gray-100 border border-gray-200 text-gray-700 flex items-center justify-center mx-auto shadow-xs">
+              <Search className="w-7 h-7" />
             </div>
-            <ChevronDown
-              className={`w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0 ${
-                dropdownOpen ? 'rotate-180' : ''
-              }`}
-            />
-          </button>
+            <h3 className="font-display text-lg font-bold text-gray-950 tracking-tight">No reports found</h3>
+            <p className="text-xs sm:text-sm text-gray-500 max-w-sm mx-auto font-normal">
+              {search || categoryFilter || typeFilter
+                ? 'Try adjusting your search keywords or topic filter.'
+                : 'No items currently reported. You can post a report anytime.'}
+            </p>
+            <button
+              onClick={() => setModalOpen(true)}
+              className="font-display inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-[#0B1528] dark:bg-blue-600 hover:bg-black dark:hover:bg-blue-500 text-white font-bold text-xs sm:text-sm tracking-tight transition-all shadow-md cursor-pointer active:scale-95"
+            >
+              <Plus className="w-4 h-4 stroke-[3]" /> Report Item
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4 sm:gap-5 w-full">
+            {items.map((item) => {
+              const isOwner = user && (item.createdBy?._id || item.createdBy) === user._id;
 
-          {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-full sm:w-60 bg-white border-2 border-gray-200 rounded-2xl p-1.5 shadow-xl z-40 animate-in fade-in slide-in-from-top-2 duration-150">
-              <div className="px-3 py-1.5 text-[10px] uppercase font-bold text-gray-500 tracking-wider border-b border-gray-100 mb-1">
-                Filter by Category
-              </div>
-              <div className="max-h-64 overflow-y-auto space-y-0.5 scrollbar-none">
-                {categories.map((c) => {
-                  const isSelected = categoryFilter === c.value;
-                  return (
-                    <button
-                      key={c.value}
-                      type="button"
-                      onClick={() => {
-                        setCategoryFilter(c.value);
-                        setDropdownOpen(false);
-                      }}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm transition-all cursor-pointer text-left ${
-                        isSelected
-                          ? 'bg-[#E8F8F0] text-[#05A86B] font-bold'
-                          : 'text-gray-700 hover:text-gray-950 hover:bg-gray-50'
-                      }`}
-                    >
-                      <span>{c.label}</span>
-                      {isSelected && <Check className="w-3.5 h-3.5 text-[#05A86B] flex-shrink-0" />}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Grid */}
-      {loading ? (
-        <LoadingSpinner message="Loading lost & found reports..." />
-      ) : items.length === 0 ? (
-        <div className="bg-white border-2 border-gray-200 rounded-2xl p-12 text-center space-y-4 shadow-xs">
-          <Search className="w-10 h-10 text-gray-400 mx-auto" />
-          <h3 className="text-base sm:text-lg font-bold text-gray-900">No reports found</h3>
-          <p className="text-xs sm:text-sm text-gray-500">No items match the selected filters.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-          {items.map((item) => {
-            const isOwner = user && (item.createdBy?._id || item.createdBy) === user._id;
-
-            return (
-              <div
-                key={item._id}
-                className="bg-white border-2 border-gray-200 hover:border-gray-300 rounded-2xl overflow-hidden transition-all flex flex-col justify-between group shadow-xs hover:shadow-md"
-              >
-                <div>
-                  {/* Photo if available */}
-                  {item.image ? (
-                    <div className="h-48 w-full bg-gray-100 relative overflow-hidden">
-                      <img
-                        src={item.image.startsWith('http') ? item.image : `${item.image}`}
-                        alt={item.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute top-3 left-3">
-                        <span
-                          className={`text-[11px] font-bold uppercase px-3 py-1 rounded-xl shadow-xs border ${
-                            item.type === 'lost'
-                              ? 'bg-[#FDF2F8] text-[#D946EF] border-[#D946EF]/30'
-                              : 'bg-[#E8F8F0] text-[#05A86B] border-[#05A86B]/30'
-                          }`}
-                        >
-                          {item.type}
-                        </span>
-                      </div>
+              return (
+                <div
+                  key={item._id}
+                  className="w-full bg-white dark:bg-[#0E1626] border border-gray-300 dark:border-slate-800/90 hover:border-gray-400 dark:hover:border-slate-700 rounded-2xl sm:rounded-3xl p-6 sm:p-8 transition-all duration-300 ease-out space-y-4 sm:space-y-5 shadow-xs hover:shadow-xl hover:-translate-y-1 group cursor-pointer relative"
+                >
+                  {/* Top: Title & Type/Category Badges */}
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <h3 className="font-bold text-lg sm:text-xl text-gray-950 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-snug tracking-tight truncate">
+                        {item.title}
+                      </h3>
+                      {item.location && (
+                        <div className="flex items-center gap-1.5 mt-1 text-xs text-gray-500 dark:text-slate-400 font-medium">
+                          <MapPin className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500 flex-shrink-0" />
+                          <span>{item.location}</span>
+                        </div>
+                      )}
                     </div>
-                  ) : (
-                    <div className="p-5 pb-0 flex items-center justify-between">
+
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       <span
-                        className={`text-[11px] font-bold uppercase px-3 py-1 rounded-xl border ${
+                        className={`font-mono-code text-[10.5px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border shadow-2xs ${
                           item.type === 'lost'
-                            ? 'bg-[#FDF2F8] text-[#D946EF] border-[#D946EF]/30'
-                            : 'bg-[#E8F8F0] text-[#05A86B] border-[#05A86B]/30'
+                            ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/60'
+                            : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60'
                         }`}
                       >
                         {item.type}
                       </span>
-                      <span className="text-xs text-gray-700 font-semibold capitalize px-2.5 py-0.5 rounded-lg bg-gray-100 border border-gray-200">
+                      <span className="font-mono-code text-[10.5px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border shadow-2xs bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-200 dark:border-slate-700">
                         {item.category}
                       </span>
                     </div>
+                  </div>
+
+                  {/* Photo if present */}
+                  {item.image && (
+                    <div className="h-48 sm:h-64 w-full rounded-2xl bg-gray-100 dark:bg-slate-800/50 overflow-hidden border border-gray-200/80 dark:border-slate-800">
+                      <img
+                        src={item.image.startsWith('http') ? item.image : `${item.image}`}
+                        alt={item.title}
+                        className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
+                      />
+                    </div>
                   )}
 
-                  {/* Body details */}
-                  <div className="p-5 space-y-2.5">
-                    <h3 className="font-bold text-base text-gray-950 group-hover:text-gray-800 transition-colors">
-                      {item.title}
-                    </h3>
-                    {item.description && (
-                      <p className="text-xs text-gray-600 line-clamp-3 leading-relaxed">
-                        {item.description}
-                      </p>
-                    )}
+                  {/* Description */}
+                  {item.description && (
+                    <p className="text-sm text-gray-600 dark:text-slate-300 leading-relaxed font-normal">
+                      {item.description}
+                    </p>
+                  )}
 
-                    <div className="space-y-1.5 pt-2 text-xs text-gray-500">
-                      {item.location && (
-                        <div className="flex items-center gap-1.5 text-gray-700 font-medium">
-                          <MapPin className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-                          <span>{item.location}</span>
-                        </div>
-                      )}
+                  {/* Bottom Footer: Reporter Info & Actions */}
+                  <div className="pt-4 sm:pt-5 border-t border-gray-100 dark:border-slate-800 flex items-center justify-between gap-4 text-xs text-gray-500 dark:text-slate-400">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-gray-200 to-gray-100 dark:from-slate-700 dark:to-slate-800 border border-gray-300 dark:border-slate-700 flex items-center justify-center font-bold text-gray-700 dark:text-slate-300 flex-shrink-0 text-xs shadow-2xs">
+                        {item.createdBy?.name ? item.createdBy.name[0].toUpperCase() : 'U'}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-gray-900 dark:text-white truncate">
+                          {item.createdBy?.name || 'Campus Student'}
+                        </p>
+                        <p className="text-[11px] text-gray-600 dark:text-slate-400 truncate">
+                          {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'Recently'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
                       {item.contact && (
-                        <div className="flex items-center gap-1.5 text-gray-950 font-bold">
-                          <Phone className="w-3.5 h-3.5 text-[#05A86B] flex-shrink-0" />
-                          <span>{item.contact}</span>
-                        </div>
+                        <a
+                          href={`tel:${item.contact.replace(/[^0-9+]/g, '')}`}
+                          className="font-display inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold tracking-tight bg-[#0B1528] dark:bg-blue-600 hover:bg-black dark:hover:bg-blue-500 text-white shadow-xs hover:shadow-md transition-all cursor-pointer active:scale-95"
+                        >
+                          <Phone className="w-3.5 h-3.5" />
+                          <span>Contact ({item.contact})</span>
+                        </a>
+                      )}
+
+                      {isOwner && (
+                        <button
+                          onClick={() => handleToggleStatus(item._id, item.status)}
+                          className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer border ${
+                            item.status === 'resolved'
+                              ? 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-200 dark:border-slate-700 hover:bg-gray-200'
+                              : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60 hover:bg-emerald-100'
+                          }`}
+                        >
+                          {item.status === 'resolved' ? 'Reopen' : 'Mark Resolved'}
+                        </button>
+                      )}
+
+                      {isOwner && (
+                        <button
+                          onClick={() => handleDelete(item._id)}
+                          className="p-2 rounded-xl text-gray-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                          title="Delete Report"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       )}
                     </div>
                   </div>
                 </div>
-
-                {/* Footer status / actions */}
-                <div className="p-5 pt-3 border-t border-gray-200 flex items-center justify-between">
-                  <span
-                    className={`text-[11px] font-bold px-2.5 py-0.5 rounded-lg capitalize border ${
-                      item.status === 'resolved'
-                        ? 'bg-gray-100 text-gray-500 border-gray-200 line-through'
-                        : 'bg-[#E8F8F0] text-[#05A86B] border-[#05A86B]/30'
-                    }`}
-                  >
-                    {item.status === 'resolved' ? 'Resolved' : 'Active Report'}
-                  </span>
-
-                  {isOwner && (
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        onClick={() => handleToggleStatus(item._id, item.status)}
-                        className="px-2.5 py-1 rounded-xl text-[11px] font-semibold bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-200 transition-colors cursor-pointer"
-                      >
-                        {item.status === 'resolved' ? 'Reopen' : 'Mark Resolved'}
-                      </button>
-                      <button
-                        onClick={() => handleDelete(item._id)}
-                        className="p-1.5 rounded-xl text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       {/* Report Item Modal */}
       <Modal
@@ -397,7 +327,7 @@ export default function LostFoundPage() {
               onClick={() => setFormData({ ...formData, type: 'found' })}
               className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
                 formData.type === 'found'
-                  ? 'bg-[#E8F8F0] text-[#05A86B] border-[#05A86B] shadow-xs'
+                  ? 'bg-[#0B1528] text-white border-[#0B1528] shadow-xs'
                   : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
               }`}
             >
@@ -415,7 +345,7 @@ export default function LostFoundPage() {
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               placeholder="e.g. Casio fx-991EX Calculator with black pouch"
-              className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 focus:border-[#05A86B] rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
+              className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 focus:border-[#0B1528] rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
             />
           </div>
 
@@ -427,7 +357,7 @@ export default function LostFoundPage() {
               <select
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 focus:border-[#05A86B] rounded-xl text-sm text-gray-900 focus:outline-none cursor-pointer"
+                className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 focus:border-[#0B1528] rounded-xl text-sm text-gray-900 focus:outline-none cursor-pointer"
               >
                 <option value="electronics">Electronics</option>
                 <option value="id-card">ID Card</option>
@@ -448,7 +378,7 @@ export default function LostFoundPage() {
                 value={formData.location}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                 placeholder="e.g. Central Library, 2nd Fl"
-                className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 focus:border-[#05A86B] rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
+                className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 focus:border-[#0B1528] rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
               />
             </div>
           </div>
@@ -462,7 +392,7 @@ export default function LostFoundPage() {
               value={formData.contact}
               onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
               placeholder="e.g. +91 9876543210 or Room 204 B-Block"
-              className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 focus:border-[#05A86B] rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
+              className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 focus:border-[#0B1528] rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
             />
           </div>
 
@@ -475,7 +405,7 @@ export default function LostFoundPage() {
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="Distinctive marks, stickers, color, time seen..."
-              className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 focus:border-[#05A86B] rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
+              className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 focus:border-[#0B1528] rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
             />
           </div>
 
@@ -502,7 +432,7 @@ export default function LostFoundPage() {
             <button
               type="submit"
               disabled={actionLoading}
-              className="px-6 py-2 rounded-xl text-xs font-bold bg-[#05A86B] hover:bg-[#048E5A] text-white transition-all disabled:opacity-50 cursor-pointer shadow-md shadow-[#05A86B]/20"
+              className="px-6 py-2.5 rounded-2xl text-xs font-bold bg-[#0B1528] hover:bg-black text-white transition-all disabled:opacity-50 cursor-pointer shadow-sm hover:shadow-md"
             >
               {actionLoading ? 'Submitting...' : 'Post Report'}
             </button>

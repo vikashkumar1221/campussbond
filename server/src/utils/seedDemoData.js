@@ -10,16 +10,21 @@ export async function seedDemoDataIfEmpty() {
     await User.updateMany({ email: 'test@campusbond.edu' }, { $set: { name: 'Vikash' } });
 
     const eventCount = await Event.countDocuments();
-    if (eventCount > 0) {
-      // Database already has data
+    if (eventCount >= 20) {
+      // Database already has full data
       return;
     }
 
-    console.log('🌱 Seeding sample campus data for demo...');
+    if (eventCount > 0 && eventCount < 20) {
+      console.log('🔄 Refreshing sample events to full 20 posts...');
+      await Event.deleteMany({});
+    }
+
+    console.log('🌱 Seeding 20 realistic campus team formation posts for demo...');
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash('password123', salt);
 
-    // 1. Ensure a demo student user exists
+    // 1. Ensure student users exist
     let demoUser = await User.findOne({ email: 'student@campusbond.edu' });
     if (!demoUser) {
       demoUser = await User.create({
@@ -59,7 +64,98 @@ export async function seedDemoDataIfEmpty() {
       });
     }
 
-    // 2. Seed Team Collaboration / Hackathon Posts
+    let rohanUser = await User.findOne({ email: 'rohan@campusbond.edu' });
+    if (!rohanUser) {
+      rohanUser = await User.create({
+        name: 'Rohan Verma',
+        email: 'rohan@campusbond.edu',
+        passwordHash,
+        branch: 'Mechanical',
+        semester: 6,
+        isVerified: true,
+        campusScore: 90,
+      });
+    }
+
+    let priyaUser = await User.findOne({ email: 'priya@campusbond.edu' });
+    if (!priyaUser) {
+      priyaUser = await User.create({
+        name: 'Priya Singh',
+        email: 'priya@campusbond.edu',
+        passwordHash,
+        branch: 'ECE',
+        semester: 4,
+        isVerified: true,
+        campusScore: 110,
+      });
+    }
+
+    let kabirUser = await User.findOne({ email: 'kabir@campusbond.edu' });
+    if (!kabirUser) {
+      kabirUser = await User.create({
+        name: 'Kabir Mehra',
+        email: 'kabir@campusbond.edu',
+        passwordHash,
+        branch: 'Design & Media',
+        semester: 5,
+        isVerified: true,
+        campusScore: 75,
+      });
+    }
+
+    let nehaUser = await User.findOne({ email: 'neha@campusbond.edu' });
+    if (!nehaUser) {
+      nehaUser = await User.create({
+        name: 'Neha Patel',
+        email: 'neha@campusbond.edu',
+        passwordHash,
+        branch: 'EEE',
+        semester: 6,
+        isVerified: true,
+        campusScore: 105,
+      });
+    }
+
+    let adityaUser = await User.findOne({ email: 'aditya@campusbond.edu' });
+    if (!adityaUser) {
+      adityaUser = await User.create({
+        name: 'Aditya Roy',
+        email: 'aditya@campusbond.edu',
+        passwordHash,
+        branch: 'IT',
+        semester: 5,
+        isVerified: true,
+        campusScore: 95,
+      });
+    }
+
+    let siddharthUser = await User.findOne({ email: 'siddharth@campusbond.edu' });
+    if (!siddharthUser) {
+      siddharthUser = await User.create({
+        name: 'Siddharth Jain',
+        email: 'siddharth@campusbond.edu',
+        passwordHash,
+        branch: 'CSE',
+        semester: 3,
+        isVerified: true,
+        campusScore: 60,
+      });
+    }
+
+    let tanviUser = await User.findOne({ email: 'tanvi@campusbond.edu' });
+    if (!tanviUser) {
+      tanviUser = await User.create({
+        name: 'Tanvi Kulkarni',
+        email: 'tanvi@campusbond.edu',
+        passwordHash,
+        branch: 'Civil & Env',
+        semester: 5,
+        isVerified: true,
+        campusScore: 80,
+      });
+    }
+
+    // 2. Seed 20 Team Collaboration / Hackathon Posts
     await Event.create([
       {
         title: 'Smart India Hackathon 2026: Need Frontend & ML Teammates',
@@ -82,6 +178,10 @@ export async function seedDemoDataIfEmpty() {
           {
             user: devUser._id,
             text: 'Is this project targeting the software or hardware edition?',
+          },
+          {
+            user: testUser._id,
+            text: 'Can I join as a frontend contributor?',
           },
         ],
       },
@@ -120,7 +220,215 @@ export async function seedDemoDataIfEmpty() {
         teamSize: 5,
         deadline: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
         status: 'open',
+        createdBy: kabirUser._id,
+        applicants: [],
+        comments: [],
+      },
+      {
+        title: 'NASA Space Apps Challenge 2026: Satellite Data Visualizer',
+        description:
+          'Developing a high-performance 3D Earth observation web app to track deforestation and urban heat islands using Copernicus satellite imagery. Seeking a Three.js / WebGL dev and a Python spatial data geek.',
+        category: 'hackathon',
+        skillsNeeded: ['Three.js', 'WebGL', 'Python', 'GIS Data', 'React'],
+        teamSize: 4,
+        deadline: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000),
+        status: 'open',
+        createdBy: siddharthUser._id,
+        applicants: [],
+        comments: [],
+      },
+      {
+        title: 'Campus AI Placement Prep & Mock Interview Bot',
+        description:
+          'Creating an open-source real-time audio/video mock interviewer trained on real campus recruitment questions. We need full-stack developers skilled in Next.js, FastAPI, and LangChain/LLMs.',
+        category: 'project',
+        skillsNeeded: ['Next.js', 'FastAPI', 'LangChain', 'OpenAI API', 'WebRTC'],
+        teamSize: 3,
+        deadline: new Date(Date.now() + 9 * 24 * 60 * 60 * 1000),
+        status: 'open',
+        createdBy: testUser._id,
+        applicants: [],
+        comments: [],
+      },
+      {
+        title: 'Inter-College Battle of the Bands: Lead Guitarist & Drummer',
+        description:
+          "Our college rock band 'The Resonance' is prepping for the regional Battle of Bands. Looking for a lead guitarist comfortable with rock/fusion solos and an experienced drummer.",
+        category: 'cultural',
+        skillsNeeded: ['Lead Guitar', 'Percussion', 'Live Audio Mixing', 'Rock Fusion'],
+        teamSize: 4,
+        deadline: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+        status: 'open',
+        createdBy: kabirUser._id,
+        applicants: [],
+        comments: [],
+      },
+      {
+        title: 'Formula Student Electric: Battery Management System (BMS)',
+        description:
+          'Team Invictus Racing is designing the HV battery pack and custom BMS for Formula Bharat 2026. Looking for electrical and electronics engineers with MATLAB/Simulink and PCB layout skills.',
+        category: 'competition',
+        skillsNeeded: ['MATLAB', 'Simulink', 'Altium', 'CAN Bus', 'Embedded C'],
+        teamSize: 4,
+        deadline: new Date(Date.now() + 18 * 24 * 60 * 60 * 1000),
+        status: 'open',
+        createdBy: nehaUser._id,
+        applicants: [],
+        comments: [],
+      },
+      {
+        title: 'Kaggle Medical Imaging Challenge: Chest X-Ray Diagnosis',
+        description:
+          'Forming a duo to compete in the NIH Chest X-Ray anomaly detection Kaggle benchmark. Looking for a teammate with GPU compute access and deep familiarity with PyTorch CNNs & Vision Transformers.',
+        category: 'competition',
+        skillsNeeded: ['PyTorch', 'Computer Vision', 'Data Augmentation', 'CUDA'],
+        teamSize: 2,
+        deadline: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000),
+        status: 'open',
         createdBy: devUser._id,
+        applicants: [],
+        comments: [],
+      },
+      {
+        title: 'Campus Lost & Found Smart IoT RFID Tagging System',
+        description:
+          'Building physical IoT check-in stations across campus gates and library counters using RFID tags and ESP32 nodes connected via MQTT to our Campus Bond platform.',
+        category: 'project',
+        skillsNeeded: ['Arduino', 'ESP32', 'Node.js', 'MQTT', 'Hardware'],
+        teamSize: 3,
+        deadline: new Date(Date.now() + 11 * 24 * 60 * 60 * 1000),
+        status: 'open',
+        createdBy: priyaUser._id,
+        applicants: [],
+        comments: [],
+      },
+      {
+        title: 'ACM-ICPC Regional Qualifier: Competitive Programmer Needed',
+        description:
+          'Aiming for ICPC Amritapuri regionals! Looking for a 3rd teammate with 1800+ rating on Codeforces or 4-star on CodeChef, skilled in Advanced Graph Algorithms and Dynamic Programming.',
+        category: 'competition',
+        skillsNeeded: ['Algorithms', 'Data Structures', 'C++', 'Graph Theory', 'DP'],
+        teamSize: 3,
+        deadline: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000),
+        status: 'open',
+        createdBy: demoUser._id,
+        applicants: [],
+        comments: [],
+      },
+      {
+        title: 'Web3 Hackathon: Decentralized Academic Credential Verifier',
+        description:
+          'Creating a tamper-proof degree and certificate verification protocol on Polygon for campus clubs and universities. Looking for a Solidity smart contract dev and a frontend engineer.',
+        category: 'hackathon',
+        skillsNeeded: ['Solidity', 'Ethers.js', 'React', 'Smart Contracts'],
+        teamSize: 3,
+        deadline: new Date(Date.now() + 13 * 24 * 60 * 60 * 1000),
+        status: 'open',
+        createdBy: adityaUser._id,
+        applicants: [],
+        comments: [],
+      },
+      {
+        title: 'Annual Drama Production: Stage Designers & Lighting Crew',
+        description:
+          'The Dramatics Society is staging an adaptation of Hamlet with modern campus context. We need creative set designers, lighting technicians, and sound mixing crew for auditorium rehearsals.',
+        category: 'cultural',
+        skillsNeeded: ['Stage Lighting', 'Costume Design', 'Set Construction', 'Sound Mixing'],
+        teamSize: 4,
+        deadline: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000),
+        status: 'open',
+        createdBy: tanviUser._id,
+        applicants: [],
+        comments: [],
+      },
+      {
+        title: 'Sustainable Campus: Solar-Powered Campus EV Buggy',
+        description:
+          'Converting an old campus utility cart into a solar-augmented electric shuttle with regenerative braking. Need mechanical and automobile engineering peers for chassis FEA and motor driver wiring.',
+        category: 'project',
+        skillsNeeded: ['SolidWorks', 'Power Electronics', 'Welding', 'Vehicle Dynamics'],
+        teamSize: 5,
+        deadline: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000),
+        status: 'open',
+        createdBy: rohanUser._id,
+        applicants: [],
+        comments: [],
+      },
+      {
+        title: 'CyberSecurity CTF: National Cyber Defense League Squad',
+        description:
+          'Assembling a 4-person squad for the upcoming Cyber Apocalypse CTF. Looking for specialists in Web Exploitation, Reverse Engineering, and Cryptography.',
+        category: 'competition',
+        skillsNeeded: ['Reverse Engineering', 'Binary Exploitation', 'Wireshark', 'Cryptography'],
+        teamSize: 4,
+        deadline: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000),
+        status: 'open',
+        createdBy: siddharthUser._id,
+        applicants: [],
+        comments: [],
+      },
+      {
+        title: 'Campus Food Wastage Redistribution Network & App',
+        description:
+          'Partnering with campus mess halls and hostel canteens to redirect surplus clean food to nearby community centers. Looking for mobile app developers and a volunteer coordinator.',
+        category: 'project',
+        skillsNeeded: ['React Native', 'Firebase', 'Logistics', 'UI Design'],
+        teamSize: 3,
+        deadline: new Date(Date.now() + 16 * 24 * 60 * 60 * 1000),
+        status: 'open',
+        createdBy: tanviUser._id,
+        applicants: [],
+        comments: [],
+      },
+      {
+        title: 'HealthTech Hackathon: Wearable Posture & Ergonomics Monitor',
+        description:
+          'Building a wearable clip-on device using IMU accelerometer sensors to alert students during long coding and studying sessions about spinal posture. Looking for sensor calibration and mobile devs.',
+        category: 'hackathon',
+        skillsNeeded: ['IMU Sensors', 'Bluetooth LE', 'TensorFlow Lite', 'Swift'],
+        teamSize: 3,
+        deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        status: 'open',
+        createdBy: priyaUser._id,
+        applicants: [],
+        comments: [],
+      },
+      {
+        title: 'Campus Photography & Digital Art Exhibition Curation',
+        description:
+          "Organizing the annual 'Expressions' fine arts and photo gallery for the university foundation week. Need curators, visual designers for promotional booklets, and event managers.",
+        category: 'cultural',
+        skillsNeeded: ['Photography', 'Curating', 'Adobe Lightroom', 'Event Planning'],
+        teamSize: 3,
+        deadline: new Date(Date.now() + 17 * 24 * 60 * 60 * 1000),
+        status: 'open',
+        createdBy: kabirUser._id,
+        applicants: [],
+        comments: [],
+      },
+      {
+        title: 'Automated Library Book Shelving & Return Robot (AGV)',
+        description:
+          'Designing a mobile automated guided vehicle equipped with LiDAR SLAM and robotic gripper to sort and reshelf returned books in the central library. Looking for mechatronics enthusiasts.',
+        category: 'project',
+        skillsNeeded: ['SLAM', 'Computer Vision', 'LiDAR', 'Motor Drivers', 'Python'],
+        teamSize: 4,
+        deadline: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000),
+        status: 'open',
+        createdBy: rohanUser._id,
+        applicants: [],
+        comments: [],
+      },
+      {
+        title: 'Google Solution Challenge 2026: Disaster Co-ordination Network',
+        description:
+          'Developing an offline-first mesh mobile network app to coordinate medical supplies and rescue requests during regional floodings. Looking for Flutter developers and cloud architects.',
+        category: 'hackathon',
+        skillsNeeded: ['Flutter', 'Google Cloud', 'Maps API', 'Mesh Networking', 'System Design'],
+        teamSize: 4,
+        deadline: new Date(Date.now() + 19 * 24 * 60 * 60 * 1000),
+        status: 'open',
+        createdBy: adityaUser._id,
         applicants: [],
         comments: [],
       },

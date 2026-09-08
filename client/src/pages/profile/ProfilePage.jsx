@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import {
   eventService,
   marketService,
@@ -20,10 +21,15 @@ import {
   Clock,
   ChevronRight,
   Trash2,
+  LogOut,
+  Sun,
+  Moon,
 } from 'lucide-react';
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const { theme, setTheme } = useTheme();
+  const navigate = useNavigate();
   const displayName = (user?.name && user.name !== 'Test Student') ? user.name : 'Vikash';
 
   const [activeTab, setActiveTab] = useState('posts');
@@ -76,14 +82,14 @@ export default function ProfilePage() {
       <div className="bg-white border-2 border-gray-200 rounded-2xl p-5 sm:p-7 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#E8F8F0] border border-[#05A86B]/30 text-[#05A86B] font-black text-xl sm:text-2xl flex items-center justify-center flex-shrink-0 shadow-xs">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gray-100 border border-gray-300 text-gray-950 font-black text-xl sm:text-2xl flex items-center justify-center flex-shrink-0 shadow-xs">
               {displayName.charAt(0).toUpperCase()}
             </div>
 
             <div className="space-y-1">
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-lg sm:text-xl font-bold text-gray-950">{displayName}</h1>
-                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#E8F8F0] text-[#05A86B] border border-[#05A86B]/30">
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                   VERIFIED STUDENT
                 </span>
               </div>
@@ -102,13 +108,75 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center p-3 sm:p-0 bg-[#FEF3C7]/60 sm:bg-transparent rounded-xl sm:rounded-none border border-[#F59E0B]/20 sm:border-0">
-            <span className="text-xs text-gray-500">Campus Score</span>
-            <div className="flex items-center gap-1.5 text-base sm:text-lg font-black text-[#D97706]">
-              <Sparkles className="w-4 h-4 text-[#D97706]" />
-              <span>{user?.campusScore || 0} pts</span>
+          <div className="flex items-center gap-3">
+            <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center p-3 sm:p-0 bg-[#FEF3C7]/60 sm:bg-transparent rounded-xl sm:rounded-none border border-[#F59E0B]/20 sm:border-0">
+              <span className="text-xs text-gray-500">Campus Score</span>
+              <div className="flex items-center gap-1.5 text-base sm:text-lg font-black text-[#D97706]">
+                <Sparkles className="w-4 h-4 text-[#D97706]" />
+                <span>{user?.campusScore || 0} pts</span>
+              </div>
             </div>
+
+            <button
+              onClick={() => {
+                logout();
+                navigate('/login');
+              }}
+              title="Sign Out"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-95"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Sign Out</span>
+            </button>
           </div>
+        </div>
+      </div>
+
+      {/* ─── Theme & Appearance Settings ─── */}
+      <div className="bg-white border-2 border-gray-200 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+        <div className="flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-2xl bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-950 flex-shrink-0 shadow-2xs">
+            {theme === 'dark' ? (
+              <Moon className="w-5 h-5 text-indigo-400" />
+            ) : (
+              <Sun className="w-5 h-5 text-amber-500" />
+            )}
+          </div>
+          <div>
+            <h3 className="font-bold text-sm text-gray-950 tracking-tight">
+              App Appearance ({theme === 'dark' ? 'Dark Theme' : 'White Theme'})
+            </h3>
+            <p className="text-xs text-gray-500">
+              Select your preferred appearance for the entire application
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 p-1 bg-gray-100 rounded-2xl border border-gray-200 w-full sm:w-auto">
+          <button
+            type="button"
+            onClick={() => setTheme('light')}
+            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              theme === 'light'
+                ? 'bg-white text-gray-950 shadow-xs border border-gray-200'
+                : 'text-gray-500 hover:text-gray-950'
+            }`}
+          >
+            <Sun className="w-4 h-4 text-amber-500" />
+            <span>White Theme</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setTheme('dark')}
+            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              theme === 'dark'
+                ? 'bg-[#0B1528] text-white shadow-xs border border-transparent'
+                : 'text-gray-500 hover:text-gray-950'
+            }`}
+          >
+            <Moon className="w-4 h-4 text-indigo-400" />
+            <span>Dark Theme</span>
+          </button>
         </div>
       </div>
 
@@ -131,7 +199,7 @@ export default function ProfilePage() {
               <span>{tab.label}</span>
               <span
                 className={`text-[10px] px-1.5 py-0.2 rounded-md font-bold ${
-                  active ? 'bg-[#05A86B] text-white' : 'bg-gray-200 text-gray-700'
+                  active ? 'bg-[#0B1528] text-white' : 'bg-gray-100 text-gray-600 border border-gray-200'
                 }`}
               >
                 {tab.count}
@@ -161,7 +229,7 @@ export default function ProfilePage() {
                       className="bg-white border-2 border-gray-200 rounded-2xl p-5 flex items-center justify-between gap-4 shadow-xs hover:border-gray-300 transition-all"
                     >
                       <div className="space-y-1">
-                        <span className="text-[10px] font-bold capitalize px-2.5 py-0.5 rounded-lg bg-[#E8F8F0] text-[#05A86B] border border-[#05A86B]/30">
+                        <span className="text-[10px] font-bold capitalize px-2.5 py-0.5 rounded-lg bg-gray-100 text-gray-800 border border-gray-200">
                           {p.category}
                         </span>
                         <h4 className="font-bold text-sm text-gray-950">{p.title}</h4>
@@ -172,7 +240,7 @@ export default function ProfilePage() {
 
                       <Link
                         to={`/events/${p._id}`}
-                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#05A86B] hover:bg-[#048E5A] text-white transition-all shadow-xs"
+                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#0B1528] hover:bg-black text-white transition-all shadow-xs"
                       >
                         <span>Manage Applicants</span>
                         <ChevronRight className="w-3.5 h-3.5" />
@@ -206,7 +274,7 @@ export default function ProfilePage() {
                       <span
                         className={`text-xs font-bold px-3 py-1 rounded-xl capitalize border ${
                           app.status === 'approved'
-                            ? 'bg-[#E8F8F0] text-[#05A86B] border-[#05A86B]/30'
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                             : app.status === 'rejected'
                             ? 'bg-rose-50 text-rose-600 border-rose-200'
                             : 'bg-amber-50 text-[#D97706] border-amber-200'
@@ -237,13 +305,13 @@ export default function ProfilePage() {
                     >
                       <div className="space-y-1">
                         <h4 className="font-bold text-sm text-gray-950">{item.title}</h4>
-                        <p className="text-xs font-black text-[#05A86B]">₹{item.price}</p>
+                        <p className="text-xs font-black text-gray-950">₹{item.price}</p>
                       </div>
                       <span
                         className={`text-xs font-bold px-2.5 py-1 rounded-lg capitalize border ${
                           item.status === 'sold'
                             ? 'bg-gray-100 text-gray-500 border-gray-200'
-                            : 'bg-[#E8F8F0] text-[#05A86B] border-[#05A86B]/30'
+                            : 'bg-emerald-50 text-emerald-700 border-emerald-200'
                         }`}
                       >
                         {item.status}
@@ -274,8 +342,8 @@ export default function ProfilePage() {
                           <span
                             className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-md border ${
                               item.type === 'lost'
-                                ? 'bg-[#FDF2F8] text-[#D946EF] border-[#D946EF]/30'
-                                : 'bg-[#E8F8F0] text-[#05A86B] border-[#05A86B]/30'
+                                ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                : 'bg-emerald-50 text-emerald-700 border-emerald-200'
                             }`}
                           >
                             {item.type}
@@ -309,7 +377,7 @@ export default function ProfilePage() {
                       className="bg-white border-2 border-gray-200 rounded-2xl p-4 flex items-center justify-between shadow-xs hover:border-gray-300 transition-all"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-9 h-9 rounded-xl bg-[#E8F8F0] border border-[#05A86B]/30 flex items-center justify-center font-mono font-black text-xs text-[#05A86B] flex-shrink-0">
+                        <div className="w-9 h-9 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center font-mono font-black text-xs text-gray-900 flex-shrink-0">
                           {club.category === 'tech' || (club.name || '').toLowerCase().includes('code') ? '</>' : club.name.charAt(0).toUpperCase()}
                         </div>
                         <div className="min-w-0">
@@ -319,7 +387,7 @@ export default function ProfilePage() {
                       </div>
                       <Link
                         to="/clubs"
-                        className="text-xs font-bold text-[#05A86B] hover:text-[#048E5A]"
+                        className="text-xs font-bold text-[#0B1528] hover:underline"
                       >
                         View Society
                       </Link>

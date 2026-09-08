@@ -89,7 +89,7 @@ export default function Register() {
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4">
       <div className="w-full max-w-lg bg-white border-2 border-gray-200 rounded-3xl p-8 shadow-xl relative overflow-hidden text-gray-900">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#E8F8F0] border border-[#05A86B]/30 text-[#05A86B] mb-4 shadow-sm">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gray-100 border border-gray-200 text-gray-950 mb-4 shadow-sm">
             <GraduationCap className="w-7 h-7" />
           </div>
           <h1 className="text-2xl font-black text-gray-950 tracking-tight">
@@ -110,7 +110,7 @@ export default function Register() {
         )}
 
         {infoMessage && step === 2 && (
-          <div className="mb-6 p-4 rounded-xl bg-[#E8F8F0] border border-[#05A86B]/30 flex items-center gap-3 text-[#05A86B] text-sm font-medium">
+          <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-3 text-emerald-700 text-sm font-medium">
             <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
             <span>{infoMessage}</span>
           </div>
@@ -132,7 +132,7 @@ export default function Register() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Aarav Sharma"
-                  className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#05A86B] transition-all"
+                  className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#0B1528] transition-all"
                 />
               </div>
             </div>
@@ -151,7 +151,7 @@ export default function Register() {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   placeholder="student@campusbond.edu"
-                  className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#05A86B] transition-all"
+                  className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#0B1528] transition-all"
                 />
               </div>
             </div>
@@ -171,7 +171,7 @@ export default function Register() {
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   placeholder="At least 6 characters"
-                  className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#05A86B] transition-all"
+                  className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#0B1528] transition-all"
                 />
               </div>
             </div>
@@ -188,7 +188,7 @@ export default function Register() {
                   <select
                     value={formData.branch}
                     onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
-                    className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:border-[#05A86B] transition-all cursor-pointer font-medium"
+                    className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:border-[#0B1528] transition-all cursor-pointer font-medium"
                   >
                     <option value="CSE">CSE</option>
                     <option value="AI & DS">AI & DS</option>
@@ -214,7 +214,7 @@ export default function Register() {
                   <select
                     value={formData.semester}
                     onChange={(e) => setFormData({ ...formData, semester: Number(e.target.value) })}
-                    className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:border-[#05A86B] transition-all cursor-pointer font-medium"
+                    className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:border-[#0B1528] transition-all cursor-pointer font-medium"
                   >
                     {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => (
                       <option key={sem} value={sem}>
@@ -229,7 +229,7 @@ export default function Register() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-3 py-3.5 px-4 bg-[#05A86B] hover:bg-[#048E5A] text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-[#05A86B]/25 disabled:opacity-50 cursor-pointer active:scale-98"
+              className="w-full mt-3 py-3.5 px-4 bg-[#0B1528] hover:bg-black text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2 transition-all shadow-md disabled:opacity-50 cursor-pointer active:scale-98"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -258,7 +258,7 @@ export default function Register() {
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value.trim())}
                   placeholder="123456"
-                  className="w-full text-center tracking-[0.5em] font-mono text-xl py-3.5 pl-10 pr-4 bg-white border-2 border-gray-200 rounded-xl text-gray-950 font-bold focus:outline-none focus:border-[#05A86B] transition-all"
+                  className="w-full text-center tracking-[0.5em] font-mono text-xl py-3.5 pl-10 pr-4 bg-white border-2 border-gray-200 rounded-xl text-gray-950 font-bold focus:outline-none focus:border-[#0B1528] transition-all"
                 />
               </div>
               <p className="text-center text-xs text-gray-500 mt-2">
@@ -269,7 +269,7 @@ export default function Register() {
             <button
               type="submit"
               disabled={loading || otpCode.length < 6}
-              className="w-full py-3.5 px-4 bg-[#05A86B] hover:bg-[#048E5A] text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-[#05A86B]/25 disabled:opacity-50 cursor-pointer active:scale-98"
+              className="w-full py-3.5 px-4 bg-[#0B1528] hover:bg-black text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2 transition-all shadow-md disabled:opacity-50 cursor-pointer active:scale-98"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -294,7 +294,7 @@ export default function Register() {
                 type="button"
                 onClick={handleResend}
                 disabled={resending}
-                className="flex items-center gap-1.5 text-[#05A86B] font-bold hover:underline disabled:opacity-50 cursor-pointer"
+                className="flex items-center gap-1.5 text-gray-900 font-bold hover:underline disabled:opacity-50 cursor-pointer"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${resending ? 'animate-spin' : ''}`} />
                 <span>Resend Code</span>
@@ -305,7 +305,7 @@ export default function Register() {
 
         <div className="mt-8 text-center text-xs text-gray-500">
           Already have an account?{' '}
-          <Link to="/login" className="font-bold text-[#05A86B] hover:underline">
+          <Link to="/login" className="font-bold text-[#0B1528] hover:underline">
             Sign in
           </Link>
         </div>

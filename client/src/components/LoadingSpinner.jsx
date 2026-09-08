@@ -10,7 +10,7 @@ export default function LoadingSpinner({ size = 'md', message = 'Loading...' }) 
   return (
     <div className="flex flex-col items-center justify-center p-8 space-y-3">
       <div
-        className={`${sizeClasses[size]} border-gray-200 border-t-[#05A86B] rounded-full animate-spin`}
+        className={`${sizeClasses[size]} border-gray-200 border-t-[#0B1528] rounded-full animate-spin`}
       />
       {message && <p className="text-xs font-semibold text-gray-500">{message}</p>}
     </div>

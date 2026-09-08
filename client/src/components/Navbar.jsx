@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import {
   Home,
   ShoppingBag,
@@ -12,10 +13,13 @@ import {
   LogOut,
   Plus,
   Award,
+  Sun,
+  Moon,
 } from 'lucide-react';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const [profileOpen, setProfileOpen] = useState(false);
@@ -72,10 +76,10 @@ export default function Navbar() {
                     <Link
                       key={item.name}
                       to={item.path}
-                      className={`font-display flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs tracking-tight transition-all ${
+                      className={`font-display flex items-center gap-2 px-4 py-1.5 rounded-full text-xs tracking-tight transition-all ${
                         active
-                          ? 'bg-gray-950 text-white font-bold shadow-xs'
-                          : 'text-gray-600 hover:text-black font-semibold hover:bg-gray-100'
+                          ? 'bg-[#0B1528] text-white font-bold shadow-xs'
+                          : 'text-gray-500 hover:text-black font-semibold hover:bg-gray-100'
                       }`}
                     >
                       <Icon className="w-3.5 h-3.5 flex-shrink-0" />
@@ -94,7 +98,7 @@ export default function Navbar() {
                     onClick={() => setProfileOpen(!profileOpen)}
                     title={displayName}
                     aria-label="User Profile"
-                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-100 border-2 border-gray-300 hover:border-[#05A86B] focus:outline-none transition-all cursor-pointer overflow-hidden flex items-center justify-center p-0.5 active:scale-95 shadow-sm"
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-100 border-2 border-gray-300 hover:border-[#0B1528] focus:outline-none transition-all cursor-pointer overflow-hidden flex items-center justify-center p-0.5 active:scale-95 shadow-sm"
                   >
                     {user.avatar ? (
                       <img
@@ -113,7 +117,7 @@ export default function Navbar() {
                   {profileOpen && (
                     <div className="absolute right-0 mt-2 w-64 rounded-2xl p-2.5 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-150 bg-white border-2 border-gray-200 text-gray-900">
                       <div className="p-3 border-b border-gray-100 mb-1.5 flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0 font-bold text-sm bg-[#E8F8F0] text-[#05A86B] border border-[#05A86B]/30">
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0 font-bold text-sm bg-gray-100 text-gray-950 border border-gray-300">
                           {user.avatar ? (
                             <img src={user.avatar} alt={displayName} className="w-full h-full object-cover" />
                           ) : (
@@ -153,7 +157,27 @@ export default function Navbar() {
                         <span>Campus Score</span>
                       </Link>
 
-                      <div className="my-1 border-t border-gray-100" />
+                      <div className="my-1 border-t border-gray-100 dark:border-white/10" />
+
+                      <button
+                        type="button"
+                        onClick={toggleTheme}
+                        className="font-display w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold tracking-tight transition-colors text-gray-700 dark:text-gray-200 hover:text-black hover:bg-gray-100 dark:hover:bg-white/10 cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2.5">
+                          {theme === 'dark' ? (
+                            <Moon className="w-4 h-4 text-indigo-400" />
+                          ) : (
+                            <Sun className="w-4 h-4 text-amber-500" />
+                          )}
+                          <span>Theme: {theme === 'dark' ? 'Dark' : 'White'}</span>
+                        </div>
+                        <span className="text-[10px] px-2 py-0.5 rounded-md bg-gray-100 dark:bg-white/10 font-bold capitalize text-gray-600 dark:text-gray-300">
+                          {theme === 'dark' ? 'Dark' : 'White'}
+                        </span>
+                      </button>
+
+                      <div className="my-1 border-t border-gray-100 dark:border-white/10" />
 
                       <button
                         onClick={() => {
@@ -178,7 +202,7 @@ export default function Navbar() {
                   </Link>
                   <Link
                     to="/register"
-                    className="font-display px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold tracking-tight bg-[#05A86B] text-white hover:bg-[#048E5A] transition-all shadow-md shadow-[#05A86B]/25"
+                    className="font-display px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold tracking-tight bg-[#0B1528] text-white hover:bg-black transition-all shadow-sm"
                   >
                     Register
                   </Link>
@@ -198,7 +222,7 @@ export default function Navbar() {
               to="/"
               className={`flex flex-col items-center justify-center py-1 rounded-xl transition-all ${
                 location.pathname === '/' || location.pathname.startsWith('/events')
-                  ? 'text-[#05A86B]'
+                  ? 'text-[#0B1528] font-bold'
                   : 'text-gray-500 hover:text-black'
               }`}
             >
@@ -211,7 +235,7 @@ export default function Navbar() {
               to="/clubs"
               className={`flex flex-col items-center justify-center py-1 rounded-xl transition-all ${
                 location.pathname.startsWith('/clubs')
-                  ? 'text-[#05A86B]'
+                  ? 'text-[#0B1528] font-bold'
                   : 'text-gray-500 hover:text-black'
               }`}
             >
@@ -223,7 +247,7 @@ export default function Navbar() {
             <div className="flex justify-center items-center">
               <Link
                 to="/?create=true"
-                className="w-10 h-10 rounded-full bg-[#05A86B] hover:bg-[#048E5A] text-white flex items-center justify-center shadow-lg transition-all group active:scale-95"
+                className="w-10 h-10 rounded-full bg-[#0B1528] hover:bg-black text-white flex items-center justify-center shadow-lg transition-all group active:scale-95"
               >
                 <Plus className="w-5 h-5 stroke-[3] group-hover:scale-110 transition-transform" />
               </Link>
@@ -234,7 +258,7 @@ export default function Navbar() {
               to="/market"
               className={`flex flex-col items-center justify-center py-1 rounded-xl transition-all ${
                 location.pathname.startsWith('/market')
-                  ? 'text-[#05A86B]'
+                  ? 'text-[#0B1528] font-bold'
                   : 'text-gray-500 hover:text-black'
               }`}
             >
@@ -249,7 +273,7 @@ export default function Navbar() {
                 location.pathname.startsWith('/profile') ||
                 location.pathname.startsWith('/lostfound') ||
                 location.pathname.startsWith('/chat')
-                  ? 'text-[#05A86B]'
+                  ? 'text-[#0B1528] font-bold'
                   : 'text-gray-500 hover:text-black'
               }`}
             >

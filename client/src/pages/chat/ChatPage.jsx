@@ -124,7 +124,7 @@ export default function ChatPage() {
           {/* Header */}
           <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-white">
             <div className="flex items-center gap-2">
-              <MessageSquare className="w-5 h-5 text-[#05A86B]" />
+              <MessageSquare className="w-5 h-5 text-[#0B1528]" />
               <h2 className="font-bold text-base text-gray-950">Direct Messages</h2>
             </div>
             <span className="text-xs font-bold px-2.5 py-0.5 rounded-lg bg-gray-100 text-gray-700 border border-gray-200">
@@ -154,7 +154,7 @@ export default function ChatPage() {
                     key={conv._id}
                     onClick={() => setActiveConvId(conv._id)}
                     className={`w-full p-4 text-left flex items-start gap-3 transition-colors cursor-pointer ${
-                      isSelected ? 'bg-[#E8F8F0] border-l-4 border-[#05A86B]' : 'hover:bg-gray-50'
+                      isSelected ? 'bg-gray-100 border-l-4 border-[#0B1528]' : 'hover:bg-gray-50'
                     }`}
                   >
                     <div className="w-10 h-10 rounded-full bg-gray-100 border border-gray-200 text-gray-900 font-bold text-sm flex items-center justify-center flex-shrink-0">
@@ -172,7 +172,7 @@ export default function ChatPage() {
                       </div>
 
                       {conv.event?.title && (
-                        <p className="text-[11px] text-[#05A86B] truncate font-semibold">
+                        <p className="text-[11px] text-gray-700 truncate font-semibold">
                           Post: {conv.event.title}
                         </p>
                       )}
@@ -206,7 +206,7 @@ export default function ChatPage() {
                     <ArrowLeft className="w-5 h-5" />
                   </button>
 
-                  <div className="w-9 h-9 rounded-full bg-[#E8F8F0] border border-[#05A86B]/30 text-[#05A86B] font-bold text-sm flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-full bg-gray-200 border border-gray-300 text-gray-900 font-bold text-sm flex items-center justify-center">
                     {getOtherParticipant(activeConv)?.name?.charAt(0) || 'U'}
                   </div>
 
@@ -244,14 +244,14 @@ export default function ChatPage() {
                         <div
                           className={`max-w-md px-4 py-2.5 rounded-2xl text-xs sm:text-sm leading-relaxed ${
                             isMe
-                              ? 'bg-[#05A86B] text-white rounded-br-none shadow-xs font-medium'
+                              ? 'bg-[#0B1528] text-white rounded-br-none shadow-xs font-medium'
                               : 'bg-white text-gray-900 border border-gray-200 rounded-bl-none shadow-xs'
                           }`}
                         >
                           <p className="whitespace-pre-line">{m.text}</p>
                           <span
                             className={`block text-[10px] mt-1 ${
-                              isMe ? 'text-white/80 text-right' : 'text-gray-400'
+                              isMe ? 'text-gray-300 text-right' : 'text-gray-400'
                             }`}
                           >
                             {new Date(m.createdAt).toLocaleTimeString([], {
@@ -277,12 +277,12 @@ export default function ChatPage() {
                   value={messageText}
                   onChange={(e) => setMessageText(e.target.value)}
                   placeholder="Type a message..."
-                  className="flex-1 px-4 py-2.5 bg-white border-2 border-gray-200 rounded-xl text-xs sm:text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#05A86B]"
+                  className="flex-1 px-4 py-2.5 bg-white border-2 border-gray-200 rounded-xl text-xs sm:text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#0B1528]"
                 />
                 <button
                   type="submit"
                   disabled={!messageText.trim() || sending}
-                  className="px-5 py-2.5 rounded-xl bg-[#05A86B] hover:bg-[#048E5A] text-white font-bold flex items-center justify-center transition-all disabled:opacity-40 cursor-pointer shadow-md shadow-[#05A86B]/20"
+                  className="px-5 py-2.5 rounded-xl bg-[#0B1528] hover:bg-black text-white font-bold flex items-center justify-center transition-all disabled:opacity-40 cursor-pointer shadow-sm"
                 >
                   <Send className="w-4 h-4" />
                 </button>

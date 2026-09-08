@@ -18,10 +18,26 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Response interceptor: handle errors & auto-logout on 401
+// Response interceptor: handle errors, auto-retry transient glitches, & auto-logout on 401
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    const config = error.config;
+
+    // Seamless auto-retry once on transient network drop, timeout, or 503 (DB reconnecting)
+    const isTransientError =
+      !error.response ||
+      error.response.status === 503 ||
+      error.code === 'ECONNABORTED' ||
+      error.message?.includes('Network Error');
+
+    if (isTransientError && config && !config._retry) {
+      config._retry = true;
+      // Wait 1.2s for backend/heartbeat self-healing to finish
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+      return api(config);
+    }
+
     if (error.response?.status === 401) {
       localStorage.removeItem(TOKEN_KEY);
       // If we're not already on login or register, redirect to login
@@ -110,6 +126,11 @@ export const chatService = {
     api.get(`/chat/conversations/${conversationId}/messages`),
   sendMessage: (conversationId, text) =>
     api.post(`/chat/conversations/${conversationId}/messages`, { text }),
+};
+
+// --- AI Assistant APIs ---
+export const assistantService = {
+  ask: (query, userName) => api.post('/assistant/query', { query, userName }),
 };
 
 export default api;

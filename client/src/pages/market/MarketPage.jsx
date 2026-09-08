@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { marketService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import Modal from '../../components/Modal';
@@ -28,13 +29,29 @@ import {
 
 export default function MarketPage() {
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlCategory = searchParams.get('category') || '';
+  const urlIsMyListings = searchParams.get('myListings') === 'true' || urlCategory === 'my-listings';
 
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [categoryFilter, setCategoryFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState(urlIsMyListings ? '' : urlCategory);
   const [conditionFilter, setConditionFilter] = useState('');
   const [search, setSearch] = useState('');
-  const [onlyMyListings, setOnlyMyListings] = useState(false);
+  const [onlyMyListings, setOnlyMyListings] = useState(urlIsMyListings);
+
+  // Keep state in sync with URL searchParams
+  useEffect(() => {
+    const cat = searchParams.get('category') || '';
+    const isMy = searchParams.get('myListings') === 'true' || cat === 'my-listings';
+    if (isMy) {
+      setOnlyMyListings(true);
+      setCategoryFilter('');
+    } else {
+      setOnlyMyListings(false);
+      setCategoryFilter(cat);
+    }
+  }, [searchParams]);
 
   // Selected item for rich detail modal
   const [selectedItem, setSelectedItem] = useState(null);
@@ -201,246 +218,78 @@ export default function MarketPage() {
     : items;
 
   return (
-    <div className="max-w-7xl xl:max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
-      {/* Interactive Top Hub (Minimal text, systematic) */}
-      <div className="bg-white border-2 border-gray-200 rounded-3xl p-5 sm:p-6 shadow-xs relative z-20 space-y-4">
-        {/* Header Row: Title & Action Controls */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-[#E8F8F0] border border-[#05A86B]/30 flex items-center justify-center text-[#05A86B] flex-shrink-0 shadow-xs">
-              <ShoppingBag className="w-5 h-5" />
-            </div>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-950 tracking-tight">
-                Marketplace
-              </h1>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
-            {/* Interactive Toggle: All vs My Listings */}
-            <div className="inline-flex items-center bg-gray-100 p-1 rounded-xl border border-gray-200">
-              <button
-                type="button"
-                onClick={() => setOnlyMyListings(false)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                  !onlyMyListings
-                    ? 'bg-white text-gray-950 shadow-xs font-bold'
-                    : 'text-gray-600 hover:text-gray-950'
-                }`}
-              >
-                <span>All</span>
-                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-gray-200 text-gray-700">
-                  {items.length}
-                </span>
-              </button>
-
-              {user && (
-                <button
-                  type="button"
-                  onClick={() => setOnlyMyListings(true)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                    onlyMyListings
-                      ? 'bg-white text-gray-950 shadow-xs font-bold'
-                      : 'text-gray-600 hover:text-gray-950'
-                  }`}
-                >
-                  <span>My Listings</span>
-                  {myListingsCount > 0 && (
-                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-[#05A86B] text-white">
-                      {myListingsCount}
-                    </span>
-                  )}
-                </button>
-              )}
-            </div>
-
-            {/* Sell an Item Button */}
-            <button
-              onClick={() => setModalOpen(true)}
-              className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#05A86B] hover:bg-[#048E5A] text-white font-bold text-xs sm:text-sm transition-all cursor-pointer active:scale-95 shadow-md shadow-[#05A86B]/20"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Sell Item</span>
-            </button>
-          </div>
+    <div className="w-full max-w-7xl xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
+      {/* ─── Search & Actions Bar (Matching Home) ─── */}
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+        <div className="relative flex-1 w-full group">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500 group-hover:text-gray-600 dark:group-hover:text-slate-300 transition-colors" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search textbooks, notes, electronics, lab kits, calculators..."
+            className="w-full pl-11 pr-5 py-3 sm:py-3.5 bg-white dark:bg-[#0E1626] border border-gray-200 dark:border-slate-800 hover:border-gray-400 dark:hover:border-slate-600 focus:border-[#0B1528] dark:focus:border-blue-500 rounded-2xl text-xs sm:text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none transition-all duration-200 shadow-2xs hover:shadow-sm"
+          />
         </div>
 
-        {/* Filter and Search Controls Bar */}
-        <div className="pt-3 border-t border-gray-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 relative z-10">
-          <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
-            {/* Category Dropdown */}
-            <div className="relative flex-shrink-0" ref={categoryDropdownRef}>
-              <button
-                type="button"
-                onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
-                className="w-full sm:w-auto flex items-center justify-between gap-3 px-3.5 py-2 bg-white border-2 border-gray-200 hover:border-gray-300 rounded-xl text-xs sm:text-sm text-gray-900 transition-all cursor-pointer shadow-xs min-w-[160px]"
-              >
-                <div className="flex items-center gap-2">
-                  <Filter className="w-3.5 h-3.5 text-gray-500" />
-                  <span className="font-semibold text-gray-900 truncate">
-                    {categories.find((c) => c.value === categoryFilter)?.label || 'All Items'}
-                  </span>
-                </div>
-                <ChevronDown
-                  className={`w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0 ${
-                    categoryDropdownOpen ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
+        <button
+          onClick={() => setModalOpen(true)}
+          title="Sell Item"
+          className="flex items-center justify-center gap-2 px-6 py-3 sm:py-3.5 rounded-2xl bg-[#0B1528] dark:bg-blue-600 hover:bg-black dark:hover:bg-blue-500 text-white text-xs sm:text-sm font-bold tracking-tight whitespace-nowrap transition-all duration-200 cursor-pointer flex-shrink-0 active:scale-98 shadow-sm hover:shadow-md"
+        >
+          <Plus className="w-4 h-4 stroke-[3]" />
+          <span>Sell Item</span>
+        </button>
+      </div>
 
-              {categoryDropdownOpen && (
-                <div className="absolute left-0 top-full mt-2 w-full sm:w-56 bg-white border-2 border-gray-200 rounded-2xl p-1.5 shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                  <div className="px-3 py-1.5 text-[10px] uppercase font-bold text-gray-500 tracking-wider border-b border-gray-100 mb-1">
-                    Category
-                  </div>
-                  <div className="max-h-64 overflow-y-auto space-y-0.5 scrollbar-none">
-                    {categories.map((c) => {
-                      const isSelected = categoryFilter === c.value;
-                      const IconComponent = c.icon;
-                      return (
-                        <button
-                          key={c.value}
-                          type="button"
-                          onClick={() => {
-                            setCategoryFilter(c.value);
-                            setOnlyMyListings(false);
-                            setCategoryDropdownOpen(false);
-                          }}
-                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm transition-all cursor-pointer text-left ${
-                            isSelected
-                              ? 'bg-[#E8F8F0] text-[#05A86B] font-bold'
-                              : 'text-gray-700 hover:text-gray-950 hover:bg-gray-50'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <IconComponent className="w-3.5 h-3.5 text-gray-500" />
-                            <span>{c.label}</span>
-                          </div>
-                          {isSelected && <Check className="w-3.5 h-3.5 text-[#05A86B] flex-shrink-0" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
+      {/* ─── Market Feed (Full Width, Matching Home) ─── */}
+      <div className="w-full space-y-4">
+        {loading ? (
+          <LoadingSpinner message="Loading campus marketplace..." />
+        ) : displayedItems.length === 0 ? (
+          <div className="bg-white border border-gray-300 rounded-3xl p-12 text-center space-y-4 shadow-xs">
+            <div className="w-14 h-14 rounded-2xl bg-gray-100 border border-gray-200 text-gray-700 flex items-center justify-center mx-auto shadow-xs">
+              <ShoppingBag className="w-7 h-7" />
             </div>
-
-            {/* Condition Dropdown */}
-            <div className="relative flex-shrink-0" ref={conditionDropdownRef}>
+            <h3 className="font-display text-lg font-bold text-gray-950 tracking-tight">
+              {onlyMyListings ? 'No listings found' : 'No items found'}
+            </h3>
+            <p className="text-xs sm:text-sm text-gray-500 max-w-sm mx-auto font-normal">
+              {onlyMyListings
+                ? 'You have not listed any items for sale yet.'
+                : 'Try adjusting your search keywords or topic filter.'}
+            </p>
+            {onlyMyListings ? (
               <button
-                type="button"
-                onClick={() => setConditionDropdownOpen(!conditionDropdownOpen)}
-                className="w-full sm:w-auto flex items-center justify-between gap-3 px-3.5 py-2 bg-white border-2 border-gray-200 hover:border-gray-300 rounded-xl text-xs sm:text-sm text-gray-900 transition-all cursor-pointer shadow-xs min-w-[145px]"
+                onClick={() => setOnlyMyListings(false)}
+                className="font-display inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-[#0B1528] dark:bg-blue-600 hover:bg-black dark:hover:bg-blue-500 text-white font-bold text-xs sm:text-sm tracking-tight transition-all shadow-md cursor-pointer active:scale-95"
               >
-                <div className="flex items-center gap-2">
-                  <SlidersHorizontal className="w-3.5 h-3.5 text-gray-500" />
-                  <span className="font-semibold text-gray-900 truncate">
-                    {conditions.find((c) => c.value === conditionFilter)?.label || 'Any Condition'}
-                  </span>
-                </div>
-                <ChevronDown
-                  className={`w-3.5 h-3.5 text-gray-500 transition-transform duration-200 flex-shrink-0 ${
-                    conditionDropdownOpen ? 'rotate-180' : ''
-                  }`}
-                />
+                Browse All Items
               </button>
-
-              {conditionDropdownOpen && (
-                <div className="absolute left-0 top-full mt-2 w-full sm:w-48 bg-white border-2 border-gray-200 rounded-2xl p-1.5 shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                  <div className="px-3 py-1.5 text-[10px] uppercase font-bold text-gray-500 tracking-wider border-b border-gray-100 mb-1">
-                    Condition
-                  </div>
-                  <div className="space-y-0.5">
-                    {conditions.map((c) => {
-                      const isSelected = conditionFilter === c.value;
-                      return (
-                        <button
-                          key={c.value}
-                          type="button"
-                          onClick={() => {
-                            setConditionFilter(c.value);
-                            setConditionDropdownOpen(false);
-                          }}
-                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm transition-all cursor-pointer text-left ${
-                            isSelected
-                              ? 'bg-[#E8F8F0] text-[#05A86B] font-bold'
-                              : 'text-gray-700 hover:text-gray-950 hover:bg-gray-50'
-                          }`}
-                        >
-                          <span>{c.label}</span>
-                          {isSelected && <Check className="w-3.5 h-3.5 text-[#05A86B] flex-shrink-0" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Search Box */}
-          <div className="relative flex-1 sm:max-w-xs">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search items..."
-              className="w-full pl-9 pr-7 py-2 bg-white border-2 border-gray-200 focus:border-[#05A86B] rounded-xl text-xs text-gray-900 placeholder-gray-400 focus:outline-none transition-all"
-            />
-            {search && (
+            ) : (
               <button
-                type="button"
-                onClick={() => setSearch('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-700 cursor-pointer"
+                onClick={() => setModalOpen(true)}
+                className="font-display inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-[#0B1528] dark:bg-blue-600 hover:bg-black dark:hover:bg-blue-500 text-white font-bold text-xs sm:text-sm tracking-tight transition-all shadow-md cursor-pointer active:scale-95"
               >
-                ×
+                <Plus className="w-4 h-4 stroke-[3]" /> Sell Item
               </button>
             )}
           </div>
-        </div>
-      </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 w-full">
+            {displayedItems.map((item) => {
+              const isSeller = Boolean(
+                user && String(item.seller?._id || item.seller) === String(user._id)
+              );
 
-      {/* Grid */}
-      {loading ? (
-        <LoadingSpinner message="Loading marketplace..." />
-      ) : displayedItems.length === 0 ? (
-        <div className="bg-white border-2 border-gray-200 rounded-2xl p-12 text-center space-y-4 shadow-xs">
-          <ShoppingBag className="w-10 h-10 text-gray-400 mx-auto" />
-          <h3 className="text-base sm:text-lg font-bold text-gray-900">
-            {onlyMyListings ? 'No listings found' : 'No items found'}
-          </h3>
-          <p className="text-xs sm:text-sm text-gray-500">
-            {onlyMyListings
-              ? 'You have not listed any items for sale yet.'
-              : 'Try searching with a different keyword or category.'}
-          </p>
-          {onlyMyListings && (
-            <button
-              onClick={() => setOnlyMyListings(false)}
-              className="px-4 py-2 rounded-xl bg-[#05A86B] text-white font-bold text-xs hover:bg-[#048E5A] transition-all cursor-pointer shadow-sm"
-            >
-              Browse All Items
-            </button>
-          )}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-          {displayedItems.map((item) => {
-            const isSeller = Boolean(
-              user && String(item.seller?._id || item.seller) === String(user._id)
-            );
-
-            return (
-              <div
-                key={item._id}
-                onClick={() => setSelectedItem(item)}
-                className="bg-white border-2 border-gray-200 hover:border-gray-300 rounded-2xl overflow-hidden transition-all duration-200 hover:shadow-lg flex flex-col justify-between group shadow-xs relative cursor-pointer"
-              >
-                <div>
-                  {/* Photo area */}
-                  <div className="h-52 sm:h-56 w-full bg-gray-100 relative overflow-hidden flex items-center justify-center border-b border-gray-200">
+              return (
+                <div
+                  key={item._id}
+                  onClick={() => setSelectedItem(item)}
+                  className="bg-white dark:bg-[#0E1626] border border-gray-300 dark:border-slate-800/90 hover:border-gray-400 dark:hover:border-slate-700 rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-300 ease-out flex flex-col justify-between shadow-xs hover:shadow-xl hover:-translate-y-1 group cursor-pointer relative"
+                >
+                  {/* Top Image Preview */}
+                  <div className="h-44 sm:h-48 w-full bg-gray-100 dark:bg-slate-800/50 overflow-hidden relative border-b border-gray-100 dark:border-slate-800 flex items-center justify-center">
                     {item.image ? (
                       <img
                         src={item.image.startsWith('http') ? item.image : `${item.image}`}
@@ -448,125 +297,124 @@ export default function MarketPage() {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     ) : (
-                      <div className="w-14 h-14 rounded-2xl bg-white border border-gray-200 flex items-center justify-center text-gray-400">
-                        <ShoppingBag className="w-7 h-7" />
+                      <div className="flex flex-col items-center justify-center text-gray-400 dark:text-slate-500 gap-1.5 p-4 text-center">
+                        <ShoppingBag className="w-8 h-8 stroke-[1.5] text-gray-400 dark:text-slate-500" />
+                        <span className="text-[10.5px] font-semibold text-gray-400 dark:text-slate-500 uppercase tracking-wider">
+                          {item.category}
+                        </span>
                       </div>
                     )}
 
-                    {/* Price tag */}
-                    <div className="absolute top-3.5 left-3.5 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-xl border border-gray-200 text-xs sm:text-sm font-black text-[#05A86B] shadow-xs">
-                      ₹{item.price}
-                    </div>
-
-                    {/* Condition & Options Menu */}
-                    <div className="absolute top-3.5 right-3.5 flex items-center gap-1.5">
-                      <span className="bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-lg text-[10px] font-bold text-gray-700 uppercase border border-gray-200 shadow-xs">
-                        {item.condition}
+                    {/* Overlay Badges */}
+                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-1.5 pointer-events-none">
+                      <span className="font-mono-code text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white/95 dark:bg-slate-900/90 backdrop-blur-sm text-gray-800 dark:text-slate-200 border border-gray-200/80 dark:border-slate-700 shadow-xs">
+                        {item.category}
                       </span>
-
-                      {/* Hidden 3-dots options menu for seller */}
-                      {isSeller && (
-                        <div className="relative market-menu-container">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setActiveMenuItemId(
-                                activeMenuItemId === item._id ? null : item._id
-                              );
-                            }}
-                            className="p-1 rounded-lg bg-white/95 backdrop-blur-md text-gray-500 hover:text-gray-900 border border-gray-200 transition-colors cursor-pointer shadow-xs"
-                            title="Options"
-                          >
-                            <MoreVertical className="w-3.5 h-3.5" />
-                          </button>
-
-                          {activeMenuItemId === item._id && (
-                            <div
-                              className="absolute right-0 top-full mt-1.5 w-36 bg-white border-2 border-gray-200 rounded-xl shadow-xl p-1 z-30 animate-in fade-in zoom-in-95 duration-100"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleToggleStatus(item);
-                                }}
-                                className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-100 transition-colors text-left cursor-pointer"
-                              >
-                                <CheckCircle2 className="w-3.5 h-3.5 text-gray-500" />
-                                <span>{item.status === 'sold' ? 'Mark Available' : 'Mark Sold'}</span>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDelete(item);
-                                }}
-                                className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors text-left cursor-pointer"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                                <span>Delete</span>
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                      {item.status === 'sold' ? (
+                        <span className="font-mono-code text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-rose-600 text-white shadow-xs">
+                          Sold
+                        </span>
+                      ) : (
+                        <span className="font-mono-code text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white/95 dark:bg-slate-900/90 backdrop-blur-sm text-gray-700 dark:text-slate-300 border border-gray-200/80 dark:border-slate-700 shadow-xs capitalize">
+                          {item.condition}
+                        </span>
                       )}
                     </div>
 
-                    {/* Sold overlay */}
                     {item.status === 'sold' && (
-                      <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center">
-                        <span className="text-xs font-bold uppercase tracking-widest text-white border border-white/30 px-3.5 py-1.5 rounded-xl bg-gray-900/90 shadow-lg">
+                      <div className="absolute inset-0 bg-black/50 backdrop-blur-[1px] flex items-center justify-center">
+                        <span className="text-xs font-bold uppercase tracking-widest text-white border border-white/30 px-3 py-1.5 rounded-xl bg-gray-900/90 shadow-md">
                           SOLD
                         </span>
                       </div>
                     )}
                   </div>
 
-                  {/* Body: Minimal text & clean hierarchy */}
-                  <div className="p-5 sm:p-6 space-y-3 flex-1 flex flex-col justify-between">
-                    <div className="flex items-center justify-between text-xs text-gray-500">
-                      <span className="font-bold uppercase tracking-wider text-[10px] text-gray-700 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-md">
-                        {item.category}
-                      </span>
-                      <span>{new Date(item.createdAt).toLocaleDateString()}</span>
+                  {/* Card Content */}
+                  <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
+                    <div>
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="font-mono-code text-xl sm:text-2xl font-black text-[#0B1528] dark:text-blue-400 tracking-tight">
+                          ₹{item.price}
+                        </span>
+                      </div>
+
+                      <h3
+                        className="font-bold text-sm sm:text-base text-gray-950 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-snug tracking-tight mt-1 line-clamp-2"
+                        title={item.title}
+                      >
+                        {item.title}
+                      </h3>
+
+                      {item.description && (
+                        <p className="text-xs text-gray-500 dark:text-slate-400 line-clamp-2 font-normal mt-1 leading-relaxed">
+                          {item.description}
+                        </p>
+                      )}
                     </div>
 
-                    <h3 className="font-bold text-base sm:text-lg text-gray-950 group-hover:text-gray-800 transition-colors line-clamp-1 leading-snug">
-                      {item.title}
-                    </h3>
+                    {/* Bottom Footer: Seller Info & Actions */}
+                    <div className="pt-3 border-t border-gray-100 dark:border-slate-800 flex items-center justify-between gap-2 text-xs text-gray-500 dark:text-slate-400 mt-auto">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="w-7 h-7 rounded-full bg-gray-100 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 flex items-center justify-center font-bold text-gray-700 dark:text-slate-300 flex-shrink-0 text-[11px] shadow-2xs">
+                          {item.seller?.name ? item.seller.name[0].toUpperCase() : 'S'}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-semibold text-gray-900 dark:text-white text-xs truncate">
+                            {item.seller?.name || 'Campus Student'}
+                          </p>
+                          <p className="text-[10px] text-gray-400 dark:text-slate-500 truncate">
+                            {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'Recently'}
+                          </p>
+                        </div>
+                      </div>
 
-                    <p className="text-xs sm:text-sm text-gray-600 line-clamp-2 min-h-[38px] leading-relaxed">
-                      {item.description || 'No additional details provided.'}
-                    </p>
+                      <div
+                        className="flex items-center gap-1.5 flex-shrink-0"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {item.contact ? (
+                          <a
+                            href={`tel:${item.contact.replace(/[^0-9+]/g, '')}`}
+                            className="p-2 rounded-xl bg-[#0B1528] dark:bg-blue-600 hover:bg-black dark:hover:bg-blue-500 text-white shadow-xs transition-all cursor-pointer active:scale-95 flex items-center justify-center"
+                            title={`Call: ${item.contact}`}
+                          >
+                            <Phone className="w-3.5 h-3.5" />
+                          </a>
+                        ) : null}
+
+                        {isSeller && (
+                          <button
+                            onClick={() => handleToggleStatus(item)}
+                            className={`px-2.5 py-1.5 rounded-lg text-[10.5px] font-bold transition-all cursor-pointer border ${
+                              item.status === 'sold'
+                                ? 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-200 dark:border-slate-700 hover:bg-gray-200'
+                                : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60 hover:bg-emerald-100'
+                            }`}
+                            title={item.status === 'sold' ? 'Mark Available' : 'Mark Sold'}
+                          >
+                            {item.status === 'sold' ? 'Avail' : 'Sold'}
+                          </button>
+                        )}
+
+                        {isSeller && (
+                          <button
+                            onClick={() => handleDelete(item)}
+                            className="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
-
-                {/* Footer Section: Surface shift */}
-                <div className="px-5 sm:px-6 py-3.5 bg-gray-50/80 border-t border-gray-200 flex items-center justify-between gap-3 text-xs">
-                  <span className="text-xs text-gray-500 truncate">
-                    By <strong className="text-gray-950 font-bold">{item.seller?.name || 'Student'}</strong>
-                  </span>
-
-                  {item.contact ? (
-                    <a
-                      href={`tel:${item.contact.replace(/[^0-9+]/g, '')}`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#E8F8F0] hover:bg-[#d4f2e3] text-[#05A86B] border border-[#05A86B]/30 text-xs font-bold transition-all shadow-xs flex-shrink-0 cursor-pointer active:scale-95"
-                    >
-                      <Phone className="w-3.5 h-3.5 text-[#05A86B]" />
-                      <span>Contact</span>
-                    </a>
-                  ) : (
-                    <span className="text-xs text-gray-400">Campus</span>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       {/* Item Detail Modal */}
       <Modal
@@ -621,7 +469,7 @@ export default function MarketPage() {
                       className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider border ${
                         selectedItem.status === 'sold'
                           ? 'bg-gray-100 text-gray-500 border-gray-200'
-                          : 'bg-[#E8F8F0] text-[#05A86B] border-[#05A86B]/30'
+                          : 'bg-emerald-50 text-emerald-700 border-emerald-200'
                       }`}
                     >
                       {selectedItem.status === 'sold' ? 'Sold' : 'Available'}
@@ -636,7 +484,7 @@ export default function MarketPage() {
                     </span>
                   </div>
 
-                  <div className="text-2xl font-black text-[#05A86B] bg-[#E8F8F0] border border-[#05A86B]/30 px-4 py-1.5 rounded-xl shadow-xs">
+                  <div className="text-2xl font-black text-white bg-[#0B1528] px-4 py-1.5 rounded-xl shadow-xs">
                     ₹{selectedItem.price}
                   </div>
                 </div>
@@ -675,7 +523,7 @@ export default function MarketPage() {
                 </div>
                 <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-xl bg-[#E8F8F0] border border-[#05A86B]/30 flex items-center justify-center text-[#05A86B] font-bold text-base flex-shrink-0">
+                    <div className="w-11 h-11 rounded-xl bg-gray-200 border border-gray-300 flex items-center justify-center text-gray-900 font-bold text-base flex-shrink-0">
                       {selectedItem.seller?.avatar ? (
                         <img
                           src={selectedItem.seller.avatar}
@@ -709,7 +557,7 @@ export default function MarketPage() {
                           href={`https://wa.me/${waNumber}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#E8F8F0] hover:bg-[#d4f2e3] text-[#05A86B] border border-[#05A86B]/30 text-xs font-bold transition-all cursor-pointer shadow-xs"
+                          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold transition-all cursor-pointer shadow-xs"
                           title="Chat on WhatsApp"
                         >
                           <MessageCircle className="w-4 h-4" />
@@ -718,7 +566,7 @@ export default function MarketPage() {
                       )}
                       <a
                         href={`tel:${cleanPhone}`}
-                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#05A86B] hover:bg-[#048E5A] text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
+                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0B1528] hover:bg-black text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
                       >
                         <Phone className="w-3.5 h-3.5" />
                         <span>Call</span>
@@ -788,7 +636,7 @@ export default function MarketPage() {
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               placeholder="e.g. Engineering Mathematics by B.S. Grewal"
-              className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 focus:border-[#05A86B] rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
+              className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 focus:border-[#0B1528] rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
             />
           </div>
 
@@ -804,7 +652,7 @@ export default function MarketPage() {
                 value={formData.price}
                 onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                 placeholder="350"
-                className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 focus:border-[#05A86B] rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
+                className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 focus:border-[#0B1528] rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
               />
             </div>
 
@@ -815,7 +663,7 @@ export default function MarketPage() {
               <select
                 value={formData.condition}
                 onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
-                className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 focus:border-[#05A86B] rounded-xl text-sm text-gray-900 focus:outline-none cursor-pointer"
+                className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 focus:border-[#0B1528] rounded-xl text-sm text-gray-900 focus:outline-none cursor-pointer"
               >
                 <option value="like-new">Like New</option>
                 <option value="good">Good</option>
@@ -833,7 +681,7 @@ export default function MarketPage() {
               <select
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 focus:border-[#05A86B] rounded-xl text-sm text-gray-900 focus:outline-none cursor-pointer"
+                className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 focus:border-[#0B1528] rounded-xl text-sm text-gray-900 focus:outline-none cursor-pointer"
               >
                 <option value="books">Books</option>
                 <option value="notes">Notes</option>
@@ -854,7 +702,7 @@ export default function MarketPage() {
                 value={formData.contact}
                 onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
                 placeholder="+91 98765 43210"
-                className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 focus:border-[#05A86B] rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
+                className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 focus:border-[#0B1528] rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
               />
             </div>
           </div>
@@ -868,7 +716,7 @@ export default function MarketPage() {
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="Item details, meeting spot, etc..."
-              className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 focus:border-[#05A86B] rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
+              className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 focus:border-[#0B1528] rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
             />
           </div>
 
@@ -895,7 +743,7 @@ export default function MarketPage() {
             <button
               type="submit"
               disabled={actionLoading}
-              className="px-6 py-2 rounded-xl text-xs font-bold bg-[#05A86B] hover:bg-[#048E5A] text-white transition-all disabled:opacity-50 cursor-pointer shadow-md shadow-[#05A86B]/20"
+              className="px-6 py-2 rounded-xl text-xs font-bold bg-[#0B1528] hover:bg-black text-white transition-all disabled:opacity-50 cursor-pointer shadow-md"
             >
               {actionLoading ? 'Listing...' : 'List Item'}
             </button>
