@@ -1,15 +1,17 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useSearch } from '../context/SearchContext';
 import {
   Home,
   Users,
   Search,
   Plus,
   X,
+  HelpCircle,
 } from 'lucide-react';
 
 export default function Sidebar({ isOpen, onClose }) {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const navItems = [
     {
@@ -48,7 +50,7 @@ export default function Sidebar({ isOpen, onClose }) {
     {
       name: 'Lost & Found',
       path: '/lostfound',
-      icon: Search,
+      icon: HelpCircle,
       isActive: () => location.pathname.startsWith('/lostfound') || location.pathname.startsWith('/lost-found'),
     },
     {
@@ -75,63 +77,94 @@ export default function Sidebar({ isOpen, onClose }) {
 
   const handleCreatePost = () => {
     if (onClose) onClose();
-    window.dispatchEvent(new CustomEvent('open-create-post'));
+    if (location.pathname !== '/') {
+      navigate('/?create=true');
+    } else {
+      window.dispatchEvent(new CustomEvent('open-create-post'));
+    }
   };
 
-  const NavContent = () => (
-    <div className="flex flex-col h-full justify-between relative overflow-hidden select-none">
-      {/* ─── Top Section: Logo & Nav Links ─── */}
-      <div>
-        {/* Brand Header */}
-        <div className="flex items-center justify-between pt-1 pb-6 px-1">
-          <Link
-            to="/"
-            onClick={onClose}
-            className="flex items-center gap-3.5 group"
-          >
-            {/* White circular badge with compass icon */}
-            <div
-              className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-md flex-shrink-0 group-hover:scale-105 transition-transform duration-200"
-              style={{ backgroundColor: '#ffffff' }}
-            >
-              <svg viewBox="0 0 32 32" className="w-7 h-7" fill="none">
-                <circle cx="16" cy="16" r="11" stroke="#2B2321" strokeWidth="2.2" />
-                {/* Needle tilted ~45 degrees top-left to bottom-right */}
-                <path
-                  d="M 11.5 11.5 L 14.8 18.2 L 20.5 20.5 L 17.2 13.8 Z"
-                  fill="#2B2321"
-                  stroke="#2B2321"
-                  strokeWidth="1.2"
-                  strokeLinejoin="round"
-                />
-                <circle cx="16" cy="16" r="1.8" fill="white" />
-              </svg>
-            </div>
+  const NavContent = () => {
+    const { searchQuery, setSearchQuery } = useSearch();
 
-            <div>
-              <span className="font-bold text-white text-[20px] tracking-tight block leading-tight">
-                Campus Bond
-              </span>
-              <span className="text-[10px] text-[#B8AEA7] font-semibold tracking-wider uppercase block mt-1">
-                STUDENT NETWORK
-              </span>
-            </div>
-          </Link>
-
-          {/* Close button for mobile drawer */}
-          {onClose && (
-            <button
+    return (
+      <div className="flex flex-col h-full justify-between relative overflow-hidden select-none">
+        {/* ─── Top Section: Logo & Nav Links ─── */}
+        <div>
+          {/* Brand Header */}
+          <div className="flex items-center justify-between pt-1 pb-5 px-1">
+            <Link
+              to="/"
               onClick={onClose}
-              className="md:hidden p-1.5 rounded-xl text-[#B8AEA7] hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-              aria-label="Close sidebar"
+              className="flex items-center gap-3.5 group"
             >
-              <X className="w-5 h-5" />
-            </button>
-          )}
-        </div>
+              {/* White circular badge with compass icon */}
+              <div
+                className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-md flex-shrink-0 group-hover:scale-105 transition-transform duration-200"
+                style={{ backgroundColor: '#ffffff' }}
+              >
+                <svg viewBox="0 0 32 32" className="w-7 h-7" fill="none">
+                  <circle cx="16" cy="16" r="11" stroke="#2B2321" strokeWidth="2.2" />
+                  {/* Needle tilted ~45 degrees top-left to bottom-right */}
+                  <path
+                    d="M 11.5 11.5 L 14.8 18.2 L 20.5 20.5 L 17.2 13.8 Z"
+                    fill="#2B2321"
+                    stroke="#2B2321"
+                    strokeWidth="1.2"
+                    strokeLinejoin="round"
+                  />
+                  <circle cx="16" cy="16" r="1.8" fill="white" />
+                </svg>
+              </div>
 
-        {/* Navigation Items */}
-        <nav className="space-y-1.5">
+              <div>
+                <span className="font-bold text-white text-[20px] tracking-tight block leading-tight">
+                  Campus Bond
+                </span>
+                <span className="text-[10px] text-[#B8AEA7] font-semibold tracking-wider uppercase block mt-1">
+                  STUDENT NETWORK
+                </span>
+              </div>
+            </Link>
+
+            {/* Close button for mobile drawer */}
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="md:hidden p-1.5 rounded-xl text-[#B8AEA7] hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                aria-label="Close sidebar"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
+          </div>
+
+          {/* ─── Search Pill in Sidebar (matching exact screenshot design) ─── */}
+          <div className="mb-3.5">
+            <div className="w-full flex items-center gap-3.5 px-4.5 py-3 rounded-full bg-[#BCB5A3] text-[#1D1819] font-semibold text-[15px] shadow-xs focus-within:ring-2 focus-within:ring-white/40 transition-all">
+              <Search className="w-5 h-5 text-[#1D1819] stroke-[2.2] flex-shrink-0" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search..."
+                className="w-full bg-transparent text-[#1D1819] placeholder-[#1D1819]/60 font-semibold text-[15px] focus:outline-none"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="text-[#1D1819]/70 hover:text-[#1D1819] p-0.5 cursor-pointer ml-1"
+                  title="Clear"
+                >
+                  <X className="w-4 h-4 stroke-[2.5]" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Navigation Items */}
+          <nav className="space-y-1.5">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = item.isActive();
@@ -241,6 +274,7 @@ export default function Sidebar({ isOpen, onClose }) {
       </div>
     </div>
   );
+};
 
   return (
     <>

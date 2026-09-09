@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { marketService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { useSearch } from '../../context/SearchContext';
 import Modal from '../../components/Modal';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import {
@@ -36,8 +37,7 @@ export default function MarketPage() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [categoryFilter, setCategoryFilter] = useState(urlIsMyListings ? '' : urlCategory);
-  const [conditionFilter, setConditionFilter] = useState('');
-  const [search, setSearch] = useState('');
+  const { searchQuery: search, debouncedSearch, setSearchQuery } = useSearch();
   const [onlyMyListings, setOnlyMyListings] = useState(urlIsMyListings);
 
   // Keep state in sync with URL searchParams
@@ -219,28 +219,56 @@ export default function MarketPage() {
 
   return (
     <div className="w-full max-w-7xl xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
-      {/* ─── Search & Actions Bar (Matching Home) ─── */}
+      {/* ─── Category Filter Pills & Sell Item Button ─── */}
       <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
-        <div className="relative flex-1 w-full group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500 group-hover:text-gray-600 dark:group-hover:text-slate-300 transition-colors" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search textbooks, notes, electronics, lab kits, calculators..."
-            className="w-full pl-11 pr-5 py-3 sm:py-3.5 bg-white dark:bg-[#0E1626] border border-gray-200 dark:border-slate-800 hover:border-gray-400 dark:hover:border-slate-600 focus:border-[#0B1528] dark:focus:border-blue-500 rounded-2xl text-xs sm:text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none transition-all duration-200 shadow-2xs hover:shadow-sm"
-          />
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+          {categories.map((cat) => {
+            const isSelected = categoryFilter === cat.value && !onlyMyListings;
+            return (
+              <button
+                key={cat.value}
+                type="button"
+                onClick={() => {
+                  setOnlyMyListings(false);
+                  setCategoryFilter(cat.value);
+                }}
+                className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                  isSelected
+                    ? 'bg-[#BCB5A3] text-[#1D1819] shadow-xs'
+                    : 'bg-white dark:bg-[#0E1626] text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-800 hover:border-gray-300 dark:hover:border-slate-700 hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                {cat.label}
+              </button>
+            );
+          })}
         </div>
 
         <button
           onClick={() => setModalOpen(true)}
           title="Sell Item"
-          className="flex items-center justify-center gap-2 px-6 py-3 sm:py-3.5 rounded-2xl bg-[#0B1528] dark:bg-blue-600 hover:bg-black dark:hover:bg-blue-500 text-white text-xs sm:text-sm font-bold tracking-tight whitespace-nowrap transition-all duration-200 cursor-pointer flex-shrink-0 active:scale-98 shadow-sm hover:shadow-md"
+          className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#E95E38] hover:bg-[#D7522D] text-white text-xs sm:text-sm font-bold tracking-tight whitespace-nowrap transition-all duration-200 cursor-pointer flex-shrink-0 active:scale-98 shadow-sm hover:shadow-md"
         >
           <Plus className="w-4 h-4 stroke-[3]" />
           <span>Sell Item</span>
         </button>
       </div>
+
+      {/* Active Search Filter Banner */}
+      {search && (
+        <div className="flex items-center justify-between px-4 py-2 rounded-2xl bg-[#BCB5A3]/20 border border-[#BCB5A3]/40 text-xs sm:text-sm text-[#1D1819] dark:text-amber-200">
+          <div className="flex items-center gap-2">
+            <Search className="w-3.5 h-3.5 text-[#1D1819] dark:text-amber-300" />
+            <span>Showing results for: <strong>"{search}"</strong></span>
+          </div>
+          <button
+            onClick={() => setSearchQuery('')}
+            className="text-xs font-bold underline hover:opacity-80 cursor-pointer"
+          >
+            Clear
+          </button>
+        </div>
+      )}
 
       {/* ─── Market Feed (Full Width, Matching Home) ─── */}
       <div className="w-full space-y-4">

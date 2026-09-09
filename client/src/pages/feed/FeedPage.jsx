@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { eventService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
+import { useSearch } from '../../context/SearchContext';
 import Modal from '../../components/Modal';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import {
@@ -24,6 +26,12 @@ import {
   ArrowRight,
   Check,
   Trophy,
+  Zap,
+  Music,
+  SlidersHorizontal,
+  Sun,
+  Moon,
+  X,
   Theater,
   Briefcase,
   ShoppingBag,
@@ -33,6 +41,7 @@ import {
 
 export default function FeedPage() {
   const { user } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -56,21 +65,8 @@ export default function FeedPage() {
     setSearchParams(next, { replace: true });
   };
 
-  const [search, setSearch] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
-  const categoryDropdownRef = useRef(null);
-  const searchInputRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target)) {
-        setCategoryDropdownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  const { searchQuery, debouncedSearch, setSearchQuery } = useSearch();
+  const [filterMenuOpen, setFilterMenuOpen] = useState(false);
 
   // Auto-open create modal if navigated with ?create=true
   useEffect(() => {
@@ -115,12 +111,6 @@ export default function FeedPage() {
     window.addEventListener('open-create-post', handleOpen);
     return () => window.removeEventListener('open-create-post', handleOpen);
   }, []);
-
-  // Debounce search
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(search), 350);
-    return () => clearTimeout(timer);
-  }, [search]);
 
   const fetchEvents = async () => {
     try {
@@ -232,28 +222,186 @@ export default function FeedPage() {
 
   return (
     <div className="w-full max-w-7xl xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
-      {/* ─── Search & Actions Bar ─── */}
-      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
-        <div className="relative flex-1 w-full group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500 group-hover:text-gray-600 dark:group-hover:text-slate-300 transition-colors" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search hackathons, project teams, skills, topics..."
-            className="w-full pl-11 pr-5 py-3 sm:py-3.5 bg-white dark:bg-[#0E1626] border border-gray-200 dark:border-slate-800 hover:border-gray-400 dark:hover:border-slate-600 focus:border-[#0B1528] dark:focus:border-blue-500 rounded-2xl text-xs sm:text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none transition-all duration-200 shadow-2xs hover:shadow-sm"
+      {/* ─── Hero Banner with VGU Campus, Opportunities Title & Filter Bar ─── */}
+      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-[#FDF3ED] via-[#FCEAE1] to-[#F8DDD0] dark:from-[#1E1715] dark:via-[#261D1A] dark:to-[#1C1513] border border-[#F3DFD5] dark:border-amber-950/40 p-5 sm:p-7 shadow-xs">
+        {/* Right background: Real Vivekananda Global University (VGU) campus photo */}
+        <div className="absolute right-0 top-0 bottom-0 w-3/5 lg:w-[55%] xl:w-[58%] pointer-events-none overflow-hidden select-none">
+          <img
+            src="/images/vgu_campus_real.jpg?v=3"
+            alt="Vivekananda Global University (VGU) Campus"
+            className="w-full h-full object-cover object-[center_88%] opacity-90 dark:opacity-40 transition-all"
+            style={{
+              maskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 15%, rgba(0,0,0,0.85) 50%, rgba(0,0,0,1) 100%)',
+              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 15%, rgba(0,0,0,0.85) 50%, rgba(0,0,0,1) 100%)',
+            }}
           />
         </div>
 
-        <button
-          onClick={() => setCreateModalOpen(true)}
-          title="Create Post"
-          className="flex items-center justify-center gap-2 px-6 py-3 sm:py-3.5 rounded-2xl bg-[#0B1528] dark:bg-blue-600 hover:bg-black dark:hover:bg-blue-500 text-white text-xs sm:text-sm font-bold tracking-tight whitespace-nowrap transition-all duration-200 cursor-pointer flex-shrink-0 active:scale-98 shadow-sm hover:shadow-md"
-        >
-          <Plus className="w-4 h-4 stroke-[3]" />
-          <span>Create Post</span>
-        </button>
+        {/* ─── Top Row: Campus AI, Theme Toggle & Profile ─── */}
+        <div className="flex items-center justify-end gap-2.5 relative z-10">
+          <Link
+            to="/assistant"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 hover:bg-white dark:bg-black/40 dark:hover:bg-black/60 text-xs sm:text-sm font-semibold text-[#1F2937] dark:text-slate-200 shadow-xs border border-white/60 dark:border-white/10 transition-all cursor-pointer"
+          >
+            <span className="w-2 h-2 rounded-full bg-[#05A86B] animate-pulse" />
+            <span>Campus AI</span>
+          </Link>
+
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="p-2 rounded-full bg-white/90 hover:bg-white dark:bg-black/40 dark:hover:bg-black/60 text-indigo-600 dark:text-amber-400 shadow-xs border border-white/60 dark:border-white/10 transition-all cursor-pointer"
+            title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+          >
+            {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
+          </button>
+
+          {user && (
+            <Link
+              to="/profile"
+              className="inline-flex items-center gap-2 pl-1.5 pr-3.5 py-1 rounded-full bg-white/90 hover:bg-white dark:bg-black/40 dark:hover:bg-black/60 shadow-xs border border-white/60 dark:border-white/10 transition-all"
+            >
+              <div className="w-7 h-7 rounded-full bg-[#EDE7E3] dark:bg-slate-700 text-[#1E1917] dark:text-white font-bold text-xs flex items-center justify-center overflow-hidden border border-gray-200 dark:border-slate-600">
+                {user.avatar ? (
+                  <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                ) : (
+                  <span>{(user.name || user.email || 'V').charAt(0).toUpperCase()}</span>
+                )}
+              </div>
+              <span className="text-xs sm:text-sm font-bold text-[#1E1917] dark:text-slate-200 max-w-[120px] truncate">
+                {user.name || 'Vikash'}
+              </span>
+            </Link>
+          )}
+        </div>
+
+        {/* ─── Middle Row: Title & Handwritten Slogan ─── */}
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 my-4 sm:my-5">
+          <div className="max-w-xl">
+            <p className="text-[11px] sm:text-xs font-extrabold uppercase tracking-[0.25em] text-[#8E7E7A] dark:text-amber-200/70 mb-1">
+              OPPORTUNITIES
+            </p>
+            <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-black tracking-tight text-[#0F172A] dark:text-white leading-[1.12]">
+              Discover <span className="text-[#E95E38]">Opportunities</span>
+            </h1>
+            <p className="text-xs sm:text-sm text-[#5C504D] dark:text-slate-300 font-medium max-w-md mt-1.5 leading-relaxed">
+              Find hackathons, project teams, competitions and more across your campus.
+            </p>
+          </div>
+
+          {/* Angled handwritten slogan matching mockup */}
+          <div className="hidden lg:flex flex-col items-start -rotate-8 select-none my-auto pr-8 xl:pr-20">
+            <span className="font-['Caveat'] text-2xl lg:text-3xl font-bold text-[#4A3E3C] dark:text-amber-100 leading-none">
+              Ideas
+            </span>
+            <span className="font-['Caveat'] text-2xl lg:text-3xl font-bold text-[#4A3E3C] dark:text-amber-100 leading-none">
+              People
+            </span>
+            <span className="font-['Caveat'] text-2xl lg:text-3xl font-bold text-[#4A3E3C] dark:text-amber-100 leading-none">
+              Possibilities
+            </span>
+            <svg className="w-24 h-2.5 mt-0.5 text-[#E95E38]" viewBox="0 0 100 8" fill="none">
+              <path d="M 2 5 C 30 2, 70 3, 98 4" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" />
+            </svg>
+          </div>
+        </div>
+
+        {/* ─── Bottom Row: Category Tabs & Search/Filter Controls ─── */}
+        <div className="relative z-10 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 pt-2">
+          {/* Category Tabs */}
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+            {[
+              { label: 'All Topics', value: '' },
+              { label: 'Hackathons', value: 'hackathon', icon: Zap, iconColor: 'text-purple-500' },
+              { label: 'Project Teams', value: 'project', icon: Users, iconColor: 'text-cyan-600' },
+              { label: 'Competitions', value: 'competition', icon: Trophy, iconColor: 'text-amber-500' },
+              { label: 'Cultural', value: 'cultural', icon: Music, iconColor: 'text-pink-500' },
+            ].map((tab) => {
+              const isSelected = category === tab.value;
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.value}
+                  type="button"
+                  onClick={() => setCategory(tab.value)}
+                  className={`flex items-center gap-2 px-4.5 py-2 rounded-full text-xs sm:text-sm whitespace-nowrap transition-all cursor-pointer ${
+                    isSelected
+                      ? 'bg-[#E95E38] text-white font-bold shadow-xs'
+                      : 'bg-white/90 dark:bg-black/30 hover:bg-white text-gray-800 dark:text-slate-200 font-semibold shadow-2xs border border-white/60 dark:border-white/10 hover:shadow-xs'
+                  }`}
+                >
+                  {Icon && <Icon className={`w-4 h-4 ${isSelected ? 'text-white' : tab.iconColor}`} />}
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Search Input & Filter Button */}
+          <div className="flex items-center gap-2.5 flex-shrink-0">
+            <div className="flex-1 lg:flex-initial flex items-center bg-white/95 dark:bg-[#151D2C]/95 backdrop-blur-xs border border-[#F0DDD3] dark:border-slate-700/80 rounded-full px-4 py-2 shadow-xs w-full sm:w-72 md:w-80 lg:w-84 transition-all focus-within:ring-2 focus-within:ring-[#E95E38]/40">
+              <Search className="w-4 h-4 text-[#8E7E7A] mr-2.5 flex-shrink-0 stroke-[2.2]" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search opportunities, skills, tags..."
+                className="w-full bg-transparent text-xs sm:text-sm text-[#1D1819] dark:text-white placeholder-[#8E7E7A] font-medium focus:outline-none"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="text-[#8E7E7A] hover:text-[#1D1819] p-0.5 ml-1 cursor-pointer transition-colors"
+                  title="Clear search"
+                >
+                  <X className="w-3.5 h-3.5 stroke-[2.5]" />
+                </button>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setFilterMenuOpen(!filterMenuOpen)}
+              className="p-2.5 rounded-full bg-[#F7C8B8] hover:bg-[#F2B9A6] active:scale-95 text-[#A63C1E] dark:bg-amber-950/60 dark:hover:bg-amber-900/60 dark:text-amber-200 shadow-xs transition-all cursor-pointer flex-shrink-0"
+              title="Filter settings"
+            >
+              <SlidersHorizontal className="w-4 h-4 stroke-[2.2]" />
+            </button>
+          </div>
+        </div>
+
+        {/* Collapsible Filter Options Panel */}
+        {filterMenuOpen && (
+          <div className="relative z-10 mt-4 pt-3 border-t border-[#F0DDD3] dark:border-slate-700/60 flex flex-wrap items-center gap-3 animate-in fade-in duration-150">
+            <span className="text-xs font-bold text-[#5C504D] dark:text-slate-300">Quick Filters:</span>
+            <button
+              type="button"
+              onClick={() => { setCategory(''); setSearchQuery(''); }}
+              className="px-3 py-1 rounded-full text-xs font-medium bg-white/80 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-white cursor-pointer border border-gray-200 dark:border-slate-700"
+            >
+              Reset All
+            </button>
+            <span className="text-xs text-[#8E7E7A]">Showing all verified campus posts from Vivekananda Global University (VGU)</span>
+          </div>
+        )}
       </div>
+
+      {/* Active Search Filter Banner */}
+      {searchQuery && (
+        <div className="flex items-center justify-between px-4 py-2 rounded-2xl bg-[#BCB5A3]/20 border border-[#BCB5A3]/40 text-xs sm:text-sm text-[#1D1819] dark:text-amber-200">
+          <div className="flex items-center gap-2">
+            <Search className="w-3.5 h-3.5 text-[#1D1819] dark:text-amber-300" />
+            <span>Showing results for: <strong>"{searchQuery}"</strong></span>
+          </div>
+          <button
+            onClick={() => setSearchQuery('')}
+            className="text-xs font-bold underline hover:opacity-80 cursor-pointer"
+          >
+            Clear
+          </button>
+        </div>
+      )}
 
 
       {feedback.message && (
@@ -292,7 +440,7 @@ export default function FeedPage() {
             </button>
           </div>
         ) : (
-          <div className="flex flex-col gap-4 sm:gap-5 w-full">
+          <div className="flex flex-col gap-6 sm:gap-7 w-full my-6">
             {events.map((post) => {
               const isOwner = user && post.createdBy?._id === user._id;
               const hasApplied =
@@ -306,161 +454,162 @@ export default function FeedPage() {
                   (a) => (a.user?._id || a.user) === user._id
                 );
 
-              // Category badge styling in soft pastel colors matching mockup
-              const categoryStyle =
-                post.category === 'hackathon'
-                  ? 'bg-[#EEF2FF] text-[#4F46E5] border-[#E0E7FF] dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800/60'
-                  : post.category === 'cultural'
-                  ? 'bg-[#FDF4FF] text-[#9333EA] border-[#F3E8FF] dark:bg-fuchsia-950/60 dark:text-fuchsia-300 dark:border-fuchsia-800/60'
-                  : post.category === 'competition'
-                  ? 'bg-[#FEF3C7] text-[#D97706] border-[#FDE68A] dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/60'
-                  : post.category === 'project'
-                  ? 'bg-[#E0F2FE] text-[#0284C7] border-[#BAE6FD] dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800/60'
-                  : 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700';
+              const categoryConfig = {
+                hackathon: {
+                  label: 'Hackathon',
+                  icon: Zap,
+                  style: 'bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200/80 dark:border-purple-800/60',
+                  iconColor: 'text-purple-600 dark:text-purple-400',
+                },
+                project: {
+                  label: 'Project Team',
+                  icon: Users,
+                  style: 'bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border-sky-200/80 dark:border-sky-800/60',
+                  iconColor: 'text-sky-600 dark:text-sky-400',
+                },
+                competition: {
+                  label: 'Competition',
+                  icon: Trophy,
+                  style: 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200/80 dark:border-amber-800/60',
+                  iconColor: 'text-amber-600 dark:text-amber-400',
+                },
+                cultural: {
+                  label: 'Cultural',
+                  icon: Music,
+                  style: 'bg-pink-50 dark:bg-pink-950/40 text-pink-700 dark:text-pink-300 border-pink-200/80 dark:border-pink-800/60',
+                  iconColor: 'text-pink-600 dark:text-pink-400',
+                },
+              };
+
+              const currentCat = categoryConfig[post.category] || {
+                label: post.category || 'General',
+                icon: Sparkles,
+                style: 'bg-[#F5F2EE] dark:bg-slate-800 text-[#554745] dark:text-slate-300 border-[#E8E2DC] dark:border-slate-700',
+                iconColor: 'text-[#8E7E7A]',
+              };
+              const CatIcon = currentCat.icon;
 
               const isExpanded = !!expandedPosts[post._id];
 
               return (
                 <div
                   key={post._id}
-                  onClick={() => navigate(`/events/${post._id}`)}
-                  className="w-full bg-white dark:bg-[#0E1626] border border-gray-300 dark:border-slate-800/90 hover:border-gray-400 dark:hover:border-slate-700 rounded-2xl sm:rounded-3xl p-6 sm:p-8 transition-all duration-300 ease-out space-y-4 sm:space-y-5 shadow-xs hover:shadow-xl hover:-translate-y-1 group cursor-pointer"
+                  onClick={() => toggleExpandPost(post._id)}
+                  className="w-full bg-white dark:bg-[#111726] hover:bg-[#FCFAF8] dark:hover:bg-[#141C2E] border border-[#E8E2DC] dark:border-slate-800/80 hover:border-[#D8CEC5] dark:hover:border-slate-700 rounded-3xl p-7 sm:p-8 md:p-9 transition-all duration-300 ease-out shadow-xs hover:shadow-xl hover:shadow-black/[0.04] dark:hover:shadow-black/50 hover:-translate-y-1 group cursor-pointer space-y-5 sm:space-y-6 relative overflow-hidden"
                 >
-                  {/* Top: Title & Category Badge */}
-                  <div className="flex items-start justify-between gap-4">
-                    <Link
-                      to={`/events/${post._id}`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="font-bold text-lg sm:text-xl text-gray-950 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-snug tracking-tight"
-                    >
-                      {post.title}
-                    </Link>
-                    <span
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setCategory(post.category);
-                      }}
-                      title={`Filter by ${post.category}`}
-                      className={`font-mono-code text-[10.5px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border flex-shrink-0 shadow-2xs cursor-pointer hover:brightness-95 transition-all ${categoryStyle}`}
-                    >
-                      {post.category}
-                    </span>
-                  </div>
-
-                  {/* ─── Description & Inline See More ─── */}
-                  <div className="space-y-2">
-                    <div>
-                      {post.description && (
-                        <p
-                          className={`text-sm text-gray-600 dark:text-slate-300 leading-relaxed font-normal ${
-                            isExpanded ? 'whitespace-pre-line' : ''
-                          }`}
-                        >
-                          {isExpanded
-                            ? post.description
-                            : (post.description.length > 200
-                                ? `${post.description.slice(0, 200).trim()}...`
-                                : post.description)}
-                          {' '}
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleExpandPost(post._id);
-                            }}
-                            className="inline-flex items-center text-xs font-semibold text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer select-none ml-1 align-baseline"
-                          >
-                            <span>{isExpanded ? 'show less' : 'see more'}</span>
-                          </button>
-                        </p>
-                      )}
-                      {!post.description && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleExpandPost(post._id);
-                          }}
-                          className="text-xs font-semibold text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer select-none"
-                        >
-                          {isExpanded ? 'show less' : 'see details'}
-                        </button>
-                      )}
+                  {/* Top: Title, Category Badge & Expand Chevron */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <h2 className="font-medium text-[19px] sm:text-[21px] text-[#1E1917] dark:text-[#F3F4F6] group-hover:text-[#E95E38] transition-colors leading-relaxed tracking-normal">
+                        {post.title}
+                      </h2>
                     </div>
 
-                    {/* Expandable Meta Section */}
-                    {isExpanded && (
-                      <div className="pt-3 border-t border-gray-100 dark:border-slate-800 space-y-3 animate-fade-in">
-                        {post.skillsNeeded && post.skillsNeeded.length > 0 && (
-                          <div>
-                            <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 mb-1.5">
-                              Skills Required:
-                            </p>
-                            <div className="flex flex-wrap gap-1.5">
-                              {post.skillsNeeded.map((skill, i) => (
-                                <span
-                                  key={i}
-                                  className="text-xs font-medium px-2.5 py-1 rounded-lg bg-gray-50 dark:bg-slate-800 text-gray-700 dark:text-slate-200 border border-gray-200/80 dark:border-slate-700"
-                                >
-                                  {skill}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+                    <div className="flex items-center gap-2.5 flex-shrink-0">
+                      <span
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCategory(post.category);
+                        }}
+                        title={`Filter by ${currentCat.label}`}
+                        className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-xs font-normal tracking-wide shadow-2xs cursor-pointer hover:brightness-95 transition-all ${currentCat.style}`}
+                      >
+                        <CatIcon className={`w-3.5 h-3.5 ${currentCat.iconColor}`} />
+                        <span>{currentCat.label}</span>
+                      </span>
 
-                        {post.deadline && (
-                          <div className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-300 font-semibold bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/60 px-3 py-1.5 rounded-xl w-fit">
-                            <Clock className="w-3.5 h-3.5" />
-                            <span>Deadline: {new Date(post.deadline).toLocaleDateString()}</span>
-                          </div>
-                        )}
+                      <div
+                        className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-[#8E7E7A] hover:text-[#1E1917] dark:hover:text-white transition-colors"
+                        title={isExpanded ? 'Collapse post description' : 'Click to expand description'}
+                      >
+                        <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isExpanded ? 'rotate-180 text-[#E95E38]' : ''}`} />
                       </div>
-                    )}
+                    </div>
                   </div>
 
-                  {/* ─── Tags Pill Row ─── */}
-                  <div className="flex flex-wrap items-center gap-2 pt-1">
-                    {post.skillsNeeded && post.skillsNeeded.slice(0, 3).map((skill, i) => (
+                  {/* ─── Expandable Description (Hidden by default, revealed on click) ─── */}
+                  {isExpanded && (
+                    <div className="pt-2 pb-1 border-t border-[#F0ECE7] dark:border-slate-800/80 space-y-4 animate-in fade-in slide-in-from-top-1 duration-200">
+                      {post.description && (
+                        <p className="text-[15px] text-[#4A3E3C] dark:text-slate-300 leading-relaxed font-normal whitespace-pre-line tracking-normal">
+                          {post.description}
+                        </p>
+                      )}
+
+                      {post.skillsNeeded && post.skillsNeeded.length > 0 && (
+                        <div className="pt-2 space-y-2">
+                          <p className="text-xs font-normal uppercase tracking-wider text-[#8E7E7A] dark:text-slate-400">
+                            Required Skills & Expertise:
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {post.skillsNeeded.map((skill, i) => (
+                              <span
+                                key={i}
+                                className="text-xs font-normal px-3.5 py-1.5 rounded-full bg-[#F7F4F0] dark:bg-slate-800 text-[#374151] dark:text-slate-200 border border-[#EAE3DC] dark:border-slate-700 shadow-2xs"
+                              >
+                                {skill}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* ─── Tags Pill Row & Capacity Badges ─── */}
+                  <div className="flex flex-wrap items-center gap-3 pt-1">
+                    {post.skillsNeeded && post.skillsNeeded.slice(0, 4).map((skill, i) => (
                       <span
                         key={i}
-                        className="font-medium text-xs px-2.5 py-1 rounded-lg bg-gray-100/80 dark:bg-slate-800 text-gray-700 dark:text-slate-200 border border-gray-200/60 dark:border-slate-700"
+                        className="text-xs font-normal px-3.5 py-1.5 rounded-full bg-[#F7F4F0] dark:bg-slate-800 text-[#4A3E3C] dark:text-slate-200 border border-[#EAE3DC] dark:border-slate-700/80 shadow-2xs tracking-normal"
                       >
                         {skill}
                       </span>
                     ))}
-                    {post.skillsNeeded && post.skillsNeeded.length > 3 && (
-                      <span className="text-[11px] text-gray-600 dark:text-slate-400 font-semibold">
-                        +{post.skillsNeeded.length - 3} more
+                    {post.skillsNeeded && post.skillsNeeded.length > 4 && (
+                      <span className="text-xs font-normal text-[#8E7E7A] dark:text-slate-400 px-3 py-1.5 rounded-full bg-[#FBF9F7] dark:bg-slate-800/60 border border-[#EAE3DC]/60 dark:border-slate-700/50">
+                        +{post.skillsNeeded.length - 4} more
+                      </span>
+                    )}
+
+                    {post.deadline && (
+                      <span className="inline-flex items-center gap-1.5 text-xs font-normal text-amber-800 dark:text-amber-300 bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200/70 dark:border-amber-800/60 px-3.5 py-1.5 rounded-full tracking-normal">
+                        <Clock className="w-3.5 h-3.5 text-amber-600" />
+                        <span>Deadline: {new Date(post.deadline).toLocaleDateString()}</span>
                       </span>
                     )}
 
                     {post.teamSize && (
-                      <span className="inline-flex items-center gap-1 text-xs text-gray-600 dark:text-slate-300 bg-gray-100/70 dark:bg-slate-800 border border-gray-200/60 dark:border-slate-700 px-2.5 py-1 rounded-lg font-medium ml-auto">
-                        <Users className="w-3.5 h-3.5 text-gray-500 dark:text-slate-400" />
+                      <span className="inline-flex items-center gap-1.5 text-xs font-normal text-emerald-800 dark:text-emerald-300 bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-800/60 px-3.5 py-1.5 rounded-full tracking-normal ml-auto">
+                        <Users className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                         <span>Team of {post.teamSize}</span>
                       </span>
                     )}
                   </div>
 
                   {/* ─── Bottom Footer: Poster Info & Actions ─── */}
-                  <div className="pt-4 sm:pt-5 border-t border-gray-100 dark:border-slate-800 flex items-center justify-between gap-4 text-xs text-gray-500 dark:text-slate-400">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-gray-200 to-gray-100 dark:from-slate-700 dark:to-slate-800 border border-gray-300 dark:border-slate-700 flex items-center justify-center font-bold text-gray-700 dark:text-slate-200 flex-shrink-0 text-xs shadow-2xs">
+                  <div className="pt-5 border-t border-[#F0ECE7] dark:border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#E95E38]/20 to-[#FCEAE1] dark:from-slate-700 dark:to-slate-800 border border-[#F3DFD5] dark:border-slate-700 flex items-center justify-center font-medium text-[#A63C1E] dark:text-amber-300 flex-shrink-0 text-xs shadow-2xs">
                         {post.createdBy?.name ? post.createdBy.name[0].toUpperCase() : 'U'}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-semibold text-gray-900 dark:text-white truncate">
+                        <p className="font-medium text-sm text-[#1E1917] dark:text-[#F3F4F6] truncate tracking-normal">
                           {post.createdBy?.name || 'Campus Student'}
                         </p>
-                        <p className="text-[11px] text-gray-600 dark:text-slate-400 truncate">
-                          {post.createdBy?.branch ? `${post.createdBy.branch} • ` : ''}
-                          {post.createdAt ? new Date(post.createdAt).toLocaleDateString() : 'Recently'}
-                        </p>
+                        <div className="flex items-center gap-2 text-xs text-[#8E7E7A] dark:text-slate-400 font-normal tracking-normal">
+                          {post.createdBy?.branch && (
+                            <span className="font-normal px-2 py-0.5 rounded-full bg-[#F5F2EE] dark:bg-slate-800 text-[#4A3E3C] dark:text-slate-300">
+                              {post.createdBy.branch}
+                            </span>
+                          )}
+                          <span>•</span>
+                          <span>{post.createdAt ? new Date(post.createdAt).toLocaleDateString() : 'Recently'}</span>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-2.5 flex-shrink-0">
                       {/* Interested Heart / ThumbsUp Button */}
                       <button
                         type="button"
@@ -468,79 +617,76 @@ export default function FeedPage() {
                           e.stopPropagation();
                           handleInterest(post._id);
                         }}
-                        className={`p-2 rounded-xl border transition-all cursor-pointer flex items-center gap-1.5 ${
+                        className={`px-3.5 py-1.5 rounded-full border transition-all cursor-pointer flex items-center gap-1.5 text-xs font-normal ${
                           post.interested && post.interested.includes(user?._id)
                             ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-800/60 shadow-2xs'
-                            : 'bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-500 dark:text-slate-300 border-gray-200 dark:border-slate-700'
+                            : 'bg-[#FAF7F5] dark:bg-slate-800 hover:bg-[#F3EFEA] dark:hover:bg-slate-700 text-[#5C504D] dark:text-slate-300 border-[#EBE5E0] dark:border-slate-700'
                         }`}
                         title="Show Interest"
                       >
                         <ThumbsUp className="w-3.5 h-3.5" />
-                        <span className="text-xs font-semibold">
-                          {post.interested?.length || 0}
-                        </span>
+                        <span>{post.interested?.length || 0}</span>
                       </button>
 
-                      {/* Comments Modal Trigger */}
+                      {/* Comments Button */}
                       <button
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           setCommentModalPost(post);
                         }}
-                        className="p-2 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-500 dark:text-slate-300 transition-all cursor-pointer flex items-center gap-1.5"
+                        className="px-3.5 py-1.5 rounded-full border border-[#EBE5E0] dark:border-slate-700 bg-[#FAF7F5] dark:bg-slate-800 hover:bg-[#F3EFEA] dark:hover:bg-slate-700 text-[#5C504D] dark:text-slate-300 transition-all cursor-pointer flex items-center gap-1.5 text-xs font-normal"
                         title="View comments"
                       >
                         <MessageSquare className="w-3.5 h-3.5" />
-                        <span className="text-xs font-semibold">
-                          {post.comments?.length || 0}
-                        </span>
+                        <span>{post.comments?.length || 0}</span>
                       </button>
 
                       {/* Apply Button */}
                       {isOwner ? (
-                        <div className="ml-2 flex-shrink-0">
-                          <Link
-                            to={`/events/${post._id}`}
-                            onClick={(e) => e.stopPropagation()}
-                            className="font-display px-3.5 py-2 rounded-xl text-xs font-bold tracking-tight bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-800 dark:text-white border border-gray-300 dark:border-slate-700 transition-all inline-block whitespace-nowrap cursor-pointer"
-                          >
-                            Manage ({post.applicants?.length || 0})
-                          </Link>
-                        </div>
-                      ) : hasApplied ? (
-                        <div className="ml-2 flex-shrink-0">
-                          <span
-                            className={`font-mono-code px-3 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider inline-flex items-center gap-1 whitespace-nowrap border ${
-                              myApplication?.status === 'accepted'
-                                ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
-                                : myApplication?.status === 'rejected'
-                                ? 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800'
-                                : 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800'
-                            }`}
-                          >
-                            {myApplication?.status === 'accepted' ? (
-                              <>
-                                <Check className="w-3 h-3 stroke-[3]" /> Accepted
-                              </>
-                            ) : (
-                              myApplication?.status || 'Applied'
-                            )}
+                        <Link
+                          to={`/events/${post._id}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="px-4 py-2 rounded-full text-xs font-normal bg-[#554745] hover:bg-[#433735] text-white shadow-xs transition-all inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                        >
+                          <span>Manage</span>
+                          <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px]">
+                            {post.applicants?.length || 0}
                           </span>
-                        </div>
+                        </Link>
+                      ) : hasApplied ? (
+                        <span
+                          className={`px-4 py-2 rounded-full text-xs font-normal inline-flex items-center gap-1.5 whitespace-nowrap border ${
+                            myApplication?.status === 'accepted'
+                              ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
+                              : myApplication?.status === 'rejected'
+                              ? 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-800'
+                              : 'bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800'
+                          }`}
+                        >
+                          {myApplication?.status === 'accepted' ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 stroke-[2.5]" /> Accepted
+                            </>
+                          ) : (
+                            <>
+                              <Clock className="w-3.5 h-3.5" /> {myApplication?.status || 'Pending'}
+                            </>
+                          )}
+                        </span>
                       ) : (
-                        <div className="ml-2 flex-shrink-0">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedEvent(post);
-                              setApplyModalOpen(true);
-                            }}
-                            className="font-display px-4 py-2 rounded-xl text-xs font-bold tracking-tight bg-[#0B1528] dark:bg-blue-600 hover:bg-black dark:hover:bg-blue-500 text-white shadow-xs hover:shadow-md transition-all cursor-pointer active:scale-95 whitespace-nowrap"
-                          >
-                            Apply Now
-                          </button>
-                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedEvent(post);
+                            setApplyModalOpen(true);
+                          }}
+                          className="px-5 py-2 rounded-full text-xs font-normal bg-[#E95E38] hover:bg-[#D7522D] active:scale-95 text-white shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap tracking-normal"
+                        >
+                          <span>Apply Now</span>
+                          <ArrowRight className="w-3.5 h-3.5 stroke-[2]" />
+                        </button>
                       )}
                     </div>
                   </div>

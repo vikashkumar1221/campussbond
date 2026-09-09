@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation, Link } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
+import { SearchProvider } from './context/SearchContext';
 import Sidebar from './components/Sidebar';
 import CampusChatbot from './components/CampusChatbot';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -97,62 +98,68 @@ function AppLayout() {
       <Sidebar isOpen={mobileSidebarOpen} onClose={() => setMobileSidebarOpen(false)} />
 
       <div className="flex-1 flex flex-col min-w-0">
-        {/* ─── Desktop Header: Profile & Theme Toggle ─── */}
-        <header className="hidden md:flex sticky top-0 z-20 bg-white/80 dark:bg-[#0E1626]/80 backdrop-blur-md border-b border-gray-200/70 dark:border-slate-800/80 px-8 py-2.5 items-center justify-end gap-3 transition-colors">
-          <Link
-            to="/assistant"
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 transition-colors"
-          >
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Campus AI</span>
-          </Link>
+        {/* ─── Desktop Header: AI, Theme Toggle & Profile (shown on non-feed pages) ─── */}
+        {location.pathname !== '/' && (
+          <header className="hidden md:flex sticky top-0 z-20 bg-white/90 dark:bg-[#0E1626]/90 backdrop-blur-md border-b border-gray-200/70 dark:border-slate-800/80 px-8 py-3 items-center justify-end gap-3 transition-colors">
+            <div className="flex items-center gap-3 flex-shrink-0">
+              <Link
+                to="/assistant"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 transition-colors"
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Campus AI</span>
+              </Link>
 
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 transition-colors cursor-pointer"
-            title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
-          >
-            {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
-          </button>
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 transition-colors cursor-pointer"
+                title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+              >
+                {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
+              </button>
 
-          {user && (
-            <Link
-              to="/profile"
-              className="flex items-center gap-2.5 pl-1.5 pr-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors"
-            >
-              <div className="w-7 h-7 rounded-full bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 flex items-center justify-center font-bold text-xs text-gray-900 dark:text-white overflow-hidden">
-                {user.avatar ? (
-                  <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-                ) : (
-                  <span>{(user.name || user.email || 'U').charAt(0).toUpperCase()}</span>
-                )}
-              </div>
-              <span className="text-xs font-semibold text-gray-800 dark:text-slate-200 max-w-[120px] truncate">
-                {user.name || user.email?.split('@')[0]}
-              </span>
-            </Link>
-          )}
-        </header>
+              {user && (
+                <Link
+                  to="/profile"
+                  className="flex items-center gap-2.5 pl-1.5 pr-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors"
+                >
+                  <div className="w-7 h-7 rounded-full bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 flex items-center justify-center font-bold text-xs text-gray-900 dark:text-white overflow-hidden">
+                    {user.avatar ? (
+                      <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span>{(user.name || user.email || 'U').charAt(0).toUpperCase()}</span>
+                    )}
+                  </div>
+                  <span className="text-xs font-semibold text-gray-800 dark:text-slate-200 max-w-[120px] truncate">
+                    {user.name || user.email?.split('@')[0]}
+                  </span>
+                </Link>
+              )}
+            </div>
+          </header>
+        )}
 
         {/* ─── Mobile Header (only on screens < md) ─── */}
-        <header className="md:hidden sticky top-0 z-30 bg-white/95 dark:bg-[#0B111E]/95 backdrop-blur-md border-b border-gray-200 dark:border-slate-800 px-4 py-3 flex items-center justify-between shadow-2xs transition-colors">
-          <button
-            onClick={() => setMobileSidebarOpen(true)}
-            className="p-2 rounded-xl text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 cursor-pointer"
-            aria-label="Open sidebar menu"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
-          <Link to="/" className="font-display font-black text-lg text-gray-950 dark:text-white">
-            Campus Bond
-          </Link>
-          <Link
-            to="/profile"
-            className="w-8 h-8 rounded-full bg-gray-100 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 flex items-center justify-center text-gray-950 dark:text-white font-bold text-xs shadow-2xs"
-          >
-            {user?.name?.charAt(0) || 'U'}
-          </Link>
+        <header className="md:hidden sticky top-0 z-30 bg-white/95 dark:bg-[#0B111E]/95 backdrop-blur-md border-b border-gray-200 dark:border-slate-800 px-4 py-2.5 shadow-2xs transition-colors">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setMobileSidebarOpen(true)}
+              className="p-2 rounded-xl text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 cursor-pointer"
+              aria-label="Open sidebar menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <Link to="/" className="font-display font-black text-lg text-gray-950 dark:text-white">
+              Campus Bond
+            </Link>
+            <Link
+              to="/profile"
+              className="w-8 h-8 rounded-full bg-gray-100 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 flex items-center justify-center text-gray-950 dark:text-white font-bold text-xs shadow-2xs"
+            >
+              {user?.name?.charAt(0) || 'U'}
+            </Link>
+          </div>
         </header>
 
         {/* ─── Main Content Canvas ─── */}
@@ -242,7 +249,9 @@ export default function App() {
     <BrowserRouter>
       <ThemeProvider>
         <AuthProvider>
-          <AppLayout />
+          <SearchProvider>
+            <AppLayout />
+          </SearchProvider>
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>
