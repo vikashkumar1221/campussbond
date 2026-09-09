@@ -1,121 +1,119 @@
-import React, { useState } from 'react';
-import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import {
   Home,
   Users,
-  ShoppingBag,
   Search,
-  MessageSquare,
   Plus,
-  User,
-  Award,
-  Sparkles,
   X,
-  Compass,
-  ChevronDown,
-  Sun,
-  Moon,
-  Bot,
 } from 'lucide-react';
 
 export default function Sidebar({ isOpen, onClose }) {
-  const { user } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const location = useLocation();
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const currentCategory = searchParams.get('category') || '';
-  const [clubsOpen, setClubsOpen] = useState(true);
-  const [homeOpen, setHomeOpen] = useState(true);
-  const [marketOpen, setMarketOpen] = useState(true);
-  const [lostFoundOpen, setLostFoundOpen] = useState(true);
 
   const navItems = [
-    { name: 'Home', path: '/', icon: Home, badge: 'Feed' },
-    { name: 'Clubs', path: '/clubs', icon: Users, badge: 'Societies' },
-    { name: 'Market', path: '/market', icon: ShoppingBag, badge: 'Store' },
-    { name: 'Lost & Found', path: '/lostfound', icon: Search, badge: 'Items' },
-    { name: 'Messages', path: '/chat', icon: MessageSquare, badge: 'Chats' },
+    {
+      name: 'Home',
+      path: '/',
+      icon: Home,
+      isActive: () => location.pathname === '/' || location.pathname.startsWith('/events'),
+    },
+    {
+      name: 'Clubs',
+      path: '/clubs',
+      icon: Users,
+      isActive: () => location.pathname.startsWith('/clubs'),
+    },
+    {
+      name: 'Market',
+      path: '/market',
+      // Custom shopping tote/bag icon matching the mockup
+      icon: (props) => (
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          {...props}
+        >
+          <path d="M4 8h16l-1.5 12H5.5L4 8z" />
+          <path d="M8 8V6a4 4 0 0 1 8 0v2" />
+          <rect x="10" y="11" width="4" height="4" rx="1" strokeWidth="1.8" />
+        </svg>
+      ),
+      isActive: () => location.pathname.startsWith('/market'),
+    },
+    {
+      name: 'Lost & Found',
+      path: '/lostfound',
+      icon: Search,
+      isActive: () => location.pathname.startsWith('/lostfound') || location.pathname.startsWith('/lost-found'),
+    },
+    {
+      name: 'Messages',
+      path: '/chat',
+      // Custom speech bubble icon with center dash matching the mockup
+      icon: (props) => (
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          {...props}
+        >
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          <line x1="9" y1="10" x2="13" y2="10" strokeWidth="2.5" strokeLinecap="round" />
+        </svg>
+      ),
+      isActive: () => location.pathname.startsWith('/chat'),
+    },
   ];
 
-  // Topics under Home
-  const homeTopics = [
-    { label: 'All Topics', value: '' },
-    { label: 'Hackathons', value: 'hackathon' },
-    { label: 'Project Teams', value: 'project' },
-    { label: 'Competitions', value: 'competition' },
-    { label: 'Cultural', value: 'cultural' },
-    { label: 'Other', value: 'other' },
-  ];
-
-  // Club categories from user request
-  const clubCategories = [
-    { label: 'All Clubs', value: '' },
-    { label: 'Tech & Coding', value: 'tech' },
-    { label: 'Cultural & Drama', value: 'cultural' },
-    { label: 'Sports & Athletics', value: 'sports' },
-    { label: 'Academic & Research', value: 'academic' },
-    { label: 'Arts & Photography', value: 'arts' },
-    { label: 'Social & NGO', value: 'social' },
-    { label: 'Other', value: 'other' },
-    { label: 'My Clubs', value: 'my-clubs' },
-  ];
-
-  // Market categories from user request
-  const marketCategories = [
-    { label: 'All Items', value: '' },
-    { label: 'Books', value: 'books' },
-    { label: 'Notes', value: 'notes' },
-    { label: 'Lab Kits', value: 'kit' },
-    { label: 'Electronics', value: 'electronics' },
-    { label: 'Instruments', value: 'instruments' },
-    { label: 'Furniture', value: 'furniture' },
-    { label: 'Other', value: 'other' },
-    { label: 'My Listings', value: 'my-listings' },
-  ];
-
-  // Lost & Found categories
-  const lostFoundCategories = [
-    { label: 'All Reports', value: '', param: '' },
-    { label: 'Lost Items', value: 'lost', param: 'type' },
-    { label: 'Found Items', value: 'found', param: 'type' },
-    { label: 'Electronics', value: 'electronics', param: 'category' },
-    { label: 'ID Cards', value: 'id-card', param: 'category' },
-    { label: 'Keys', value: 'keys', param: 'category' },
-    { label: 'Books', value: 'books', param: 'category' },
-    { label: 'Accessories', value: 'accessories', param: 'category' },
-    { label: 'Clothing', value: 'clothing', param: 'category' },
-    { label: 'Other', value: 'other', param: 'category' },
-  ];
-
-  const isActive = (path) => {
-    if (path === '/') return location.pathname === '/' || location.pathname.startsWith('/events');
-    return location.pathname.startsWith(path);
+  const handleCreatePost = () => {
+    if (onClose) onClose();
+    window.dispatchEvent(new CustomEvent('open-create-post'));
   };
 
-  const displayName = user?.name || user?.email?.split('@')[0] || 'Student';
-
   const NavContent = () => (
-    <div className="flex flex-col h-full justify-between">
-      <div className="space-y-6">
-        {/* Brand Logo & Community Tag */}
-        <div className="flex items-center justify-between px-2 pt-2">
+    <div className="flex flex-col h-full justify-between relative overflow-hidden select-none">
+      {/* ─── Top Section: Logo & Nav Links ─── */}
+      <div>
+        {/* Brand Header */}
+        <div className="flex items-center justify-between pt-1 pb-6 px-1">
           <Link
             to="/"
             onClick={onClose}
-            className="flex items-center gap-2.5 group"
+            className="flex items-center gap-3.5 group"
           >
-            <div className="w-9 h-9 rounded-2xl bg-[#0B1528] dark:bg-blue-600 text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
-              <Compass className="w-5 h-5 text-white" />
+            {/* White circular badge with compass icon */}
+            <div
+              className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-md flex-shrink-0 group-hover:scale-105 transition-transform duration-200"
+              style={{ backgroundColor: '#ffffff' }}
+            >
+              <svg viewBox="0 0 32 32" className="w-7 h-7" fill="none">
+                <circle cx="16" cy="16" r="11" stroke="#2B2321" strokeWidth="2.2" />
+                {/* Needle tilted ~45 degrees top-left to bottom-right */}
+                <path
+                  d="M 11.5 11.5 L 14.8 18.2 L 20.5 20.5 L 17.2 13.8 Z"
+                  fill="#2B2321"
+                  stroke="#2B2321"
+                  strokeWidth="1.2"
+                  strokeLinejoin="round"
+                />
+                <circle cx="16" cy="16" r="1.8" fill="white" />
+              </svg>
             </div>
+
             <div>
-              <span className="font-display text-gray-950 dark:text-white font-black text-xl tracking-tight block leading-none">
+              <span className="font-bold text-white text-[20px] tracking-tight block leading-tight">
                 Campus Bond
               </span>
-              <span className="text-[10px] text-gray-400 dark:text-slate-400 font-semibold uppercase tracking-wider block mt-1">
-                Student Network
+              <span className="text-[10px] text-[#B8AEA7] font-semibold tracking-wider uppercase block mt-1">
+                STUDENT NETWORK
               </span>
             </div>
           </Link>
@@ -124,491 +122,122 @@ export default function Sidebar({ isOpen, onClose }) {
           {onClose && (
             <button
               onClick={onClose}
-              className="md:hidden p-1.5 rounded-xl text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              className="md:hidden p-1.5 rounded-xl text-[#B8AEA7] hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              aria-label="Close sidebar"
             >
               <X className="w-5 h-5" />
             </button>
           )}
         </div>
 
-        {/* Quick Action: Create Post */}
-        <div className="px-1">
-          <Link
-            to="/"
-            onClick={() => {
-              if (onClose) onClose();
-              window.dispatchEvent(new CustomEvent('open-create-post'));
-            }}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-[#0B1528] dark:bg-blue-600 hover:bg-black dark:hover:bg-blue-500 text-white text-xs sm:text-sm font-bold tracking-tight shadow-xs hover:shadow-md transition-all cursor-pointer active:scale-98"
-          >
-            <Plus className="w-4 h-4 stroke-[3]" />
-            <span>Create Post</span>
-          </Link>
-        </div>
-
         {/* Navigation Items */}
-        <nav className="space-y-1.5 px-1">
-          <p className="px-3 text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 mb-2">
-            Main Menu
-          </p>
+        <nav className="space-y-1.5">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const active = isActive(item.path);
-
-            if (item.name === 'Home') {
-              const isHomeActive = isActive(item.path);
-              return (
-                <div key={item.name} className="space-y-1">
-                  <div
-                    onClick={() => {
-                      setHomeOpen((prev) => !prev);
-                      navigate('/');
-                      if (onClose && window.innerWidth < 768) onClose();
-                    }}
-                    className={`font-display flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm tracking-tight transition-all duration-150 cursor-pointer ${
-                      isHomeActive && !currentCategory
-                        ? 'bg-[#0B1528] dark:bg-blue-600 text-white font-bold shadow-xs'
-                        : isHomeActive
-                        ? 'bg-gray-100 dark:bg-slate-800/80 text-gray-950 dark:text-white font-bold'
-                        : 'text-gray-600 dark:text-slate-300 hover:text-black dark:hover:text-white hover:bg-gray-100/80 dark:hover:bg-slate-800/70 font-semibold'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Icon className={`w-4 h-4 flex-shrink-0 ${isHomeActive && !currentCategory ? 'text-white' : 'text-gray-700 dark:text-slate-300'}`} />
-                      <span>{item.name}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className={`text-[10px] font-mono-code px-2 py-0.5 rounded-md ${
-                          isHomeActive && !currentCategory
-                            ? 'bg-white/20 text-white font-semibold'
-                            : 'bg-gray-200/70 text-gray-600 dark:bg-slate-800 dark:text-slate-300'
-                        }`}
-                      >
-                        {item.badge}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setHomeOpen((prev) => !prev);
-                        }}
-                        className="p-0.5 text-current hover:opacity-80 transition-opacity cursor-pointer"
-                        aria-label="Toggle Home dropdown"
-                      >
-                        <ChevronDown
-                          className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                            homeOpen ? 'rotate-180' : ''
-                          }`}
-                        />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* ─── Category Topics Under Home Dropdown ─── */}
-                  {homeOpen && (
-                    <div className="ml-3 pl-3 border-l-2 border-gray-200 dark:border-slate-700 space-y-0.5 py-1">
-                      {homeTopics.map((topic) => {
-                        const isTopicActive =
-                          (location.pathname === '/' || location.pathname.startsWith('/events')) &&
-                          currentCategory === topic.value;
-
-                        return (
-                          <Link
-                            key={topic.label}
-                            to={topic.value ? `/?category=${topic.value}` : '/'}
-                            onClick={onClose}
-                            className={`w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-xs tracking-tight transition-all ${
-                              isTopicActive
-                                ? 'bg-[#0B1528] dark:bg-blue-600 text-white font-bold shadow-2xs'
-                                : 'text-gray-600 dark:text-slate-300 hover:text-gray-950 dark:hover:text-white hover:bg-gray-100/80 dark:hover:bg-slate-800/70 font-medium'
-                            }`}
-                          >
-                            <span>{topic.label}</span>
-                            {isTopicActive && (
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
-                            )}
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              );
-            }
-
-            if (item.name === 'Clubs') {
-              const isClubsActive = location.pathname.startsWith('/clubs');
-              const activeClubCategory = searchParams.get('category') || (searchParams.get('myClubs') === 'true' ? 'my-clubs' : '');
-
-              return (
-                <div key={item.name} className="space-y-1">
-                  <div
-                    onClick={() => {
-                      setClubsOpen((prev) => !prev);
-                      navigate('/clubs');
-                      if (onClose && window.innerWidth < 768) onClose();
-                    }}
-                    className={`font-display flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm tracking-tight transition-all duration-150 cursor-pointer ${
-                      isClubsActive && !activeClubCategory
-                        ? 'bg-[#0B1528] dark:bg-blue-600 text-white font-bold shadow-xs'
-                        : isClubsActive
-                        ? 'bg-gray-100 dark:bg-slate-800/80 text-gray-950 dark:text-white font-bold'
-                        : 'text-gray-600 dark:text-slate-300 hover:text-black dark:hover:text-white hover:bg-gray-100/80 dark:hover:bg-slate-800/70 font-semibold'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Icon className={`w-4 h-4 flex-shrink-0 ${isClubsActive && !activeClubCategory ? 'text-white' : 'text-gray-700 dark:text-slate-300'}`} />
-                      <span>{item.name}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className={`text-[10px] font-mono-code px-2 py-0.5 rounded-md ${
-                          isClubsActive && !activeClubCategory
-                            ? 'bg-white/20 text-white font-semibold'
-                            : 'bg-gray-200/70 text-gray-600 dark:bg-slate-800 dark:text-slate-300'
-                        }`}
-                      >
-                        {item.badge}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setClubsOpen((prev) => !prev);
-                        }}
-                        className="p-0.5 text-current hover:opacity-80 transition-opacity cursor-pointer"
-                        aria-label="Toggle Clubs dropdown"
-                      >
-                        <ChevronDown
-                          className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                            clubsOpen ? 'rotate-180' : ''
-                          }`}
-                        />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* ─── Club Categories Dropdown ─── */}
-                  {clubsOpen && (
-                    <div className="ml-3 pl-3 border-l-2 border-gray-200 dark:border-slate-700 space-y-0.5 py-1">
-                      {clubCategories.map((cat) => {
-                        const isCatActive =
-                          isClubsActive &&
-                          ((cat.value === '' && !activeClubCategory) ||
-                            (cat.value === activeClubCategory));
-
-                        const targetUrl =
-                          cat.value === ''
-                            ? '/clubs'
-                            : cat.value === 'my-clubs'
-                            ? '/clubs?category=my-clubs'
-                            : `/clubs?category=${cat.value}`;
-
-                        return (
-                          <Link
-                            key={cat.label}
-                            to={targetUrl}
-                            onClick={onClose}
-                            className={`w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-xs tracking-tight transition-all ${
-                              isCatActive
-                                ? 'bg-[#0B1528] dark:bg-blue-600 text-white font-bold shadow-2xs'
-                                : 'text-gray-600 dark:text-slate-300 hover:text-gray-950 dark:hover:text-white hover:bg-gray-100/80 dark:hover:bg-slate-800/70 font-medium'
-                            }`}
-                          >
-                            <span>{cat.label}</span>
-                            {isCatActive && (
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
-                            )}
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              );
-            }
-
-            if (item.name === 'Market') {
-              const isMarketActive = location.pathname.startsWith('/market');
-              const activeMarketCategory = searchParams.get('category') || (searchParams.get('myListings') === 'true' ? 'my-listings' : '');
-
-              return (
-                <div key={item.name} className="space-y-1">
-                  <div
-                    onClick={() => {
-                      setMarketOpen((prev) => !prev);
-                      navigate('/market');
-                      if (onClose && window.innerWidth < 768) onClose();
-                    }}
-                    className={`font-display flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm tracking-tight transition-all duration-150 cursor-pointer ${
-                      isMarketActive && !activeMarketCategory
-                        ? 'bg-[#0B1528] dark:bg-blue-600 text-white font-bold shadow-xs'
-                        : isMarketActive
-                        ? 'bg-gray-100 dark:bg-slate-800/80 text-gray-950 dark:text-white font-bold'
-                        : 'text-gray-600 dark:text-slate-300 hover:text-black dark:hover:text-white hover:bg-gray-100/80 dark:hover:bg-slate-800/70 font-semibold'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Icon className={`w-4 h-4 flex-shrink-0 ${isMarketActive && !activeMarketCategory ? 'text-white' : 'text-gray-700 dark:text-slate-300'}`} />
-                      <span>{item.name}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className={`text-[10px] font-mono-code px-2 py-0.5 rounded-md ${
-                          isMarketActive && !activeMarketCategory
-                            ? 'bg-white/20 text-white font-semibold'
-                            : 'bg-gray-200/70 text-gray-600 dark:bg-slate-800 dark:text-slate-300'
-                        }`}
-                      >
-                        {item.badge}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setMarketOpen((prev) => !prev);
-                        }}
-                        className="p-0.5 text-current hover:opacity-80 transition-opacity cursor-pointer"
-                        aria-label="Toggle Market dropdown"
-                      >
-                        <ChevronDown
-                          className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                            marketOpen ? 'rotate-180' : ''
-                          }`}
-                        />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* ─── Market Categories Dropdown ─── */}
-                  {marketOpen && (
-                    <div className="ml-3 pl-3 border-l-2 border-gray-200 dark:border-slate-700 space-y-0.5 py-1">
-                      {marketCategories.map((cat) => {
-                        const isCatActive =
-                          isMarketActive &&
-                          ((cat.value === '' && !activeMarketCategory) ||
-                            (cat.value === activeMarketCategory));
-
-                        const targetUrl =
-                          cat.value === ''
-                            ? '/market'
-                            : cat.value === 'my-listings'
-                            ? '/market?category=my-listings'
-                            : `/market?category=${cat.value}`;
-
-                        return (
-                          <Link
-                            key={cat.label}
-                            to={targetUrl}
-                            onClick={onClose}
-                            className={`w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-xs tracking-tight transition-all ${
-                              isCatActive
-                                ? 'bg-[#0B1528] dark:bg-blue-600 text-white font-bold shadow-2xs'
-                                : 'text-gray-600 dark:text-slate-300 hover:text-gray-950 dark:hover:text-white hover:bg-gray-100/80 dark:hover:bg-slate-800/70 font-medium'
-                            }`}
-                          >
-                            <span>{cat.label}</span>
-                            {isCatActive && (
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
-                            )}
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              );
-            }
-
-            if (item.name === 'Lost & Found') {
-              const isLfActive = location.pathname.startsWith('/lostfound');
-              const activeType = searchParams.get('type') || '';
-              const activeCategory = searchParams.get('category') || '';
-
-              return (
-                <div key={item.name} className="space-y-1">
-                  <div
-                    onClick={() => {
-                      setLostFoundOpen((prev) => !prev);
-                      navigate('/lostfound');
-                      if (onClose && window.innerWidth < 768) onClose();
-                    }}
-                    className={`font-display flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm tracking-tight transition-all duration-150 cursor-pointer ${
-                      isLfActive && !activeType && !activeCategory
-                        ? 'bg-[#0B1528] dark:bg-blue-600 text-white font-bold shadow-xs'
-                        : isLfActive
-                        ? 'bg-gray-100 dark:bg-slate-800/80 text-gray-950 dark:text-white font-bold'
-                        : 'text-gray-600 dark:text-slate-300 hover:text-black dark:hover:text-white hover:bg-gray-100/80 dark:hover:bg-slate-800/70 font-semibold'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Icon className={`w-4 h-4 flex-shrink-0 ${isLfActive && !activeType && !activeCategory ? 'text-white' : 'text-gray-700 dark:text-slate-300'}`} />
-                      <span>{item.name}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className={`text-[10px] font-mono-code px-2 py-0.5 rounded-md ${
-                          isLfActive && !activeType && !activeCategory
-                            ? 'bg-white/20 text-white font-semibold'
-                            : 'bg-gray-200/70 text-gray-600 dark:bg-slate-800 dark:text-slate-300'
-                        }`}
-                      >
-                        {item.badge}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setLostFoundOpen((prev) => !prev);
-                        }}
-                        className="p-0.5 text-current hover:opacity-80 transition-opacity cursor-pointer"
-                        aria-label="Toggle Lost & Found dropdown"
-                      >
-                        <ChevronDown
-                          className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                            lostFoundOpen ? 'rotate-180' : ''
-                          }`}
-                        />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* ─── Lost & Found Categories Dropdown ─── */}
-                  {lostFoundOpen && (
-                    <div className="ml-3 pl-3 border-l-2 border-gray-200 dark:border-slate-700 space-y-0.5 py-1">
-                      {lostFoundCategories.map((cat) => {
-                        const isCatActive =
-                          isLfActive &&
-                          ((cat.value === '' && !activeType && !activeCategory) ||
-                            (cat.param === 'type' && activeType === cat.value) ||
-                            (cat.param === 'category' && activeCategory === cat.value));
-
-                        const targetUrl =
-                          cat.value === ''
-                            ? '/lostfound'
-                            : cat.param === 'type'
-                            ? `/lostfound?type=${cat.value}`
-                            : `/lostfound?category=${cat.value}`;
-
-                        return (
-                          <Link
-                            key={cat.label}
-                            to={targetUrl}
-                            onClick={onClose}
-                            className={`w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-xs tracking-tight transition-all ${
-                              isCatActive
-                                ? 'bg-[#0B1528] dark:bg-blue-600 text-white font-bold shadow-2xs'
-                                : 'text-gray-600 dark:text-slate-300 hover:text-gray-950 dark:hover:text-white hover:bg-gray-100/80 dark:hover:bg-slate-800/70 font-medium'
-                            }`}
-                          >
-                            <span>{cat.label}</span>
-                            {isCatActive && (
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
-                            )}
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              );
-            }
+            const active = item.isActive();
 
             return (
               <Link
                 key={item.name}
                 to={item.path}
                 onClick={onClose}
-                className={`font-display flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm tracking-tight transition-all duration-150 ${
+                className={`w-full flex items-center gap-3.5 px-4.5 py-3 rounded-full text-[15px] transition-all duration-150 ${
                   active
-                    ? 'bg-[#0B1528] dark:bg-blue-600 text-white font-bold shadow-xs'
-                    : 'text-gray-600 dark:text-slate-300 hover:text-black dark:hover:text-white hover:bg-gray-100/80 dark:hover:bg-slate-800/70 font-semibold'
+                    ? 'bg-[#BCB5A3] text-[#1D1819] font-semibold shadow-xs'
+                    : 'text-[#F5F4F3] hover:text-white hover:bg-white/[0.08] font-medium'
                 }`}
               >
-                <div className="flex items-center gap-3">
-                  <Icon className={`w-4 h-4 flex-shrink-0 ${active ? 'text-white' : 'text-gray-500 dark:text-slate-400'}`} />
-                  <span>{item.name}</span>
-                </div>
-                {item.badge && (
-                  <span
-                    className={`text-[10px] font-mono-code px-2 py-0.5 rounded-md ${
-                      active
-                        ? 'bg-white/20 text-white font-semibold'
-                        : 'bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400'
-                    }`}
-                  >
-                    {item.badge}
-                  </span>
-                )}
+                <Icon
+                  className={`w-5 h-5 flex-shrink-0 ${
+                    active ? 'text-[#1D1819] stroke-[2.2]' : 'text-[#F5F4F3] stroke-[2]'
+                  }`}
+                />
+                <span>{item.name}</span>
               </Link>
             );
           })}
         </nav>
+
+        {/* Divider */}
+        <div className="h-px bg-[#615451] my-4 mx-1" />
+
+        {/* Quick Actions */}
+        <div className="space-y-2.5 px-0.5">
+          <p className="text-[13px] font-medium text-[#B8AEA7] px-1 tracking-tight">
+            Quick Actions
+          </p>
+          <button
+            type="button"
+            onClick={handleCreatePost}
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-[#E95E38] hover:bg-[#D7522D] active:scale-[0.98] text-white font-bold text-[15px] shadow-sm transition-all cursor-pointer"
+          >
+            <Plus className="w-5 h-5 stroke-[2.8]" />
+            <span>Create Post</span>
+          </button>
+        </div>
+
+        {/* Quote Card */}
+        <div className="bg-[#554745] rounded-3xl p-5 relative my-4 overflow-hidden shadow-xs">
+          <div className="text-[#8E7E7A] text-3xl font-serif leading-none select-none mb-3">
+            “
+          </div>
+          <div className="space-y-0.5 text-[#F5F4F3] text-[15px] font-medium leading-snug">
+            <p>Connect</p>
+            <p>Collaborate</p>
+            <p>Grow Together</p>
+          </div>
+          {/* Paper airplane */}
+          <div className="absolute bottom-5 right-5 text-white/90">
+            <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 transform rotate-12">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+            </svg>
+          </div>
+        </div>
       </div>
 
-      {/* Bottom Section: Campus Assistant, Student Profile & Theme Toggle */}
-      <div className="pt-3 border-t border-gray-200/90 dark:border-slate-800 px-1 space-y-2">
-        {/* Campus Assistant right above Profile */}
-        <Link
-          to="/assistant"
-          onClick={onClose}
-          className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold tracking-tight transition-all cursor-pointer ${
-            location.pathname === '/assistant'
-              ? 'bg-[#0B1528] dark:bg-blue-600 text-white shadow-xs'
-              : 'bg-gray-100/90 dark:bg-slate-800/80 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-900 dark:text-white border border-gray-200/80 dark:border-slate-700'
-          }`}
-        >
-          <div className="flex items-center gap-2.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Campus Assistant</span>
-          </div>
-          <span
-            className={`text-[10px] font-mono-code px-2 py-0.5 rounded-md ${
-              location.pathname === '/assistant'
-                ? 'bg-white/20 text-white font-semibold'
-                : 'bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300'
-            }`}
+      {/* ─── Bottom Section: Waves & Slogan ─── */}
+      <div className="relative pt-4 pb-2 mt-auto">
+        {/* Organic wave background curves */}
+        <div className="absolute inset-x-0 bottom-0 pointer-events-none overflow-hidden h-44 -mx-5">
+          <svg
+            className="w-full h-full"
+            viewBox="0 0 280 180"
+            fill="none"
+            preserveAspectRatio="none"
           >
-            AI 24/7
-          </span>
-        </Link>
+            <path
+              d="M 0 50 Q 80 40 140 100 T 280 110 L 280 180 L 0 180 Z"
+              fill="#433735"
+              opacity="0.6"
+            />
+            <path
+              d="M 0 85 C 50 85 90 120 150 135 C 200 150 240 130 280 140 L 280 180 L 0 180 Z"
+              fill="#3D3230"
+              opacity="0.8"
+            />
+            <path
+              d="M 0 115 C 60 115 100 140 160 150 C 210 160 250 150 280 155 L 280 180 L 0 180 Z"
+              fill="#352B29"
+            />
+          </svg>
+        </div>
 
-        {user && (
-          <div className="flex items-center justify-between gap-2">
-            <Link
-              to="/profile"
-              onClick={onClose}
-              className="flex items-center gap-3 p-2 rounded-2xl hover:bg-gray-100/80 dark:hover:bg-slate-800/70 transition-all group border border-transparent hover:border-gray-200/70 dark:hover:border-slate-700 flex-1 min-w-0"
-            >
-              <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-950 dark:text-white font-bold text-sm flex items-center justify-center overflow-hidden flex-shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
-                {user.avatar ? (
-                  <img src={user.avatar} alt={displayName} className="w-full h-full object-cover" />
-                ) : (
-                  <span>{displayName.charAt(0).toUpperCase()}</span>
-                )}
-              </div>
-              <p className="font-bold text-sm text-gray-950 dark:text-white truncate group-hover:text-blue-500">
-                {displayName}
-              </p>
-            </Link>
-
-            {/* Quick Theme Toggle */}
-            <button
-              type="button"
-              onClick={toggleTheme}
-              title={theme === 'dark' ? 'Switch to White Theme' : 'Switch to Dark Theme'}
-              className="p-2.5 rounded-2xl bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-slate-200 hover:text-black dark:hover:text-white transition-all cursor-pointer shadow-2xs active:scale-95 flex-shrink-0"
-              aria-label="Toggle Theme"
-            >
-              {theme === 'dark' ? (
-                <Sun className="w-4 h-4 text-amber-400" />
-              ) : (
-                <Moon className="w-4 h-4 text-indigo-600" />
-              )}
-            </button>
+        {/* Slogan */}
+        <div className="relative z-10 px-1">
+          <div className="font-handwriting text-[#F0ECE9] text-[26px] leading-[1.12] select-none tracking-wide">
+            <p>Better</p>
+            <p>Students</p>
+            <p>Brighter Tomorrow</p>
           </div>
-        )}
+          <svg className="w-28 h-3 mt-1.5 text-[#E95E38]" viewBox="0 0 110 10" fill="none">
+            <path
+              d="M 2 7 C 35 2.5, 75 3, 108 5"
+              stroke="currentColor"
+              strokeWidth="2.8"
+              strokeLinecap="round"
+            />
+          </svg>
+        </div>
       </div>
     </div>
   );
@@ -616,7 +245,7 @@ export default function Sidebar({ isOpen, onClose }) {
   return (
     <>
       {/* ─── Desktop Fixed Left Sidebar ─── */}
-      <aside className="hidden md:flex flex-col w-64 xl:w-72 bg-white dark:bg-[#0B111E] border-r border-gray-200/90 dark:border-slate-800 h-screen sticky top-0 shrink-0 p-4 z-30 overflow-y-auto transition-colors duration-200">
+      <aside className="campus-sidebar hidden md:flex flex-col w-[279px] shrink-0 bg-[#4C403D] text-[#F5F4F3] border-r border-[#3E3432] h-screen sticky top-0 px-5 py-6 z-30 overflow-y-auto">
         <NavContent />
       </aside>
 
@@ -627,7 +256,7 @@ export default function Sidebar({ isOpen, onClose }) {
             onClick={onClose}
             className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
           />
-          <div className="fixed inset-y-0 left-0 w-72 max-w-[80vw] bg-white dark:bg-[#0B111E] p-4 shadow-2xl z-10 flex flex-col justify-between animate-in slide-in-from-left duration-200">
+          <div className="campus-sidebar fixed inset-y-0 left-0 w-[279px] max-w-[85vw] bg-[#4C403D] text-[#F5F4F3] p-5 shadow-2xl z-10 flex flex-col justify-between animate-in slide-in-from-left duration-200 overflow-y-auto">
             <NavContent />
           </div>
         </div>

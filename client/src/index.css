@@ -30,6 +30,10 @@ body {
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
+.font-handwriting {
+  font-family: 'Caveat', 'Patrick Hand', 'Comic Sans MS', cursive;
+}
+
 /* Custom scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
@@ -64,6 +68,12 @@ html.dark [class*="bg-[#FBFBFA]"] {
 /* Cards & Canvas Surfaces */
 html.dark .bg-white {
   background-color: #0E1626 !important;
+}
+
+html.dark .campus-sidebar .bg-white,
+html.dark .campus-sidebar [style*="background-color: #ffffff"],
+html.dark .campus-sidebar [style*="backgroundColor: #ffffff"] {
+  background-color: #ffffff !important;
 }
 
 html.dark .bg-white\/95 {
