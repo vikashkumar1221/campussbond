@@ -19,6 +19,20 @@ function isEmailDomainAllowed(email) {
   return email.toLowerCase().endsWith(`@${domain}`) || email.toLowerCase().endsWith(domain);
 }
 
+/** Enforce the allowed college email pattern (local part before @), if configured. */
+function isEmailPatternAllowed(email) {
+  const pattern = (process.env.ALLOWED_EMAIL_PATTERN || '').trim();
+  if (!pattern) return true; // no restriction
+  const localPart = email.split('@')[0];
+  try {
+    const regex = new RegExp(pattern, 'i');
+    return regex.test(localPart);
+  } catch (err) {
+    console.error('Invalid ALLOWED_EMAIL_PATTERN regex:', err);
+    return true;
+  }
+}
+
 /** Generate a 6-digit numeric OTP. */
 function generateOtp() {
   return String(Math.floor(100000 + Math.random() * 900000));
@@ -39,7 +53,13 @@ export async function register(req, res) {
 
   if (!isEmailDomainAllowed(normalizedEmail)) {
     return res.status(403).json({
-      message: `Only ${process.env.ALLOWED_EMAIL_DOMAIN} campus emails can register.`,
+      message: `Only @${process.env.ALLOWED_EMAIL_DOMAIN} campus emails can register.`,
+    });
+  }
+
+  if (!isEmailPatternAllowed(normalizedEmail)) {
+    return res.status(400).json({
+      message: `Invalid college email format. The email ID before @ must match the college enrollment pattern (e.g. 21bcon101@${process.env.ALLOWED_EMAIL_DOMAIN || 'vgu.ac.in'}).`,
     });
   }
 

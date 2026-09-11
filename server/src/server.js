@@ -85,11 +85,27 @@ app.use('/api/assistant', assistantRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT) || 5000;
+
+function listenOnPort(port) {
+  const server = app.listen(port, () => {
+    console.log(`🚀 Campus Bond API running on http://localhost:${port}`);
+  });
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      const fallback = port === 5000 ? 5001 : port + 1;
+      console.warn(`\n⚠️  Port ${port} is in use (often macOS AirPlay Receiver).`);
+      console.warn(`👉 Automatically switching to fallback port: http://localhost:${fallback}\n`);
+      listenOnPort(fallback);
+    } else {
+      console.error('❌ Server startup error:', err);
+    }
+  });
+}
 
 // Connect to the database, then start listening.
 connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`🚀 Campus Bond API running on http://localhost:${PORT}`);
-  });
+  listenOnPort(PORT);
 });
+

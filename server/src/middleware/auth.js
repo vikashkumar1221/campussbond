@@ -37,3 +37,27 @@ export function adminOnly(req, res, next) {
   }
   next();
 }
+
+/**
+ * Optional authentication: attaches req.user if a valid token is present,
+ * but allows the request to continue if unauthenticated or token is expired.
+ */
+export async function optionalProtect(req, res, next) {
+  let token;
+  const header = req.headers.authorization;
+
+  if (header && header.startsWith('Bearer ')) {
+    token = header.split(' ')[1];
+  }
+
+  if (!token) return next();
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+    if (user) req.user = user;
+  } catch {}
+
+  next();
+}
+

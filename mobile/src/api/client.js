@@ -22,7 +22,7 @@ function resolveBaseUrl() {
     Constants.manifest?.debuggerHost ||
     '';
   const host = hostUri.split(':')[0] || 'localhost';
-  return `http://${host}:5001`;
+  return `http://${host}:5000`;
 }
 
 export const BASE_URL = resolveBaseUrl();

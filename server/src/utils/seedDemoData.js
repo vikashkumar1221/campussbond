@@ -15,6 +15,19 @@ export async function seedDemoDataIfEmpty() {
     const passwordHash = await bcrypt.hash('password123', salt);
 
     // 1. Ensure student users exist
+    let vguUser = await User.findOne({ email: '21bcon101@vgu.ac.in' });
+    if (!vguUser) {
+      vguUser = await User.create({
+        name: 'Jitesh Jangir',
+        email: '21bcon101@vgu.ac.in',
+        passwordHash,
+        branch: 'CSE',
+        semester: 6,
+        isVerified: true,
+        campusScore: 150,
+      });
+    }
+
     let demoUser = await User.findOne({ email: 'student@campusbond.edu' });
     if (!demoUser) {
       demoUser = await User.create({

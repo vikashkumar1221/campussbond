@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -12,7 +12,10 @@ import {
   AlertCircle,
   KeyRound,
   RefreshCw,
+  Info,
 } from 'lucide-react';
+
+const VGU_EMAIL_REGEX = /^[0-9]{2}[a-z0-9]{6,14}$/i;
 
 export default function Register() {
   const { register, verifyOtp, resendOtp } = useAuth();
@@ -32,19 +35,44 @@ export default function Register() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [cooldown]);
 
   // Step 1: Submit details -> Request OTP
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    const cleanEmail = formData.email.trim().toLowerCase();
+    if (!cleanEmail.endsWith('@vgu.ac.in')) {
+      setError('Registration is restricted to official @vgu.ac.in campus emails.');
+      return;
+    }
+
+    const localPart = cleanEmail.split('@')[0];
+    if (!VGU_EMAIL_REGEX.test(localPart)) {
+      setError(
+        'Invalid college email ID. It must begin with your 2-digit admission year followed by your student roll code (e.g. 21bcon101@vgu.ac.in).'
+      );
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const res = await register(formData);
-      setInfoMessage(res?.message || `Verification code sent to ${formData.email}`);
+      const res = await register({ ...formData, email: cleanEmail });
+      setInfoMessage(
+        res?.message || `A 6-digit verification code has been sent to ${cleanEmail}.`
+      );
       if (res?.devOtp) {
         setOtpCode(res.devOtp);
       }
+      setCooldown(60);
       setStep(2);
     } catch (err) {
       setError(err.message || 'Registration failed. Please check the provided information.');
@@ -60,7 +88,7 @@ export default function Register() {
     setLoading(true);
 
     try {
-      await verifyOtp(formData.email, otpCode);
+      await verifyOtp(formData.email.trim().toLowerCase(), otpCode);
       navigate('/');
     } catch (err) {
       setError(err.message || 'Invalid or expired OTP code.');
@@ -70,14 +98,17 @@ export default function Register() {
   };
 
   const handleResend = async () => {
+    if (cooldown > 0) return;
     setError('');
     setResending(true);
     try {
-      const res = await resendOtp(formData.email);
-      setInfoMessage(res?.message || 'A fresh code has been sent.');
+      const cleanEmail = formData.email.trim().toLowerCase();
+      const res = await resendOtp(cleanEmail);
+      setInfoMessage(res?.message || 'A fresh code has been emailed to your university account.');
       if (res?.devOtp) {
         setOtpCode(res.devOtp);
       }
+      setCooldown(60);
     } catch (err) {
       setError(err.message || 'Failed to resend code.');
     } finally {
@@ -93,11 +124,11 @@ export default function Register() {
             <GraduationCap className="w-7 h-7" />
           </div>
           <h1 className="text-2xl font-black text-gray-950 tracking-tight">
-            {step === 1 ? 'Create Student Account' : 'Verify College Email'}
+            {step === 1 ? 'Create VGU Student Account' : 'Verify University Email'}
           </h1>
           <p className="text-sm text-gray-500 mt-1">
             {step === 1
-              ? 'Join the verified cross-department campus community'
+              ? 'Join the verified Vivek Global University student community'
               : `Enter the 6-digit code sent to ${formData.email}`}
           </p>
         </div>
@@ -131,7 +162,7 @@ export default function Register() {
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Aarav Sharma"
+                  placeholder="Jitesh Jangir"
                   className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#0B1528] transition-all"
                 />
               </div>
@@ -139,7 +170,7 @@ export default function Register() {
 
             <div>
               <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-                College Email
+                VGU Student Email (@vgu.ac.in)
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
@@ -150,10 +181,14 @@ export default function Register() {
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="student@campusbond.edu"
+                  placeholder="21bcon101@vgu.ac.in"
                   className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#0B1528] transition-all"
                 />
               </div>
+              <p className="text-[11px] text-gray-500 mt-1.5 flex items-center gap-1.5">
+                <Info className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
+                <span>Must be your official VGU email (e.g. 21bcon101@vgu.ac.in). Starts with 2-digit batch year.</span>
+              </p>
             </div>
 
             <div>
@@ -235,7 +270,7 @@ export default function Register() {
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
-                  <span>Continue to Verification</span>
+                  <span>Send Verification Code</span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
@@ -243,6 +278,11 @@ export default function Register() {
           </form>
         ) : (
           <form onSubmit={handleVerifyOtpSubmit} className="space-y-6">
+            <div className="p-4 rounded-2xl bg-blue-50/80 border border-blue-200 text-blue-900 text-xs leading-relaxed">
+              <p className="font-bold mb-1">📩 Verification Code Dispatched</p>
+              <p>We've sent a 6-digit OTP from <strong>noreply@shadowbiz.in</strong> to <strong>{formData.email}</strong>. Please check your inbox and Spam folder.</p>
+            </div>
+
             <div>
               <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2 text-center">
                 6-Digit Verification Code
@@ -261,9 +301,6 @@ export default function Register() {
                   className="w-full text-center tracking-[0.5em] font-mono text-xl py-3.5 pl-10 pr-4 bg-white border-2 border-gray-200 rounded-xl text-gray-950 font-bold focus:outline-none focus:border-[#0B1528] transition-all"
                 />
               </div>
-              <p className="text-center text-xs text-gray-500 mt-2">
-                In local dev mode without SMTP, check server console output for the code.
-              </p>
             </div>
 
             <button
@@ -293,11 +330,11 @@ export default function Register() {
               <button
                 type="button"
                 onClick={handleResend}
-                disabled={resending}
+                disabled={resending || cooldown > 0}
                 className="flex items-center gap-1.5 text-gray-900 font-bold hover:underline disabled:opacity-50 cursor-pointer"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${resending ? 'animate-spin' : ''}`} />
-                <span>Resend Code</span>
+                <span>{cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend Code'}</span>
               </button>
             </div>
           </form>

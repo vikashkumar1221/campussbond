@@ -24,6 +24,7 @@ import {
   MessageCircle,
   Sun,
   Moon,
+  RefreshCw,
 } from 'lucide-react';
 
 const BRANCH_OPTIONS = [
@@ -76,8 +77,13 @@ export default function ChatPage() {
     );
   };
 
-  // Fetch all conversations
-  const fetchConversations = async (autoSelectId = null) => {
+  const activeConv = conversations.find((c) => c._id === activeConvId);
+
+  // Fetch all conversations (silent flag prevents spinner during background polling)
+  const fetchConversations = async (autoSelectId = null, silent = false) => {
+    if (!silent && conversations.length === 0) {
+      setLoadingConvs(true);
+    }
     try {
       const res = await chatService.getConversations();
       const list = res.data.conversations || [];
@@ -85,13 +91,16 @@ export default function ChatPage() {
 
       if (autoSelectId) {
         setActiveConvId(autoSelectId);
-      } else if (list.length > 0 && !activeConvId) {
-        setActiveConvId(list[0]._id);
+      } else if (list.length > 0) {
+        setActiveConvId((current) => {
+          if (current && list.some((c) => c._id === current)) return current;
+          return list[0]._id;
+        });
       }
     } catch (err) {
       console.error('Failed to fetch conversations:', err);
     } finally {
-      setLoadingConvs(false);
+      if (!silent) setLoadingConvs(false);
     }
   };
 
@@ -101,6 +110,12 @@ export default function ChatPage() {
     try {
       const res = await chatService.getMessages(convId);
       setMessages(res.data.messages || []);
+      // If server returned updated conversation object, sync state so pending flips to accepted in real time
+      if (res.data?.conversation) {
+        setConversations((prev) =>
+          prev.map((c) => (c._id === res.data.conversation._id ? res.data.conversation : c))
+        );
+      }
     } catch (err) {
       console.error('Failed to fetch messages:', err);
     }
@@ -134,12 +149,25 @@ export default function ChatPage() {
     }
   }, [activeConvId]);
 
-  // Polling for active conversation every 4s to simulate real-time chat
+  // When activeConv transitions from pending to accepted, reload messages and scroll
+  const prevStatusRef = useRef(activeConv?.status);
   useEffect(() => {
-    if (!activeConvId) return;
+    if (prevStatusRef.current === 'pending' && activeConv?.status === 'accepted') {
+      if (activeConvId) {
+        fetchMessages(activeConvId).then(() => scrollToBottom());
+      }
+    }
+    prevStatusRef.current = activeConv?.status;
+  }, [activeConv?.status, activeConvId]);
+
+  // Real-time polling: silently update conversation list and messages every 2.5s
+  useEffect(() => {
     const interval = setInterval(() => {
-      fetchMessages(activeConvId);
-    }, 4000);
+      fetchConversations(null, true);
+      if (activeConvId) {
+        fetchMessages(activeConvId);
+      }
+    }, 2500);
     return () => clearInterval(interval);
   }, [activeConvId]);
 
@@ -173,9 +201,14 @@ export default function ChatPage() {
     setSending(true);
 
     try {
-      await chatService.sendMessage(activeConvId, textToSend);
+      const res = await chatService.sendMessage(activeConvId, textToSend);
+      if (res.data?.conversation) {
+        setConversations((prev) =>
+          prev.map((c) => (c._id === res.data.conversation._id ? res.data.conversation : c))
+        );
+      }
       await fetchMessages(activeConvId);
-      fetchConversations();
+      fetchConversations(null, true);
     } catch (err) {
       alert(err.message || 'Failed to send message');
     } finally {
@@ -186,8 +219,13 @@ export default function ChatPage() {
   // Respond to chat request (Accept or Decline)
   const handleRespondRequest = async (convId, action) => {
     try {
-      await chatService.respondToChatRequest(convId, action);
-      await fetchConversations();
+      const res = await chatService.respondToChatRequest(convId, action);
+      if (res.data?.conversation) {
+        setConversations((prev) =>
+          prev.map((c) => (c._id === res.data.conversation._id ? res.data.conversation : c))
+        );
+      }
+      await fetchConversations(convId, true);
       if (activeConvId === convId) {
         fetchMessages(convId);
       }
@@ -240,8 +278,6 @@ export default function ChatPage() {
       setActionLoadingId(null);
     }
   };
-
-  const activeConv = conversations.find((c) => c._id === activeConvId);
 
   // Filter conversations list in sidebar
   const filteredConversations = conversations.filter((conv) => {
@@ -403,13 +439,26 @@ export default function ChatPage() {
               </div>
             </div>
 
-            <button
-              onClick={() => setIsNewChatModalOpen(true)}
-              className="p-2 rounded-xl bg-[#E95E38] hover:bg-[#D7522D] text-white shadow-xs cursor-pointer transition-all active:scale-95"
-              title="Start a new chat with campus students"
-            >
-              <UserPlus className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => {
+                  fetchConversations();
+                  if (activeConvId) fetchMessages(activeConvId);
+                }}
+                className="p-2 rounded-xl text-gray-500 hover:text-gray-800 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 cursor-pointer transition-all active:scale-95"
+                title="Refresh messages and status"
+              >
+                <RefreshCw className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setIsNewChatModalOpen(true)}
+                className="p-2 rounded-xl bg-[#E95E38] hover:bg-[#D7522D] text-white shadow-xs cursor-pointer transition-all active:scale-95"
+                title="Start a new chat with campus students"
+              >
+                <UserPlus className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           {/* Quick Search Filter inside Conversations */}

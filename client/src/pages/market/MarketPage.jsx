@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
-import { marketService } from '../../services/api';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { marketService, chatService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useSearch } from '../../context/SearchContext';
@@ -10,7 +10,6 @@ import {
   ShoppingBag,
   Plus,
   Search,
-  Phone,
   CheckCircle2,
   Trash2,
   Sparkles,
@@ -26,7 +25,9 @@ import {
   Home,
   SlidersHorizontal,
   Calendar,
-  MessageCircle,
+  MessageSquare,
+  Send,
+  Clock,
   Sun,
   Moon,
   X,
@@ -35,6 +36,7 @@ import {
 export default function MarketPage() {
   const { user } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const urlCategory = searchParams.get('category') || '';
   const urlIsMyListings = searchParams.get('myListings') === 'true' || urlCategory === 'my-listings';
@@ -62,6 +64,71 @@ export default function MarketPage() {
 
   // Selected item for rich detail modal
   const [selectedItem, setSelectedItem] = useState(null);
+
+  // Chat Request states
+  const [chatPromptOpen, setChatPromptOpen] = useState(false);
+  const [chatRequestNote, setChatRequestNote] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatSentSuccess, setChatSentSuccess] = useState(false);
+  const [existingChatStatus, setExistingChatStatus] = useState(null);
+
+  useEffect(() => {
+    setChatPromptOpen(false);
+    setChatSentSuccess(false);
+    setChatLoading(false);
+    if (selectedItem) {
+      setChatRequestNote(
+        `Hi ${selectedItem.seller?.name || 'there'}! I'm interested in buying "${selectedItem.title}" (₹${selectedItem.price}). Is it still available?`
+      );
+      if (user && selectedItem.seller?._id) {
+        chatService
+          .getConversations()
+          .then((res) => {
+            const convs = res.data.conversations || [];
+            const found = convs.find((c) =>
+              c.participants.some(
+                (p) => String(p._id || p) === String(selectedItem.seller?._id || selectedItem.seller)
+              )
+            );
+            if (found) {
+              setExistingChatStatus(found.status);
+            } else {
+              setExistingChatStatus(null);
+            }
+          })
+          .catch(() => setExistingChatStatus(null));
+      }
+    }
+  }, [selectedItem, user]);
+
+  const handleSendChatRequest = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    const sellerId = selectedItem?.seller?._id || selectedItem?.seller;
+    if (!sellerId) return;
+    if (String(sellerId) === String(user._id)) {
+      alert('You are the seller of this item.');
+      return;
+    }
+
+    setChatLoading(true);
+    try {
+      const res = await chatService.openConversation(
+        sellerId,
+        null,
+        chatRequestNote
+      );
+      setChatSentSuccess(true);
+      setExistingChatStatus(res.data.conversation?.status || 'pending');
+      setChatPromptOpen(false);
+    } catch (err) {
+      alert(err.message || 'Failed to send chat request');
+    } finally {
+      setChatLoading(false);
+    }
+  };
 
   // Dropdown states
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
@@ -581,15 +648,20 @@ export default function MarketPage() {
                         className="flex items-center gap-1.5 flex-shrink-0"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        {item.contact ? (
-                          <a
-                            href={`tel:${item.contact.replace(/[^0-9+]/g, '')}`}
+                        {!isSeller && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedItem(item);
+                              setChatPromptOpen(true);
+                            }}
                             className="p-2 rounded-xl bg-[#E95E38] hover:bg-[#D7522D] text-white shadow-xs transition-all cursor-pointer active:scale-95 flex items-center justify-center"
-                            title={`Call: ${item.contact}`}
+                            title="Chat with seller"
                           >
-                            <Phone className="w-3.5 h-3.5" />
-                          </a>
-                        ) : null}
+                            <MessageSquare className="w-3.5 h-3.5" />
+                          </button>
+                        )}
 
                         {isSeller && (
                           <button
@@ -757,31 +829,120 @@ export default function MarketPage() {
                     </div>
                   </div>
 
-                  {/* Direct Contact Buttons */}
-                  {selectedItem.contact && (
+                  {/* Campus Bond Chat Request Option */}
+                  {!isSeller ? (
                     <div className="flex items-center gap-2 flex-wrap">
-                      {waNumber && (
-                        <a
-                          href={`https://wa.me/${waNumber}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold transition-all cursor-pointer shadow-xs"
-                          title="Chat on WhatsApp"
+                      {chatSentSuccess ? (
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold">
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Request Sent</span>
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedItem(null);
+                              navigate('/chat');
+                            }}
+                            className="px-3 py-1.5 rounded-xl bg-[#0B1528] text-white text-xs font-bold hover:bg-black transition-all cursor-pointer shadow-xs"
+                          >
+                            View in Messages →
+                          </button>
+                        </div>
+                      ) : existingChatStatus === 'accepted' ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedItem(null);
+                            navigate('/chat');
+                          }}
+                          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0B1528] hover:bg-black text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
                         >
-                          <MessageCircle className="w-4 h-4" />
-                          <span>WhatsApp</span>
-                        </a>
+                          <MessageSquare className="w-3.5 h-3.5" />
+                          <span>Open Chat</span>
+                        </button>
+                      ) : existingChatStatus === 'pending' ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedItem(null);
+                            navigate('/chat');
+                          }}
+                          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold hover:bg-amber-100 transition-all cursor-pointer"
+                        >
+                          <Clock className="w-3.5 h-3.5" />
+                          <span>Request Pending · View in Chat</span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setChatPromptOpen(true)}
+                          className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#E95E38] hover:bg-[#D7522D] text-white text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5" />
+                          <span>Chat with Seller</span>
+                        </button>
                       )}
-                      <a
-                        href={`tel:${cleanPhone}`}
-                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0B1528] hover:bg-black text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
-                      >
-                        <Phone className="w-3.5 h-3.5" />
-                        <span>Call</span>
-                      </a>
                     </div>
+                  ) : (
+                    <span className="text-xs font-semibold text-gray-400 bg-gray-100 px-3 py-1.5 rounded-xl border border-gray-200">
+                      Your listing
+                    </span>
                   )}
                 </div>
+
+                {/* Inline Chat Request Box */}
+                {chatPromptOpen && !isSeller && (
+                  <div className="mt-3 p-4 bg-orange-50/70 dark:bg-amber-950/30 border border-orange-200 dark:border-amber-800/40 rounded-2xl space-y-3 animate-in fade-in duration-200">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                        <Send className="w-3.5 h-3.5 text-[#E95E38]" />
+                        Send Chat Request to {selectedItem.seller?.name || 'Seller'}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setChatPromptOpen(false)}
+                        className="text-gray-400 hover:text-gray-600 p-1 cursor-pointer"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <p className="text-[11.5px] text-gray-600 dark:text-slate-300 leading-relaxed">
+                      Saamne wale student ke paas Campus Bond par chat request jayegi. Unke accept karte hi aap direct chat shuru kar sakte hain.
+                    </p>
+                    <textarea
+                      rows={2}
+                      value={chatRequestNote}
+                      onChange={(e) => setChatRequestNote(e.target.value)}
+                      className="w-full p-2.5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl text-xs text-gray-900 dark:text-white focus:outline-none focus:border-[#E95E38] resize-none"
+                      placeholder="Type your message to the seller..."
+                    />
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setChatPromptOpen(false)}
+                        className="px-3 py-1.5 text-xs text-gray-500 hover:text-gray-800 cursor-pointer font-medium"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        disabled={chatLoading || !chatRequestNote.trim()}
+                        onClick={handleSendChatRequest}
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#E95E38] hover:bg-[#D7522D] text-white text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 active:scale-95"
+                      >
+                        {chatLoading ? (
+                          <span>Sending Request...</span>
+                        ) : (
+                          <>
+                            <Send className="w-3 h-3" />
+                            <span>Send Request</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Modal Footer Actions */}

@@ -65,13 +65,13 @@ export default function RegisterScreen({ navigation }) {
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
           <Text style={font.h1}>Create account</Text>
           <Text style={[font.bodyMuted, { marginBottom: spacing.xl }]}>
-            Use your college email — we'll send a verification code.
+            Use your official VGU email (@vgu.ac.in) — we'll send a verification code.
           </Text>
 
           <Field label="Full name" placeholder="Jitesh Jangir" value={form.name} onChangeText={set('name')} />
           <Field
-            label="College email"
-            placeholder="you@college.edu"
+            label="VGU student email"
+            placeholder="21bcon101@vgu.ac.in"
             autoCapitalize="none"
             keyboardType="email-address"
             value={form.email}

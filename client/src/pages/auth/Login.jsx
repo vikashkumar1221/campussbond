@@ -34,7 +34,7 @@ export default function Login() {
             <GraduationCap className="w-7 h-7" />
           </div>
           <h1 className="text-2xl font-black text-gray-950 tracking-tight">Welcome Back</h1>
-          <p className="text-sm text-gray-500 mt-1">Sign in with your verified college credentials</p>
+          <p className="text-sm text-gray-500 mt-1">Sign in with your verified VGU student credentials</p>
         </div>
 
         {error && (
@@ -44,36 +44,10 @@ export default function Login() {
           </div>
         )}
 
-        {/* Quick Demo Credentials Box */}
-        <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-gray-50/90 border border-gray-200 hover:border-gray-300 transition-all duration-200">
-          <div className="text-xs text-gray-500 font-medium mb-3 flex items-center justify-between">
-            <span className="font-bold text-gray-700">Quick Demo Accounts:</span>
-            <span className="text-[10px] bg-white text-gray-700 font-bold px-2 py-0.5 rounded-md border border-gray-200">1-Click Fill</span>
-          </div>
-          <div className="grid grid-cols-2 gap-2.5">
-            <button
-              type="button"
-              onClick={() => setFormData({ email: 'student@campusbond.edu', password: 'password123' })}
-              className="p-3 text-left bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-400 hover:shadow-sm rounded-xl transition-all duration-200 cursor-pointer group shadow-2xs"
-            >
-              <div className="text-xs font-bold text-gray-900 group-hover:text-black transition-colors">Aarav (Student)</div>
-              <div className="text-[11px] text-gray-500 truncate mt-0.5">student@campusbond.edu</div>
-            </button>
-            <button
-              type="button"
-              onClick={() => setFormData({ email: 'test@campusbond.edu', password: 'password123' })}
-              className="p-3 text-left bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-400 hover:shadow-sm rounded-xl transition-all duration-200 cursor-pointer group shadow-2xs"
-            >
-              <div className="text-xs font-bold text-gray-900 group-hover:text-black transition-colors">Vikash (Test)</div>
-              <div className="text-[11px] text-gray-500 truncate mt-0.5">test@campusbond.edu</div>
-            </button>
-          </div>
-        </div>
-
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-              College Email
+              VGU Student Email
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
@@ -84,7 +58,7 @@ export default function Login() {
                 required
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="student@campusbond.edu"
+                placeholder="21bcon101@vgu.ac.in"
                 className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#0B1528] transition-all"
               />
             </div>
@@ -128,7 +102,7 @@ export default function Login() {
         <div className="mt-8 text-center text-xs text-gray-500">
           Don't have an account yet?{' '}
           <Link to="/register" className="font-bold text-[#0B1528] hover:underline">
-            Register with college ID
+            Register with VGU student ID
           </Link>
         </div>
       </div>

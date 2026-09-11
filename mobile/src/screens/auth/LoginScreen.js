@@ -48,17 +48,17 @@ export default function LoginScreen({ navigation }) {
             <Text style={styles.logo}>
               CAMPUS <Text style={{ color: colors.primary }}>BOND</Text>
             </Text>
-            <Text style={styles.tagline}>ONE CAMPUS · EVERY STUDENT · CONNECTED</Text>
+            <Text style={styles.tagline}>VGU CAMPUS · EVERY STUDENT · CONNECTED</Text>
           </View>
 
           <Text style={font.h1}>Welcome back 👋</Text>
           <Text style={[font.bodyMuted, { marginBottom: spacing.xl }]}>
-            Log in to your campus account.
+            Log in with your VGU student account.
           </Text>
 
           <Field
-            label="College email"
-            placeholder="you@college.edu"
+            label="VGU student email"
+            placeholder="21bcon101@vgu.ac.in"
             autoCapitalize="none"
             keyboardType="email-address"
             value={email}
