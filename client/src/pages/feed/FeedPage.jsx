@@ -37,6 +37,7 @@ import {
   ShoppingBag,
   HelpCircle,
   GraduationCap,
+  Trash2,
 } from 'lucide-react';
 
 export default function FeedPage() {
@@ -191,6 +192,22 @@ export default function FeedPage() {
       fetchEvents();
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  // Delete Post (Owner only)
+  const handleDeletePost = async (postId) => {
+    if (!window.confirm('Are you sure you want to delete this post?')) return;
+    try {
+      setActionLoading(true);
+      await eventService.deleteEvent(postId);
+      setFeedback({ type: 'success', message: 'Your post was successfully deleted.' });
+      setTimeout(() => setFeedback({ type: '', message: '' }), 4000);
+      fetchEvents();
+    } catch (err) {
+      alert(err.message || 'Failed to delete post');
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -442,16 +459,20 @@ export default function FeedPage() {
         ) : (
           <div className="flex flex-col gap-6 sm:gap-7 w-full my-6">
             {events.map((post) => {
-              const isOwner = user && post.createdBy?._id === user._id;
-              const hasApplied =
-                user &&
+              const currentUserId = user?._id || user?.id;
+              const creatorId = post.createdBy?._id || post.createdBy;
+              const isOwner = Boolean(
+                currentUserId && creatorId && String(creatorId) === String(currentUserId)
+              );
+              const hasApplied = Boolean(
+                currentUserId &&
                 (post.applicants || []).some(
-                  (a) => (a.user?._id || a.user) === user._id
-                );
-              const myApplication =
-                user &&
+                  (a) => String(a.user?._id || a.user) === String(currentUserId)
+                )
+              );
+              const myApplication = Boolean(currentUserId) &&
                 (post.applicants || []).find(
-                  (a) => (a.user?._id || a.user) === user._id
+                  (a) => String(a.user?._id || a.user) === String(currentUserId)
                 );
 
               const categoryConfig = {
@@ -642,35 +663,50 @@ export default function FeedPage() {
                         <span>{post.comments?.length || 0}</span>
                       </button>
 
-                      {/* Apply Button */}
+                      {/* Action Buttons: Delete Post & Manage (for owner) or Status / Apply Now (for others) */}
                       {isOwner ? (
-                        <Link
-                          to={`/events/${post._id}`}
-                          onClick={(e) => e.stopPropagation()}
-                          className="px-4 py-2 rounded-full text-xs font-normal bg-[#554745] hover:bg-[#433735] text-white shadow-xs transition-all inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
-                        >
-                          <span>Manage</span>
-                          <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px]">
-                            {post.applicants?.length || 0}
-                          </span>
-                        </Link>
+                        <div className="flex items-center gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            type="button"
+                            onClick={() => handleDeletePost(post._id)}
+                            className="px-4 py-2 rounded-full text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/40 dark:text-rose-300 dark:hover:bg-rose-900/60 border border-rose-200 dark:border-rose-900 transition-all inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap shadow-xs active:scale-95"
+                            title="Delete your post"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Delete Post</span>
+                          </button>
+                          <Link
+                            to={`/events/${post._id}`}
+                            className="px-4 py-2 rounded-full text-xs font-bold bg-[#E95E38] hover:bg-[#D7522D] text-white shadow-xs hover:shadow-md transition-all inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95"
+                            title="Manage applicants"
+                          >
+                            <span>Manage</span>
+                            <span className="px-1.5 py-0.2 rounded-full bg-white/25 text-[10px]">
+                              {post.applicants?.length || 0}
+                            </span>
+                          </Link>
+                        </div>
                       ) : hasApplied ? (
                         <span
-                          className={`px-4 py-2 rounded-full text-xs font-normal inline-flex items-center gap-1.5 whitespace-nowrap border ${
-                            myApplication?.status === 'accepted'
+                          className={`px-4 py-2 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap border shadow-2xs ${
+                            myApplication?.status === 'approved' || myApplication?.status === 'accepted'
                               ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
                               : myApplication?.status === 'rejected'
                               ? 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-800'
                               : 'bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800'
                           }`}
                         >
-                          {myApplication?.status === 'accepted' ? (
+                          {myApplication?.status === 'approved' || myApplication?.status === 'accepted' ? (
                             <>
                               <Check className="w-3.5 h-3.5 stroke-[2.5]" /> Accepted
                             </>
+                          ) : myApplication?.status === 'rejected' ? (
+                            <>
+                              <X className="w-3.5 h-3.5 stroke-[2.5]" /> Declined
+                            </>
                           ) : (
                             <>
-                              <Clock className="w-3.5 h-3.5" /> {myApplication?.status || 'Pending'}
+                              <Clock className="w-3.5 h-3.5" /> Pending
                             </>
                           )}
                         </span>
@@ -682,10 +718,10 @@ export default function FeedPage() {
                             setSelectedEvent(post);
                             setApplyModalOpen(true);
                           }}
-                          className="px-5 py-2 rounded-full text-xs font-normal bg-[#E95E38] hover:bg-[#D7522D] active:scale-95 text-white shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap tracking-normal"
+                          className="px-5 py-2 rounded-full text-xs font-bold bg-[#E95E38] hover:bg-[#D7522D] active:scale-95 text-white shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap tracking-normal"
                         >
                           <span>Apply Now</span>
-                          <ArrowRight className="w-3.5 h-3.5 stroke-[2]" />
+                          <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
                         </button>
                       )}
                     </div>

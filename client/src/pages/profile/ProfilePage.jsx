@@ -78,29 +78,95 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-7xl xl:max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
+      {/* ─── Hero Banner with VGU Campus & Profile Title ─── */}
+      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-[#FDF3ED] via-[#FCEAE1] to-[#F8DDD0] dark:from-[#1E1715] dark:via-[#261D1A] dark:to-[#1C1513] border border-[#F3DFD5] dark:border-amber-950/40 p-5 sm:p-7 shadow-xs">
+        {/* Right background: Real Vivekananda Global University (VGU) campus photo */}
+        <div className="absolute right-0 top-0 bottom-0 w-3/5 lg:w-[55%] xl:w-[58%] pointer-events-none overflow-hidden select-none">
+          <img
+            src="/images/vgu_campus_real.jpg?v=3"
+            alt="Vivekananda Global University (VGU) Campus"
+            className="w-full h-full object-cover object-[center_88%] opacity-90 dark:opacity-40 transition-all"
+            style={{
+              maskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 15%, rgba(0,0,0,0.85) 50%, rgba(0,0,0,1) 100%)',
+              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 15%, rgba(0,0,0,0.85) 50%, rgba(0,0,0,1) 100%)',
+            }}
+          />
+        </div>
+
+        {/* ─── Top Row: Campus AI & Theme Toggle ─── */}
+        <div className="flex items-center justify-end gap-2.5 relative z-10">
+          <Link
+            to="/assistant"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 hover:bg-white dark:bg-black/40 dark:hover:bg-black/60 text-xs sm:text-sm font-semibold text-[#1F2937] dark:text-slate-200 shadow-xs border border-white/60 dark:border-white/10 transition-all cursor-pointer"
+          >
+            <span className="w-2 h-2 rounded-full bg-[#05A86B] animate-pulse" />
+            <span>Campus AI</span>
+          </Link>
+
+          <button
+            type="button"
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="p-2 rounded-full bg-white/90 hover:bg-white dark:bg-black/40 dark:hover:bg-black/60 text-indigo-600 dark:text-amber-400 shadow-xs border border-white/60 dark:border-white/10 transition-all cursor-pointer"
+            title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+          >
+            {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
+          </button>
+        </div>
+
+        {/* ─── Middle Row: Title & Slogan ─── */}
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 my-3 sm:my-4">
+          <div className="max-w-xl">
+            <p className="text-[11px] sm:text-xs font-extrabold uppercase tracking-[0.25em] text-[#8E7E7A] dark:text-amber-200/70 mb-1">
+              STUDENT PROFILE
+            </p>
+            <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-black tracking-tight text-[#0F172A] dark:text-white leading-[1.12]">
+              Student <span className="text-[#E95E38]">Dashboard</span>
+            </h1>
+            <p className="text-xs sm:text-sm text-[#5C504D] dark:text-slate-300 font-medium max-w-md mt-1.5 leading-relaxed">
+              Manage your created hackathon posts, applications, marketplace listings, and club memberships.
+            </p>
+          </div>
+
+          <div className="hidden lg:flex flex-col items-start -rotate-8 select-none my-auto pr-8 xl:pr-20">
+            <span className="font-['Caveat'] text-2xl lg:text-3xl font-bold text-[#4A3E3C] dark:text-amber-100 leading-none">
+              Achievements
+            </span>
+            <span className="font-['Caveat'] text-2xl lg:text-3xl font-bold text-[#4A3E3C] dark:text-amber-100 leading-none">
+              Collaborations
+            </span>
+            <span className="font-['Caveat'] text-2xl lg:text-3xl font-bold text-[#4A3E3C] dark:text-amber-100 leading-none">
+              Community
+            </span>
+            <svg className="w-24 h-2.5 mt-0.5 text-[#E95E38]" viewBox="0 0 100 8" fill="none">
+              <path d="M 2 5 C 30 2, 70 3, 98 4" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
       {/* Student Identity Card */}
-      <div className="bg-white border-2 border-gray-200 rounded-2xl p-5 sm:p-7 shadow-xs">
+      <div className="bg-white dark:bg-[#0E1626] border border-[#F0DDD3] dark:border-slate-800 rounded-3xl p-5 sm:p-7 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gray-100 border border-gray-300 text-gray-950 font-black text-xl sm:text-2xl flex items-center justify-center flex-shrink-0 shadow-xs">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#EDE7E3] dark:bg-slate-700 border border-[#F0DDD3] dark:border-slate-600 text-gray-950 dark:text-white font-black text-xl sm:text-2xl flex items-center justify-center flex-shrink-0 shadow-xs">
               {displayName.charAt(0).toUpperCase()}
             </div>
 
             <div className="space-y-1">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-lg sm:text-xl font-bold text-gray-950">{displayName}</h1>
+                <h2 className="text-lg sm:text-xl font-bold text-gray-950 dark:text-white">{displayName}</h2>
                 <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                   VERIFIED STUDENT
                 </span>
               </div>
               <p className="text-xs text-gray-500 truncate">{user?.email}</p>
               <div className="flex flex-wrap items-center gap-2 pt-0.5 text-xs text-gray-500">
-                <span className="flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-xl text-[11px] font-semibold text-gray-700">
+                <span className="flex items-center gap-1.5 bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 px-2.5 py-1 rounded-xl text-[11px] font-semibold text-gray-700 dark:text-slate-300">
                   <GraduationCap className="w-3.5 h-3.5 text-gray-500" />
                   {user?.branch || 'CSE'}
                 </span>
                 {user?.semester && (
-                  <span className="bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-xl text-[11px] font-semibold text-gray-700">
+                  <span className="bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 px-2.5 py-1 rounded-xl text-[11px] font-semibold text-gray-700 dark:text-slate-300">
                     Semester {user.semester}
                   </span>
                 )}
@@ -132,56 +198,8 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* ─── Theme & Appearance Settings ─── */}
-      <div className="bg-white border-2 border-gray-200 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
-        <div className="flex items-center gap-3.5">
-          <div className="w-10 h-10 rounded-2xl bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-950 flex-shrink-0 shadow-2xs">
-            {theme === 'dark' ? (
-              <Moon className="w-5 h-5 text-indigo-400" />
-            ) : (
-              <Sun className="w-5 h-5 text-amber-500" />
-            )}
-          </div>
-          <div>
-            <h3 className="font-bold text-sm text-gray-950 tracking-tight">
-              App Appearance ({theme === 'dark' ? 'Dark Theme' : 'White Theme'})
-            </h3>
-            <p className="text-xs text-gray-500">
-              Select your preferred appearance for the entire application
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 p-1 bg-gray-100 rounded-2xl border border-gray-200 w-full sm:w-auto">
-          <button
-            type="button"
-            onClick={() => setTheme('light')}
-            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              theme === 'light'
-                ? 'bg-white text-gray-950 shadow-xs border border-gray-200'
-                : 'text-gray-500 hover:text-gray-950'
-            }`}
-          >
-            <Sun className="w-4 h-4 text-amber-500" />
-            <span>White Theme</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setTheme('dark')}
-            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              theme === 'dark'
-                ? 'bg-[#0B1528] text-white shadow-xs border border-transparent'
-                : 'text-gray-500 hover:text-gray-950'
-            }`}
-          >
-            <Moon className="w-4 h-4 text-indigo-400" />
-            <span>Dark Theme</span>
-          </button>
-        </div>
-      </div>
-
       {/* Navigation Tabs */}
-      <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none border-b border-gray-200 -mx-1 px-1">
+      <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const active = activeTab === tab.id;
@@ -189,17 +207,19 @@ export default function ProfilePage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all whitespace-nowrap cursor-pointer ${
                 active
-                  ? 'bg-white text-gray-950 border border-gray-200 font-bold shadow-xs'
-                  : 'text-gray-600 hover:text-gray-950 hover:bg-gray-50'
+                  ? 'bg-[#E95E38] text-white font-bold shadow-xs'
+                  : 'bg-white/90 dark:bg-black/30 hover:bg-white text-gray-800 dark:text-slate-200 border border-gray-200 dark:border-slate-800'
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
               <span>{tab.label}</span>
               <span
-                className={`text-[10px] px-1.5 py-0.2 rounded-md font-bold ${
-                  active ? 'bg-[#0B1528] text-white' : 'bg-gray-100 text-gray-600 border border-gray-200'
+                className={`ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                  active
+                    ? 'bg-white/20 text-white'
+                    : 'bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300'
                 }`}
               >
                 {tab.count}

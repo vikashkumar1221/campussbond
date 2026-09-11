@@ -44,13 +44,14 @@ export async function createItem(req, res) {
  * GET /api/market
  */
 export async function getItems(req, res) {
-  const { category, search, status = 'available' } = req.query;
+  const { category, search, status = 'available', condition } = req.query;
   const page = Math.max(1, Number(req.query.page) || 1);
   const limit = Math.min(50, Number(req.query.limit) || 20);
 
   const filter = {};
   if (status) filter.status = status;
   if (category) filter.category = category;
+  if (condition) filter.condition = condition;
   if (search) {
     filter.$or = [
       { title: { $regex: search, $options: 'i' } },

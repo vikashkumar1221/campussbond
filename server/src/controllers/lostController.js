@@ -37,7 +37,7 @@ export async function createLostItem(req, res) {
     createdBy: req.user._id,
   });
 
-  await item.populate('createdBy', 'name branch semester');
+  await item.populate('createdBy', 'name branch semester avatar email');
   res.status(201).json({ item });
 }
 
@@ -67,7 +67,7 @@ export async function getLostItems(req, res) {
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
-      .populate('createdBy', 'name branch semester'),
+      .populate('createdBy', 'name branch semester avatar email'),
     LostItem.countDocuments(filter),
   ]);
 
@@ -79,7 +79,7 @@ export async function getLostItems(req, res) {
  * GET /api/lostfound/:id
  */
 export async function getLostItemById(req, res) {
-  const item = await LostItem.findById(req.params.id).populate('createdBy', 'name branch semester');
+  const item = await LostItem.findById(req.params.id).populate('createdBy', 'name branch semester avatar email');
   if (!item) return res.status(404).json({ message: 'Item not found.' });
   res.status(200).json({ item });
 }

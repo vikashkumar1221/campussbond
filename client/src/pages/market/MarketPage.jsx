@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { marketService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import { useSearch } from '../../context/SearchContext';
 import Modal from '../../components/Modal';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -26,10 +27,14 @@ import {
   SlidersHorizontal,
   Calendar,
   MessageCircle,
+  Sun,
+  Moon,
+  X,
 } from 'lucide-react';
 
 export default function MarketPage() {
   const { user } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [searchParams, setSearchParams] = useSearchParams();
   const urlCategory = searchParams.get('category') || '';
   const urlIsMyListings = searchParams.get('myListings') === 'true' || urlCategory === 'my-listings';
@@ -37,6 +42,8 @@ export default function MarketPage() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [categoryFilter, setCategoryFilter] = useState(urlIsMyListings ? '' : urlCategory);
+  const [conditionFilter, setConditionFilter] = useState('');
+  const [filterMenuOpen, setFilterMenuOpen] = useState(false);
   const { searchQuery: search, debouncedSearch, setSearchQuery } = useSearch();
   const [onlyMyListings, setOnlyMyListings] = useState(urlIsMyListings);
 
@@ -219,39 +226,212 @@ export default function MarketPage() {
 
   return (
     <div className="w-full max-w-7xl xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
-      {/* ─── Category Filter Pills & Sell Item Button ─── */}
-      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-          {categories.map((cat) => {
-            const isSelected = categoryFilter === cat.value && !onlyMyListings;
-            return (
-              <button
-                key={cat.value}
-                type="button"
-                onClick={() => {
-                  setOnlyMyListings(false);
-                  setCategoryFilter(cat.value);
-                }}
-                className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                  isSelected
-                    ? 'bg-[#BCB5A3] text-[#1D1819] shadow-xs'
-                    : 'bg-white dark:bg-[#0E1626] text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-800 hover:border-gray-300 dark:hover:border-slate-700 hover:text-gray-900 dark:hover:text-white'
-                }`}
-              >
-                {cat.label}
-              </button>
-            );
-          })}
+      {/* ─── Hero Banner with VGU Campus, Marketplace Title & Controls ─── */}
+      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-[#FDF3ED] via-[#FCEAE1] to-[#F8DDD0] dark:from-[#1E1715] dark:via-[#261D1A] dark:to-[#1C1513] border border-[#F3DFD5] dark:border-amber-950/40 p-5 sm:p-7 shadow-xs">
+        {/* Right background: Real Vivekananda Global University (VGU) campus photo */}
+        <div className="absolute right-0 top-0 bottom-0 w-3/5 lg:w-[55%] xl:w-[58%] pointer-events-none overflow-hidden select-none">
+          <img
+            src="/images/vgu_campus_real.jpg?v=3"
+            alt="Vivekananda Global University (VGU) Campus"
+            className="w-full h-full object-cover object-[center_88%] opacity-90 dark:opacity-40 transition-all"
+            style={{
+              maskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 15%, rgba(0,0,0,0.85) 50%, rgba(0,0,0,1) 100%)',
+              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 15%, rgba(0,0,0,0.85) 50%, rgba(0,0,0,1) 100%)',
+            }}
+          />
         </div>
 
-        <button
-          onClick={() => setModalOpen(true)}
-          title="Sell Item"
-          className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#E95E38] hover:bg-[#D7522D] text-white text-xs sm:text-sm font-bold tracking-tight whitespace-nowrap transition-all duration-200 cursor-pointer flex-shrink-0 active:scale-98 shadow-sm hover:shadow-md"
-        >
-          <Plus className="w-4 h-4 stroke-[3]" />
-          <span>Sell Item</span>
-        </button>
+        {/* ─── Top Row: Campus AI, Theme Toggle & Profile ─── */}
+        <div className="flex items-center justify-end gap-2.5 relative z-10">
+          <Link
+            to="/assistant"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 hover:bg-white dark:bg-black/40 dark:hover:bg-black/60 text-xs sm:text-sm font-semibold text-[#1F2937] dark:text-slate-200 shadow-xs border border-white/60 dark:border-white/10 transition-all cursor-pointer"
+          >
+            <span className="w-2 h-2 rounded-full bg-[#05A86B] animate-pulse" />
+            <span>Campus AI</span>
+          </Link>
+
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="p-2 rounded-full bg-white/90 hover:bg-white dark:bg-black/40 dark:hover:bg-black/60 text-indigo-600 dark:text-amber-400 shadow-xs border border-white/60 dark:border-white/10 transition-all cursor-pointer"
+            title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+          >
+            {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
+          </button>
+
+          {user && (
+            <Link
+              to="/profile"
+              className="inline-flex items-center gap-2 pl-1.5 pr-3.5 py-1 rounded-full bg-white/90 hover:bg-white dark:bg-black/40 dark:hover:bg-black/60 shadow-xs border border-white/60 dark:border-white/10 transition-all"
+            >
+              <div className="w-7 h-7 rounded-full bg-[#EDE7E3] dark:bg-slate-700 text-[#1E1917] dark:text-white font-bold text-xs flex items-center justify-center overflow-hidden border border-gray-200 dark:border-slate-600">
+                {user.avatar ? (
+                  <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                ) : (
+                  <span>{(user.name || user.email || 'V').charAt(0).toUpperCase()}</span>
+                )}
+              </div>
+              <span className="text-xs sm:text-sm font-bold text-[#1E1917] dark:text-slate-200 max-w-[120px] truncate">
+                {user.name || 'Student'}
+              </span>
+            </Link>
+          )}
+        </div>
+
+        {/* ─── Middle Row: Title & Slogan ─── */}
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 my-4 sm:my-5">
+          <div className="max-w-xl">
+            <p className="text-[11px] sm:text-xs font-extrabold uppercase tracking-[0.25em] text-[#8E7E7A] dark:text-amber-200/70 mb-1">
+              CAMPUS MARKETPLACE
+            </p>
+            <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-black tracking-tight text-[#0F172A] dark:text-white leading-[1.12]">
+              Campus <span className="text-[#E95E38]">Marketplace</span>
+            </h1>
+            <p className="text-xs sm:text-sm text-[#5C504D] dark:text-slate-300 font-medium max-w-md mt-1.5 leading-relaxed">
+              Buy and sell second-hand books, notes, lab kits, and electronics within Vivekananda Global University.
+            </p>
+          </div>
+
+          {/* Angled handwritten slogan */}
+          <div className="hidden lg:flex flex-col items-start -rotate-8 select-none my-auto pr-8 xl:pr-20">
+            <span className="font-['Caveat'] text-2xl lg:text-3xl font-bold text-[#4A3E3C] dark:text-amber-100 leading-none">
+              Pre-loved
+            </span>
+            <span className="font-['Caveat'] text-2xl lg:text-3xl font-bold text-[#4A3E3C] dark:text-amber-100 leading-none">
+              Affordable
+            </span>
+            <span className="font-['Caveat'] text-2xl lg:text-3xl font-bold text-[#4A3E3C] dark:text-amber-100 leading-none">
+              Sustainable
+            </span>
+            <svg className="w-24 h-2.5 mt-0.5 text-[#E95E38]" viewBox="0 0 100 8" fill="none">
+              <path d="M 2 5 C 30 2, 70 3, 98 4" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" />
+            </svg>
+          </div>
+        </div>
+
+        {/* ─── Bottom Row: Category Tabs, Search, Filters & Sell Button ─── */}
+        <div className="relative z-10 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 pt-2">
+          {/* Category Tabs */}
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+            {categories.map((cat) => {
+              const isSelected = categoryFilter === cat.value && !onlyMyListings;
+              const Icon = cat.icon;
+              return (
+                <button
+                  key={cat.value}
+                  type="button"
+                  onClick={() => {
+                    setOnlyMyListings(false);
+                    setCategoryFilter(cat.value);
+                  }}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm whitespace-nowrap transition-all cursor-pointer ${
+                    isSelected
+                      ? 'bg-[#E95E38] text-white font-bold shadow-xs'
+                      : 'bg-white/90 dark:bg-black/30 hover:bg-white text-gray-800 dark:text-slate-200 font-semibold shadow-2xs border border-white/60 dark:border-white/10 hover:shadow-xs'
+                  }`}
+                >
+                  {Icon && <Icon className="w-4 h-4" />}
+                  <span>{cat.label}</span>
+                </button>
+              );
+            })}
+
+            {user && (
+              <button
+                type="button"
+                onClick={() => {
+                  setOnlyMyListings(!onlyMyListings);
+                  if (!onlyMyListings) setCategoryFilter('');
+                }}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm whitespace-nowrap transition-all cursor-pointer ${
+                  onlyMyListings
+                    ? 'bg-[#E95E38] text-white font-bold shadow-xs'
+                    : 'bg-white/90 dark:bg-black/30 hover:bg-white text-gray-800 dark:text-slate-200 font-semibold shadow-2xs border border-white/60 dark:border-white/10 hover:shadow-xs'
+                }`}
+              >
+                <span>My Listings ({myListingsCount})</span>
+              </button>
+            )}
+          </div>
+
+          {/* Search, Filter Button & Sell Item */}
+          <div className="flex items-center gap-2.5 flex-shrink-0">
+            <div className="flex-1 lg:flex-initial flex items-center bg-white/95 dark:bg-[#151D2C]/95 backdrop-blur-xs border border-[#F0DDD3] dark:border-slate-700/80 rounded-full px-4 py-2 shadow-xs w-full sm:w-64 md:w-72 transition-all focus-within:ring-2 focus-within:ring-[#E95E38]/40">
+              <Search className="w-4 h-4 text-[#8E7E7A] mr-2.5 flex-shrink-0 stroke-[2.2]" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search items, books, models..."
+                className="w-full bg-transparent text-xs sm:text-sm text-[#1D1819] dark:text-white placeholder-[#8E7E7A] font-medium focus:outline-none"
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="text-[#8E7E7A] hover:text-[#1D1819] p-0.5 ml-1 cursor-pointer transition-colors"
+                  title="Clear search"
+                >
+                  <X className="w-3.5 h-3.5 stroke-[2.5]" />
+                </button>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setFilterMenuOpen(!filterMenuOpen)}
+              className="p-2.5 rounded-full bg-[#F7C8B8] hover:bg-[#F2B9A6] active:scale-95 text-[#A63C1E] dark:bg-amber-950/60 dark:hover:bg-amber-900/60 dark:text-amber-200 shadow-xs transition-all cursor-pointer flex-shrink-0"
+              title="Filter by condition"
+            >
+              <SlidersHorizontal className="w-4 h-4 stroke-[2.2]" />
+            </button>
+
+            <button
+              onClick={() => setModalOpen(true)}
+              className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#E95E38] hover:bg-[#D7522D] text-white text-xs sm:text-sm font-bold tracking-tight whitespace-nowrap transition-all duration-200 cursor-pointer flex-shrink-0 active:scale-95 shadow-sm hover:shadow-md"
+            >
+              <Plus className="w-4 h-4 stroke-[3]" />
+              <span>Sell Item</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Collapsible Filter Panel for Condition */}
+        {filterMenuOpen && (
+          <div className="relative z-10 mt-4 pt-3 border-t border-[#F0DDD3] dark:border-slate-700/60 flex flex-wrap items-center gap-3 animate-in fade-in duration-150">
+            <span className="text-xs font-bold text-[#5C504D] dark:text-slate-300">Condition Filter:</span>
+            {conditions.map((cond) => {
+              const isSelected = conditionFilter === cond.value;
+              return (
+                <button
+                  key={cond.value}
+                  type="button"
+                  onClick={() => setConditionFilter(cond.value)}
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                    isSelected
+                      ? 'bg-[#E95E38] text-white font-bold'
+                      : 'bg-white/80 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-white border border-gray-200 dark:border-slate-700'
+                  }`}
+                >
+                  {cond.label}
+                </button>
+              );
+            })}
+            <button
+              type="button"
+              onClick={() => {
+                setCategoryFilter('');
+                setConditionFilter('');
+                setSearchQuery('');
+                setOnlyMyListings(false);
+              }}
+              className="ml-auto px-3 py-1 rounded-full text-xs font-medium bg-white/80 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-white cursor-pointer border border-gray-200 dark:border-slate-700"
+            >
+              Reset Filters
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Active Search Filter Banner */}
@@ -314,7 +494,7 @@ export default function MarketPage() {
                 <div
                   key={item._id}
                   onClick={() => setSelectedItem(item)}
-                  className="bg-white dark:bg-[#0E1626] border border-gray-300 dark:border-slate-800/90 hover:border-gray-400 dark:hover:border-slate-700 rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-300 ease-out flex flex-col justify-between shadow-xs hover:shadow-xl hover:-translate-y-1 group cursor-pointer relative"
+                  className="bg-white dark:bg-[#0E1626] border border-[#F0DDD3] dark:border-slate-800/90 hover:border-[#E95E38]/50 rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-300 ease-out flex flex-col justify-between shadow-xs hover:shadow-xl hover:-translate-y-1 group cursor-pointer relative"
                 >
                   {/* Top Image Preview */}
                   <div className="h-44 sm:h-48 w-full bg-gray-100 dark:bg-slate-800/50 overflow-hidden relative border-b border-gray-100 dark:border-slate-800 flex items-center justify-center">
@@ -362,13 +542,13 @@ export default function MarketPage() {
                   <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
                     <div>
                       <div className="flex items-baseline justify-between gap-2">
-                        <span className="font-mono-code text-xl sm:text-2xl font-black text-[#0B1528] dark:text-blue-400 tracking-tight">
+                        <span className="font-mono-code text-xl sm:text-2xl font-black text-[#E95E38] dark:text-[#F3704B] tracking-tight">
                           ₹{item.price}
                         </span>
                       </div>
 
                       <h3
-                        className="font-bold text-sm sm:text-base text-gray-950 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-snug tracking-tight mt-1 line-clamp-2"
+                        className="font-bold text-sm sm:text-base text-gray-950 dark:text-white group-hover:text-[#E95E38] dark:group-hover:text-[#F3704B] transition-colors leading-snug tracking-tight mt-1 line-clamp-2"
                         title={item.title}
                       >
                         {item.title}
@@ -384,7 +564,7 @@ export default function MarketPage() {
                     {/* Bottom Footer: Seller Info & Actions */}
                     <div className="pt-3 border-t border-gray-100 dark:border-slate-800 flex items-center justify-between gap-2 text-xs text-gray-500 dark:text-slate-400 mt-auto">
                       <div className="flex items-center gap-2 min-w-0">
-                        <div className="w-7 h-7 rounded-full bg-gray-100 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 flex items-center justify-center font-bold text-gray-700 dark:text-slate-300 flex-shrink-0 text-[11px] shadow-2xs">
+                        <div className="w-7 h-7 rounded-full bg-[#EDE7E3] dark:bg-slate-800 border border-[#F0DDD3] dark:border-slate-700 flex items-center justify-center font-bold text-gray-700 dark:text-slate-300 flex-shrink-0 text-[11px] shadow-2xs">
                           {item.seller?.name ? item.seller.name[0].toUpperCase() : 'S'}
                         </div>
                         <div className="min-w-0">
@@ -404,7 +584,7 @@ export default function MarketPage() {
                         {item.contact ? (
                           <a
                             href={`tel:${item.contact.replace(/[^0-9+]/g, '')}`}
-                            className="p-2 rounded-xl bg-[#0B1528] dark:bg-blue-600 hover:bg-black dark:hover:bg-blue-500 text-white shadow-xs transition-all cursor-pointer active:scale-95 flex items-center justify-center"
+                            className="p-2 rounded-xl bg-[#E95E38] hover:bg-[#D7522D] text-white shadow-xs transition-all cursor-pointer active:scale-95 flex items-center justify-center"
                             title={`Call: ${item.contact}`}
                           >
                             <Phone className="w-3.5 h-3.5" />
@@ -512,7 +692,7 @@ export default function MarketPage() {
                     </span>
                   </div>
 
-                  <div className="text-2xl font-black text-white bg-[#0B1528] px-4 py-1.5 rounded-xl shadow-xs">
+                  <div className="text-2xl font-black text-white bg-[#E95E38] px-4 py-1.5 rounded-xl shadow-xs">
                     ₹{selectedItem.price}
                   </div>
                 </div>
@@ -730,7 +910,7 @@ export default function MarketPage() {
                 value={formData.contact}
                 onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
                 placeholder="+91 98765 43210"
-                className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 focus:border-[#0B1528] rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
+                className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 focus:border-[#E95E38] rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
               />
             </div>
           </div>
@@ -744,7 +924,7 @@ export default function MarketPage() {
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="Item details, meeting spot, etc..."
-              className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 focus:border-[#0B1528] rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
+              className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 focus:border-[#E95E38] rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
             />
           </div>
 
@@ -771,7 +951,7 @@ export default function MarketPage() {
             <button
               type="submit"
               disabled={actionLoading}
-              className="px-6 py-2 rounded-xl text-xs font-bold bg-[#0B1528] hover:bg-black text-white transition-all disabled:opacity-50 cursor-pointer shadow-md"
+              className="px-6 py-2 rounded-xl text-xs font-bold bg-[#E95E38] hover:bg-[#D7522D] text-white transition-all disabled:opacity-50 cursor-pointer shadow-md"
             >
               {actionLoading ? 'Listing...' : 'List Item'}
             </button>

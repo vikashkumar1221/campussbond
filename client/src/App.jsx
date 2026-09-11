@@ -4,7 +4,6 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { SearchProvider } from './context/SearchContext';
 import Sidebar from './components/Sidebar';
-import CampusChatbot from './components/CampusChatbot';
 import LoadingSpinner from './components/LoadingSpinner';
 import { Menu, Sun, Moon } from 'lucide-react';
 
@@ -98,8 +97,8 @@ function AppLayout() {
       <Sidebar isOpen={mobileSidebarOpen} onClose={() => setMobileSidebarOpen(false)} />
 
       <div className="flex-1 flex flex-col min-w-0">
-        {/* ─── Desktop Header: AI, Theme Toggle & Profile (shown on non-feed pages) ─── */}
-        {location.pathname !== '/' && (
+        {/* ─── Desktop Header: AI, Theme Toggle & Profile (shown on pages without Hero banner) ─── */}
+        {!['/', '/market', '/lostfound', '/clubs', '/profile'].includes(location.pathname) && (
           <header className="hidden md:flex sticky top-0 z-20 bg-white/90 dark:bg-[#0E1626]/90 backdrop-blur-md border-b border-gray-200/70 dark:border-slate-800/80 px-8 py-3 items-center justify-end gap-3 transition-colors">
             <div className="flex items-center gap-3 flex-shrink-0">
               <Link
@@ -238,8 +237,6 @@ function AppLayout() {
         </main>
       </div>
 
-      {/* ─── Global AI Campus Chatbot Assistant ─── */}
-      <CampusChatbot />
     </div>
   );
 }

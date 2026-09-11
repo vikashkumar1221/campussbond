@@ -4,23 +4,13 @@ import Event from '../models/Event.js';
 import MarketItem from '../models/MarketItem.js';
 import LostItem from '../models/LostItem.js';
 import Club from '../models/Club.js';
+import Conversation from '../models/Conversation.js';
+import Message from '../models/Message.js';
 
 export async function seedDemoDataIfEmpty() {
   try {
     await User.updateMany({ email: 'test@campusbond.edu' }, { $set: { name: 'Vikash' } });
 
-    const eventCount = await Event.countDocuments();
-    if (eventCount >= 20) {
-      // Database already has full data
-      return;
-    }
-
-    if (eventCount > 0 && eventCount < 20) {
-      console.log('🔄 Refreshing sample events to full 20 posts...');
-      await Event.deleteMany({});
-    }
-
-    console.log('🌱 Seeding 20 realistic campus team formation posts for demo...');
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash('password123', salt);
 
@@ -156,7 +146,14 @@ export async function seedDemoDataIfEmpty() {
     }
 
     // 2. Seed 20 Team Collaboration / Hackathon Posts
-    await Event.create([
+    const eventCount = await Event.countDocuments();
+    if (eventCount < 20) {
+      if (eventCount > 0) {
+        console.log('🔄 Refreshing sample events to full 20 posts...');
+        await Event.deleteMany({});
+      }
+      console.log('🌱 Seeding 20 realistic campus team formation posts for demo...');
+      await Event.create([
       {
         title: 'Smart India Hackathon 2026: Need Frontend & ML Teammates',
         description:
@@ -433,9 +430,13 @@ export async function seedDemoDataIfEmpty() {
         comments: [],
       },
     ]);
+    }
 
     // 3. Seed Marketplace Listings
-    await MarketItem.create([
+    const marketCount = await MarketItem.countDocuments();
+    if (marketCount === 0) {
+      console.log('🌱 Seeding marketplace items...');
+      await MarketItem.create([
       {
         title: 'Apple MacBook Air M1 (8GB RAM, 256GB SSD) - Space Grey',
         description:
@@ -713,9 +714,13 @@ export async function seedDemoDataIfEmpty() {
         seller: demoUser._id,
       },
     ]);
+    }
 
     // 4. Seed Lost & Found Items
-    await LostItem.create([
+    const lostCount = await LostItem.countDocuments();
+    if (lostCount === 0) {
+      console.log('🌱 Seeding lost & found items...');
+      await LostItem.create([
       {
         type: 'lost',
         title: 'Casio fx-991 Calculator in Black Zipper Case',
@@ -750,9 +755,13 @@ export async function seedDemoDataIfEmpty() {
         createdBy: demoUser._id,
       },
     ]);
+    }
 
     // 5. Seed Campus Clubs
-    await Club.create([
+    const clubCount = await Club.countDocuments();
+    if (clubCount === 0) {
+      console.log('🌱 Seeding campus clubs...');
+      await Club.create([
       {
         name: 'Coding Club & ACM Student Chapter',
         description:
@@ -818,6 +827,101 @@ export async function seedDemoDataIfEmpty() {
         members: [demoUser._id],
       },
     ]);
+    }
+
+    // 6. Seed sample conversations & messages for direct campus chatting
+    const convoCount = await Conversation.countDocuments();
+    if (convoCount === 0 && testUser && demoUser) {
+      // 1. Accepted chat with Aarav Sharma
+      const convo1 = await Conversation.create({
+        participants: [testUser._id, demoUser._id],
+        status: 'accepted',
+        lastMessage: "Sounds great, thanks Aarav! Let's connect near the Central Library this Thursday.",
+        lastMessageAt: new Date(Date.now() - 1000 * 60 * 30),
+      });
+
+      await Message.create([
+        {
+          conversation: convo1._id,
+          sender: demoUser._id,
+          text: `Hey Vikash! Saw your profile on Campus Bond. Are you participating in the upcoming Smart Campus Hackathon?`,
+          createdAt: new Date(Date.now() - 1000 * 60 * 120),
+        },
+        {
+          conversation: convo1._id,
+          sender: testUser._id,
+          text: `Hey Aarav! Yes, definitely! I'm building a project around student collaboration and real-time campus networking.`,
+          createdAt: new Date(Date.now() - 1000 * 60 * 90),
+        },
+        {
+          conversation: convo1._id,
+          sender: demoUser._id,
+          text: `That's awesome! Let me know if you need any help with backend integration or system design. Looking forward to collaborating!`,
+          createdAt: new Date(Date.now() - 1000 * 60 * 60),
+        },
+        {
+          conversation: convo1._id,
+          sender: testUser._id,
+          text: `Sounds great, thanks Aarav! Let's connect near the Central Library this Thursday.`,
+          createdAt: new Date(Date.now() - 1000 * 60 * 30),
+        },
+      ]);
+
+      // 2. Accepted chat with Ananya Gupta
+      if (devUser) {
+        const convo2 = await Conversation.create({
+          participants: [testUser._id, devUser._id],
+          status: 'accepted',
+          lastMessage: 'Thanks a lot Vikash! Really appreciate your help 🙏',
+          lastMessageAt: new Date(Date.now() - 1000 * 60 * 60 * 3),
+        });
+
+        await Message.create([
+          {
+            conversation: convo2._id,
+            sender: devUser._id,
+            text: `Hi Vikash, did you get the AI & Data Science lab assignment notes from yesterday?`,
+            createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4),
+          },
+          {
+            conversation: convo2._id,
+            sender: testUser._id,
+            text: `Hey Ananya! Yes, I have the Jupyter notebooks and code examples saved. I'll share them with you.`,
+            createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3.5),
+          },
+          {
+            conversation: convo2._id,
+            sender: devUser._id,
+            text: `Thanks a lot Vikash! Really appreciate your help 🙏`,
+            createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3),
+          },
+        ]);
+      }
+
+      // 3. Incoming Pending Request from Rohan Verma
+      if (rohanUser) {
+        await Conversation.create({
+          participants: [testUser._id, rohanUser._id],
+          status: 'pending',
+          requestedBy: rohanUser._id,
+          requestMessage: `Hey Vikash! We are building an automated IoT rover for the upcoming TechFest. Wanted to check if you would be interested in collaborating on the web control dashboard?`,
+          lastMessage: `Chat request from Rohan: "Interested in collaborating on IoT rover dashboard?"`,
+          lastMessageAt: new Date(Date.now() - 1000 * 60 * 15),
+        });
+      }
+
+      // 4. Outgoing Pending Request to Priya Singh
+      if (priyaUser) {
+        await Conversation.create({
+          participants: [testUser._id, priyaUser._id],
+          status: 'pending',
+          requestedBy: testUser._id,
+          requestMessage: `Hi Priya! I saw your post regarding the Embedded Systems workshop. Would love to join your study group.`,
+          lastMessage: `Hi Priya! I saw your post regarding the Embedded Systems workshop.`,
+          lastMessageAt: new Date(Date.now() - 1000 * 60 * 60 * 5),
+        });
+      }
+    }
 
     console.log('✅ Demo campus data seeded successfully!');
   } catch (err) {

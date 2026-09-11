@@ -71,6 +71,7 @@ export const eventService = {
   expressInterest: (id) => api.post(`/events/${id}/interest`),
   addComment: (id, text) => api.post(`/events/${id}/comments`, { text }),
   updateEventStatus: (id, status) => api.patch(`/events/${id}/status`, { status }),
+  deleteEvent: (id) => api.delete(`/events/${id}`),
   reviewApplicant: (id, applicantId, status) =>
     api.patch(`/events/${id}/applicants/${applicantId}`, { status }),
   getMyCreated: () => api.get('/events/me/created'),
@@ -81,10 +82,7 @@ export const eventService = {
 export const lostFoundService = {
   getLostItems: (params) => api.get('/lostfound', { params }),
   getLostItemById: (id) => api.get(`/lostfound/${id}`),
-  createLostItem: (formData) =>
-    api.post('/lostfound', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }),
+  createLostItem: (formData) => api.post('/lostfound', formData),
   updateLostStatus: (id, status) => api.patch(`/lostfound/${id}/status`, { status }),
   deleteLostItem: (id) => api.delete(`/lostfound/${id}`),
   getMyPosts: () => api.get('/lostfound/me/posts'),
@@ -94,10 +92,7 @@ export const lostFoundService = {
 export const marketService = {
   getMarketItems: (params) => api.get('/market', { params }),
   getMarketItemById: (id) => api.get(`/market/${id}`),
-  createMarketItem: (formData) =>
-    api.post('/market', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }),
+  createMarketItem: (formData) => api.post('/market', formData),
   updateMarketStatus: (id, status) => api.patch(`/market/${id}/status`, { status }),
   deleteMarketItem: (id) => api.delete(`/market/${id}`),
   getMyListings: () => api.get('/market/me/listings'),
@@ -107,10 +102,7 @@ export const marketService = {
 export const clubService = {
   getClubs: (params) => api.get('/clubs', { params }),
   getClubById: (id) => api.get(`/clubs/${id}`),
-  createClub: (formData) =>
-    api.post('/clubs', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }),
+  createClub: (formData) => api.post('/clubs', formData),
   joinClub: (id) => api.post(`/clubs/${id}/join`),
   leaveClub: (id) => api.post(`/clubs/${id}/leave`),
   deleteClub: (id) => api.delete(`/clubs/${id}`),
@@ -119,8 +111,11 @@ export const clubService = {
 
 // --- Chat & Messages APIs ---
 export const chatService = {
-  openConversation: (participantId, eventId) =>
-    api.post('/chat/open', { participantId, eventId }),
+  getCampusStudents: (search) => api.get('/chat/users', { params: { search } }),
+  openConversation: (participantId, eventId, message) =>
+    api.post('/chat/open', { participantId, userId: participantId, eventId, message }),
+  respondToChatRequest: (conversationId, action) =>
+    api.patch(`/chat/conversations/${conversationId}/respond`, { action }),
   getConversations: () => api.get('/chat/conversations'),
   getMessages: (conversationId) =>
     api.get(`/chat/conversations/${conversationId}/messages`),
