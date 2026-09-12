@@ -37,7 +37,6 @@ import {
   ShoppingBag,
   HelpCircle,
   GraduationCap,
-  Trash2,
 } from 'lucide-react';
 
 export default function FeedPage() {
@@ -195,22 +194,6 @@ export default function FeedPage() {
     }
   };
 
-  // Delete Post (Owner only)
-  const handleDeletePost = async (postId) => {
-    if (!window.confirm('Are you sure you want to delete this post?')) return;
-    try {
-      setActionLoading(true);
-      await eventService.deleteEvent(postId);
-      setFeedback({ type: 'success', message: 'Your post was successfully deleted.' });
-      setTimeout(() => setFeedback({ type: '', message: '' }), 4000);
-      fetchEvents();
-    } catch (err) {
-      alert(err.message || 'Failed to delete post');
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
   // Add comment
   const handleAddComment = async (eventId) => {
     if (!commentText.trim()) return;
@@ -256,14 +239,6 @@ export default function FeedPage() {
 
         {/* ─── Top Row: Campus AI, Theme Toggle & Profile ─── */}
         <div className="flex items-center justify-end gap-2.5 relative z-10">
-          <Link
-            to="/assistant"
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 hover:bg-white dark:bg-black/40 dark:hover:bg-black/60 text-xs sm:text-sm font-semibold text-[#1F2937] dark:text-slate-200 shadow-xs border border-white/60 dark:border-white/10 transition-all cursor-pointer"
-          >
-            <span className="w-2 h-2 rounded-full bg-[#05A86B] animate-pulse" />
-            <span>Campus AI</span>
-          </Link>
-
           <button
             type="button"
             onClick={toggleTheme}
@@ -273,21 +248,23 @@ export default function FeedPage() {
             {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
           </button>
 
+          <Link
+            to="/assistant"
+            className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#E95E38] hover:bg-[#D7522D] text-white text-xs sm:text-sm font-semibold shadow-xs hover:shadow-md transition-all cursor-pointer"
+          >
+            <span>Campus AI</span>
+          </Link>
+
           {user && (
             <Link
               to="/profile"
-              className="inline-flex items-center gap-2 pl-1.5 pr-3.5 py-1 rounded-full bg-white/90 hover:bg-white dark:bg-black/40 dark:hover:bg-black/60 shadow-xs border border-white/60 dark:border-white/10 transition-all"
+              className="w-8 h-8 rounded-full bg-[#EDE7E3] dark:bg-slate-700 text-[#1E1917] dark:text-white font-bold text-xs flex items-center justify-center overflow-hidden border border-gray-300/80 dark:border-slate-600 shadow-xs hover:scale-105 transition-all cursor-pointer"
             >
-              <div className="w-7 h-7 rounded-full bg-[#EDE7E3] dark:bg-slate-700 text-[#1E1917] dark:text-white font-bold text-xs flex items-center justify-center overflow-hidden border border-gray-200 dark:border-slate-600">
-                {user.avatar ? (
-                  <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-                ) : (
-                  <span>{(user.name || user.email || 'V').charAt(0).toUpperCase()}</span>
-                )}
-              </div>
-              <span className="text-xs sm:text-sm font-bold text-[#1E1917] dark:text-slate-200 max-w-[120px] truncate">
-                {user.name || 'Vikash'}
-              </span>
+              {user.avatar ? (
+                <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+              ) : (
+                <span>{(user.name || user.email || 'V').charAt(0).toUpperCase()}</span>
+              )}
             </Link>
           )}
         </div>
@@ -459,20 +436,16 @@ export default function FeedPage() {
         ) : (
           <div className="flex flex-col gap-6 sm:gap-7 w-full my-6">
             {events.map((post) => {
-              const currentUserId = user?._id || user?.id;
-              const creatorId = post.createdBy?._id || post.createdBy;
-              const isOwner = Boolean(
-                currentUserId && creatorId && String(creatorId) === String(currentUserId)
-              );
-              const hasApplied = Boolean(
-                currentUserId &&
+              const isOwner = user && post.createdBy?._id === user._id;
+              const hasApplied =
+                user &&
                 (post.applicants || []).some(
-                  (a) => String(a.user?._id || a.user) === String(currentUserId)
-                )
-              );
-              const myApplication = Boolean(currentUserId) &&
+                  (a) => (a.user?._id || a.user) === user._id
+                );
+              const myApplication =
+                user &&
                 (post.applicants || []).find(
-                  (a) => String(a.user?._id || a.user) === String(currentUserId)
+                  (a) => (a.user?._id || a.user) === user._id
                 );
 
               const categoryConfig = {
@@ -663,50 +636,35 @@ export default function FeedPage() {
                         <span>{post.comments?.length || 0}</span>
                       </button>
 
-                      {/* Action Buttons: Delete Post & Manage (for owner) or Status / Apply Now (for others) */}
+                      {/* Apply Button */}
                       {isOwner ? (
-                        <div className="flex items-center gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
-                          <button
-                            type="button"
-                            onClick={() => handleDeletePost(post._id)}
-                            className="px-4 py-2 rounded-full text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/40 dark:text-rose-300 dark:hover:bg-rose-900/60 border border-rose-200 dark:border-rose-900 transition-all inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap shadow-xs active:scale-95"
-                            title="Delete your post"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                            <span>Delete Post</span>
-                          </button>
-                          <Link
-                            to={`/events/${post._id}`}
-                            className="px-4 py-2 rounded-full text-xs font-bold bg-[#E95E38] hover:bg-[#D7522D] text-white shadow-xs hover:shadow-md transition-all inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95"
-                            title="Manage applicants"
-                          >
-                            <span>Manage</span>
-                            <span className="px-1.5 py-0.2 rounded-full bg-white/25 text-[10px]">
-                              {post.applicants?.length || 0}
-                            </span>
-                          </Link>
-                        </div>
+                        <Link
+                          to={`/events/${post._id}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="px-4 py-2 rounded-full text-xs font-normal bg-[#554745] hover:bg-[#433735] text-white shadow-xs transition-all inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                        >
+                          <span>Manage</span>
+                          <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px]">
+                            {post.applicants?.length || 0}
+                          </span>
+                        </Link>
                       ) : hasApplied ? (
                         <span
-                          className={`px-4 py-2 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap border shadow-2xs ${
-                            myApplication?.status === 'approved' || myApplication?.status === 'accepted'
+                          className={`px-4 py-2 rounded-full text-xs font-normal inline-flex items-center gap-1.5 whitespace-nowrap border ${
+                            myApplication?.status === 'accepted'
                               ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
                               : myApplication?.status === 'rejected'
                               ? 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-800'
                               : 'bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800'
                           }`}
                         >
-                          {myApplication?.status === 'approved' || myApplication?.status === 'accepted' ? (
+                          {myApplication?.status === 'accepted' ? (
                             <>
                               <Check className="w-3.5 h-3.5 stroke-[2.5]" /> Accepted
                             </>
-                          ) : myApplication?.status === 'rejected' ? (
-                            <>
-                              <X className="w-3.5 h-3.5 stroke-[2.5]" /> Declined
-                            </>
                           ) : (
                             <>
-                              <Clock className="w-3.5 h-3.5" /> Pending
+                              <Clock className="w-3.5 h-3.5" /> {myApplication?.status || 'Pending'}
                             </>
                           )}
                         </span>
@@ -718,10 +676,10 @@ export default function FeedPage() {
                             setSelectedEvent(post);
                             setApplyModalOpen(true);
                           }}
-                          className="px-5 py-2 rounded-full text-xs font-bold bg-[#E95E38] hover:bg-[#D7522D] active:scale-95 text-white shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap tracking-normal"
+                          className="px-5 py-2 rounded-full text-xs font-normal bg-[#E95E38] hover:bg-[#D7522D] active:scale-95 text-white shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap tracking-normal"
                         >
                           <span>Apply Now</span>
-                          <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                          
                         </button>
                       )}
                     </div>
@@ -755,7 +713,7 @@ export default function FeedPage() {
               className="w-full px-4 py-2.5 bg-white border-2 border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#0B1528] font-medium"
             />
           </div>
-
+          
           <div>
             <label className="font-display block text-xs font-bold text-gray-700 uppercase mb-1.5 tracking-wider">
               Description &amp; Requirements

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
-import { lostFoundService } from '../../services/api';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { lostFoundService, chatService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useSearch } from '../../context/SearchContext';
@@ -29,6 +29,8 @@ import {
   MessageCircle,
   ArrowRight,
   Eye,
+  MessageSquare,
+  Send,
 } from 'lucide-react';
 
 export default function LostFoundPage() {
@@ -47,6 +49,55 @@ export default function LostFoundPage() {
 
   // Selected item for rich detail modal
   const [selectedItem, setSelectedItem] = useState(null);
+  const navigate = useNavigate();
+  const [chatPromptOpen, setChatPromptOpen] = useState(false);
+  const [chatRequestNote, setChatRequestNote] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
+
+  // Sync default chat message when an item is selected
+  useEffect(() => {
+    if (selectedItem) {
+      setChatPromptOpen(false);
+      const otherName = selectedItem.createdBy?.name?.split(' ')[0] || 'there';
+      if (selectedItem.type === 'found') {
+        setChatRequestNote(
+          `Hi ${otherName}, I saw your report about "${selectedItem.title}". I think this item belongs to me.`
+        );
+      } else {
+        setChatRequestNote(
+          `Hi ${otherName}, I saw your report about "${selectedItem.title}". I have details / found something matching it.`
+        );
+      }
+    }
+  }, [selectedItem]);
+
+  const handleStartChat = async () => {
+    const targetUserId = selectedItem?.createdBy?._id || selectedItem?.createdBy;
+    if (!targetUserId) {
+      alert('Could not find user details to chat.');
+      return;
+    }
+    if (String(targetUserId) === String(user?._id)) {
+      alert('You are the reporter of this item.');
+      return;
+    }
+
+    setChatLoading(true);
+    try {
+      const res = await chatService.openConversation(
+        targetUserId,
+        null,
+        chatRequestNote.trim()
+      );
+      const conversationId = res.data.conversation?._id;
+      setSelectedItem(null);
+      navigate('/chat', { state: { conversationId } });
+    } catch (err) {
+      alert(err.response?.data?.message || err.message || 'Failed to start chat');
+    } finally {
+      setChatLoading(false);
+    }
+  };
 
   // Keep state in sync with URL searchParams
   useEffect(() => {
@@ -181,14 +232,6 @@ export default function LostFoundPage() {
 
         {/* ─── Top Row: Campus AI, Theme Toggle & Profile ─── */}
         <div className="flex items-center justify-end gap-2.5 relative z-10">
-          <Link
-            to="/assistant"
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 hover:bg-white dark:bg-black/40 dark:hover:bg-black/60 text-xs sm:text-sm font-semibold text-[#1F2937] dark:text-slate-200 shadow-xs border border-white/60 dark:border-white/10 transition-all cursor-pointer"
-          >
-            <span className="w-2 h-2 rounded-full bg-[#05A86B] animate-pulse" />
-            <span>Campus AI</span>
-          </Link>
-
           <button
             type="button"
             onClick={toggleTheme}
@@ -198,21 +241,23 @@ export default function LostFoundPage() {
             {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
           </button>
 
+          <Link
+            to="/assistant"
+            className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#E95E38] hover:bg-[#D7522D] text-white text-xs sm:text-sm font-semibold shadow-xs hover:shadow-md transition-all cursor-pointer"
+          >
+            <span>Campus AI</span>
+          </Link>
+
           {user && (
             <Link
               to="/profile"
-              className="inline-flex items-center gap-2 pl-1.5 pr-3.5 py-1 rounded-full bg-white/90 hover:bg-white dark:bg-black/40 dark:hover:bg-black/60 shadow-xs border border-white/60 dark:border-white/10 transition-all"
+              className="w-8 h-8 rounded-full bg-[#EDE7E3] dark:bg-slate-700 text-[#1E1917] dark:text-white font-bold text-xs flex items-center justify-center overflow-hidden border border-gray-300/80 dark:border-slate-600 shadow-xs hover:scale-105 transition-all cursor-pointer"
             >
-              <div className="w-7 h-7 rounded-full bg-[#EDE7E3] dark:bg-slate-700 text-[#1E1917] dark:text-white font-bold text-xs flex items-center justify-center overflow-hidden border border-gray-200 dark:border-slate-600">
-                {user.avatar ? (
-                  <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-                ) : (
-                  <span>{(user.name || user.email || 'V').charAt(0).toUpperCase()}</span>
-                )}
-              </div>
-              <span className="text-xs sm:text-sm font-bold text-[#1E1917] dark:text-slate-200 max-w-[120px] truncate">
-                {user.name || 'Student'}
-              </span>
+              {user.avatar ? (
+                <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+              ) : (
+                <span>{(user.name || user.email || 'V').charAt(0).toUpperCase()}</span>
+              )}
             </Link>
           )}
         </div>
@@ -500,19 +545,33 @@ export default function LostFoundPage() {
                       <button
                         type="button"
                         onClick={() => setSelectedItem(item)}
-                        className="px-3 py-2 rounded-xl text-xs font-semibold text-[#E95E38] dark:text-[#F3704B] bg-[#FDF3ED] dark:bg-amber-950/40 hover:bg-[#FBE8DE] border border-[#F0DDD3] dark:border-amber-900/40 transition-all cursor-pointer inline-flex items-center gap-1.5 shadow-2xs hover:shadow-xs"
+                        className="px-3 py-2 rounded-xl text-xs font-semibold text-stone-700 dark:text-slate-300 bg-stone-100 hover:bg-stone-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-all cursor-pointer inline-flex items-center gap-1.5 shadow-2xs hover:shadow-xs"
                       >
                         <Eye className="w-3.5 h-3.5" />
                         <span>View</span>
                       </button>
 
+                      {!isOwner && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedItem(item);
+                            setChatPromptOpen(true);
+                          }}
+                          className="px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-[#E95E38] hover:bg-[#D7522D] transition-all cursor-pointer inline-flex items-center gap-1.5 shadow-xs hover:shadow-md active:scale-95"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5" />
+                          <span>Chat</span>
+                        </button>
+                      )}
+
                       {item.contact && (
                         <a
                           href={`tel:${item.contact.replace(/[^0-9+]/g, '')}`}
-                          className="font-display inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold tracking-tight bg-[#E95E38] hover:bg-[#D7522D] text-white shadow-xs hover:shadow-md transition-all cursor-pointer active:scale-95"
+                          className="font-display inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-[#FDF3ED] dark:bg-amber-950/40 hover:bg-[#FBE8DE] text-[#E95E38] dark:text-[#F3704B] border border-[#F0DDD3] dark:border-amber-900/40 transition-all cursor-pointer active:scale-95"
                         >
                           <Phone className="w-3.5 h-3.5" />
-                          <span>Contact ({item.contact})</span>
+                          <span>{item.contact}</span>
                         </a>
                       )}
 
@@ -834,32 +893,94 @@ export default function LostFoundPage() {
                   </div>
 
                   {/* Direct Contact Buttons */}
-                  {selectedItem.contact && (
-                    <div className="flex items-center gap-2 flex-wrap">
-                      {cleanPhone && (
-                        <a
-                          href={`tel:${cleanPhone}`}
-                          className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#E95E38] hover:bg-[#D7522D] text-white text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95"
-                        >
-                          <Phone className="w-3.5 h-3.5" />
-                          <span>Call ({selectedItem.contact})</span>
-                        </a>
-                      )}
-                      {waNumber && waNumber.length >= 10 && (
-                        <a
-                          href={`https://wa.me/${waNumber}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95"
-                          title="Chat on WhatsApp"
-                        >
-                          <MessageCircle className="w-3.5 h-3.5" />
-                          <span>WhatsApp</span>
-                        </a>
-                      )}
-                    </div>
-                  )}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {!isOwner && (
+                      <button
+                        type="button"
+                        onClick={() => setChatPromptOpen((prev) => !prev)}
+                        className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#E95E38] hover:bg-[#D7522D] text-white text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5" />
+                        <span>{selectedItem.type === 'found' ? 'Chat with Finder' : 'Chat with Reporter'}</span>
+                      </button>
+                    )}
+
+                    {selectedItem.contact && cleanPhone && (
+                      <a
+                        href={`tel:${cleanPhone}`}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-stone-800 dark:text-slate-100 text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95"
+                      >
+                        <Phone className="w-3.5 h-3.5" />
+                        <span>Call</span>
+                      </a>
+                    )}
+                    {selectedItem.contact && waNumber && waNumber.length >= 10 && (
+                      <a
+                        href={`https://wa.me/${waNumber}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95"
+                        title="Chat on WhatsApp"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5" />
+                        <span>WhatsApp</span>
+                      </a>
+                    )}
+                  </div>
                 </div>
+
+                {/* Inline Chat Prompt */}
+                {chatPromptOpen && !isOwner && (
+                  <div className="p-4 bg-orange-50/70 dark:bg-amber-950/30 border border-orange-200 dark:border-amber-800/40 rounded-2xl space-y-3 animate-in fade-in duration-200">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-gray-950 dark:text-white flex items-center gap-1.5">
+                        <Send className="w-3.5 h-3.5 text-[#E95E38]" />
+                        Message {selectedItem.createdBy?.name || 'Student'} on Campus Bond
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setChatPromptOpen(false)}
+                        className="text-gray-400 hover:text-gray-600 p-1 cursor-pointer"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <p className="text-[11.5px] text-gray-600 dark:text-slate-300 leading-relaxed">
+                      Saamne wale student ke paas Campus Bond Messages me direct chat request chali jayegi:
+                    </p>
+                    <textarea
+                      rows={2}
+                      value={chatRequestNote}
+                      onChange={(e) => setChatRequestNote(e.target.value)}
+                      placeholder="Type your message..."
+                      className="w-full px-3 py-2 text-xs rounded-xl bg-white dark:bg-slate-900 border border-orange-200 dark:border-slate-700 text-gray-950 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#E95E38] resize-none"
+                    />
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setChatPromptOpen(false)}
+                        className="px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-600 dark:text-slate-400 hover:bg-black/5 cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        disabled={chatLoading || !chatRequestNote.trim()}
+                        onClick={handleStartChat}
+                        className="px-4 py-1.5 rounded-xl bg-[#E95E38] hover:bg-[#D7522D] disabled:opacity-50 text-white text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5 active:scale-95"
+                      >
+                        {chatLoading ? (
+                          <span>Sending...</span>
+                        ) : (
+                          <>
+                            <span>Send & Open Chat</span>
+                            <Send className="w-3 h-3" />
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Modal Footer Actions */}
@@ -894,13 +1015,26 @@ export default function LostFoundPage() {
                   </div>
                 )}
 
-                <button
-                  type="button"
-                  onClick={() => setSelectedItem(null)}
-                  className="px-5 py-2 rounded-xl text-xs font-bold text-stone-700 dark:text-slate-300 hover:bg-stone-100 dark:hover:bg-slate-800 bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-700 cursor-pointer ml-auto"
-                >
-                  Close
-                </button>
+                <div className="flex items-center gap-2 ml-auto">
+                  {!isOwner && (
+                    <button
+                      type="button"
+                      onClick={() => setChatPromptOpen(true)}
+                      className="px-4 py-2 rounded-xl text-xs font-bold bg-[#E95E38] hover:bg-[#D7522D] text-white flex items-center gap-1.5 transition-all shadow-xs active:scale-95 cursor-pointer"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      <span>{selectedItem.type === 'found' ? 'Claim Item / Chat' : 'Chat with Reporter'}</span>
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => setSelectedItem(null)}
+                    className="px-5 py-2 rounded-xl text-xs font-bold text-stone-700 dark:text-slate-300 hover:bg-stone-100 dark:hover:bg-slate-800 bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-700 cursor-pointer"
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
             </div>
           );

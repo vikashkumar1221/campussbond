@@ -93,16 +93,8 @@ export default function ProfilePage() {
           />
         </div>
 
-        {/* ─── Top Row: Campus AI & Theme Toggle ─── */}
+        {/* ─── Top Row: Theme Toggle & Campus AI ─── */}
         <div className="flex items-center justify-end gap-2.5 relative z-10">
-          <Link
-            to="/assistant"
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 hover:bg-white dark:bg-black/40 dark:hover:bg-black/60 text-xs sm:text-sm font-semibold text-[#1F2937] dark:text-slate-200 shadow-xs border border-white/60 dark:border-white/10 transition-all cursor-pointer"
-          >
-            <span className="w-2 h-2 rounded-full bg-[#05A86B] animate-pulse" />
-            <span>Campus AI</span>
-          </Link>
-
           <button
             type="button"
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -111,6 +103,13 @@ export default function ProfilePage() {
           >
             {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
           </button>
+
+          <Link
+            to="/assistant"
+            className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#E95E38] hover:bg-[#D7522D] text-white text-xs sm:text-sm font-semibold shadow-xs hover:shadow-md transition-all cursor-pointer"
+          >
+            <span>Campus AI</span>
+          </Link>
         </div>
 
         {/* ─── Middle Row: Title & Slogan ─── */}
@@ -155,9 +154,6 @@ export default function ProfilePage() {
             <div className="space-y-1">
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="text-lg sm:text-xl font-bold text-gray-950 dark:text-white">{displayName}</h2>
-                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  VERIFIED STUDENT
-                </span>
               </div>
               <p className="text-xs text-gray-500 truncate">{user?.email}</p>
               <div className="flex flex-wrap items-center gap-2 pt-0.5 text-xs text-gray-500">

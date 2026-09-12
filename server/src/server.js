@@ -37,11 +37,12 @@ app.use(morgan('dev')); // request logging in the console
 
 // Request timeout safeguard: guarantee no request hangs indefinitely
 app.use((req, res, next) => {
+  const timeoutMs = req.originalUrl?.includes('/assistant') ? 45000 : 15000;
   const timer = setTimeout(() => {
     if (!res.headersSent) {
       res.status(504).json({ message: 'Request timed out on the server. Please try again.' });
     }
-  }, 8000);
+  }, timeoutMs);
   res.on('finish', () => clearTimeout(timer));
   res.on('close', () => clearTimeout(timer));
   next();

@@ -414,14 +414,6 @@ export default function ClubsPage() {
 
         {/* ─── Top Row: Campus AI, Theme Toggle & Profile ─── */}
         <div className="flex items-center justify-end gap-2.5 relative z-10">
-          <Link
-            to="/assistant"
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 hover:bg-white dark:bg-black/40 dark:hover:bg-black/60 text-xs sm:text-sm font-semibold text-[#1F2937] dark:text-slate-200 shadow-xs border border-white/60 dark:border-white/10 transition-all cursor-pointer"
-          >
-            <span className="w-2 h-2 rounded-full bg-[#05A86B] animate-pulse" />
-            <span>Campus AI</span>
-          </Link>
-
           <button
             type="button"
             onClick={toggleTheme}
@@ -431,21 +423,23 @@ export default function ClubsPage() {
             {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
           </button>
 
+          <Link
+            to="/assistant"
+            className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#E95E38] hover:bg-[#D7522D] text-white text-xs sm:text-sm font-semibold shadow-xs hover:shadow-md transition-all cursor-pointer"
+          >
+            <span>Campus AI</span>
+          </Link>
+
           {user && (
             <Link
               to="/profile"
-              className="inline-flex items-center gap-2 pl-1.5 pr-3.5 py-1 rounded-full bg-white/90 hover:bg-white dark:bg-black/40 dark:hover:bg-black/60 shadow-xs border border-white/60 dark:border-white/10 transition-all"
+              className="w-8 h-8 rounded-full bg-[#EDE7E3] dark:bg-slate-700 text-[#1E1917] dark:text-white font-bold text-xs flex items-center justify-center overflow-hidden border border-gray-300/80 dark:border-slate-600 shadow-xs hover:scale-105 transition-all cursor-pointer"
             >
-              <div className="w-7 h-7 rounded-full bg-[#EDE7E3] dark:bg-slate-700 text-[#1E1917] dark:text-white font-bold text-xs flex items-center justify-center overflow-hidden border border-gray-200 dark:border-slate-600">
-                {user.avatar ? (
-                  <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-                ) : (
-                  <span>{(user.name || user.email || 'V').charAt(0).toUpperCase()}</span>
-                )}
-              </div>
-              <span className="text-xs sm:text-sm font-bold text-[#1E1917] dark:text-slate-200 max-w-[120px] truncate">
-                {user.name || 'Student'}
-              </span>
+              {user.avatar ? (
+                <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+              ) : (
+                <span>{(user.name || user.email || 'V').charAt(0).toUpperCase()}</span>
+              )}
             </Link>
           )}
         </div>

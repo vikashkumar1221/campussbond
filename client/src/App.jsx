@@ -101,14 +101,6 @@ function AppLayout() {
         {!['/', '/market', '/lostfound', '/clubs', '/profile'].includes(location.pathname) && (
           <header className="hidden md:flex sticky top-0 z-20 bg-white/90 dark:bg-[#0E1626]/90 backdrop-blur-md border-b border-gray-200/70 dark:border-slate-800/80 px-8 py-3 items-center justify-end gap-3 transition-colors">
             <div className="flex items-center gap-3 flex-shrink-0">
-              <Link
-                to="/assistant"
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 transition-colors"
-              >
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Campus AI</span>
-              </Link>
-
               <button
                 type="button"
                 onClick={toggleTheme}
@@ -118,21 +110,23 @@ function AppLayout() {
                 {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
               </button>
 
+              <Link
+                to="/assistant"
+                className="inline-flex items-center px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold bg-[#E95E38] hover:bg-[#D7522D] text-white shadow-xs hover:shadow-md transition-all"
+              >
+                <span>Campus AI</span>
+              </Link>
+
               {user && (
                 <Link
                   to="/profile"
-                  className="flex items-center gap-2.5 pl-1.5 pr-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors"
+                  className="w-8 h-8 rounded-full bg-[#EDE7E3] dark:bg-slate-700 text-[#1E1917] dark:text-white font-bold text-xs flex items-center justify-center overflow-hidden border border-gray-300 dark:border-slate-600 shadow-xs hover:scale-105 transition-all cursor-pointer"
                 >
-                  <div className="w-7 h-7 rounded-full bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 flex items-center justify-center font-bold text-xs text-gray-900 dark:text-white overflow-hidden">
-                    {user.avatar ? (
-                      <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <span>{(user.name || user.email || 'U').charAt(0).toUpperCase()}</span>
-                    )}
-                  </div>
-                  <span className="text-xs font-semibold text-gray-800 dark:text-slate-200 max-w-[120px] truncate">
-                    {user.name || user.email?.split('@')[0]}
-                  </span>
+                  {user.avatar ? (
+                    <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{(user.name || user.email || 'V').charAt(0).toUpperCase()}</span>
+                  )}
                 </Link>
               )}
             </div>

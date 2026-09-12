@@ -1,15 +1,17 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { useSearch } from '../context/SearchContext';
 import {
   Home,
   Users,
+  Search,
   Plus,
   X,
   HelpCircle,
 } from 'lucide-react';
 
-export default function Sidebar({ isOpen, onClose }) {
+export default function Sidebar({ isOpen, onClose }){
   const location = useLocation();
-  const navigate = useNavigate();
 
   const navItems = [
     {
@@ -75,14 +77,12 @@ export default function Sidebar({ isOpen, onClose }) {
 
   const handleCreatePost = () => {
     if (onClose) onClose();
-    if (location.pathname !== '/') {
-      navigate('/?create=true');
-    } else {
-      window.dispatchEvent(new CustomEvent('open-create-post'));
-    }
+    window.dispatchEvent(new CustomEvent('open-create-post'));
   };
 
   const NavContent = () => {
+    const { searchQuery, setSearchQuery } = useSearch();
+
     return (
       <div className="flex flex-col h-full justify-between relative overflow-hidden select-none">
         {/* ─── Top Section: Logo & Nav Links ─── */}
@@ -133,6 +133,30 @@ export default function Sidebar({ isOpen, onClose }) {
                 <X className="w-5 h-5" />
               </button>
             )}
+          </div>
+
+          {/* ─── Search Pill in Sidebar (matching exact screenshot design) ─── */}
+          <div className="mb-3.5">
+            <div className="w-full flex items-center gap-3.5 px-4.5 py-3 rounded-full bg-[#BCB5A3] text-[#1D1819] font-semibold text-[15px] shadow-xs focus-within:ring-2 focus-within:ring-white/40 transition-all">
+              <Search className="w-5 h-5 text-[#1D1819] stroke-[2.2] flex-shrink-0" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search..."
+                className="w-full bg-transparent text-[#1D1819] placeholder-[#1D1819]/60 font-semibold text-[15px] focus:outline-none"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="text-[#1D1819]/70 hover:text-[#1D1819] p-0.5 cursor-pointer ml-1"
+                  title="Clear"
+                >
+                  <X className="w-4 h-4 stroke-[2.5]" />
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Navigation Items */}
@@ -246,7 +270,8 @@ export default function Sidebar({ isOpen, onClose }) {
       </div>
     </div>
   );
-};
+
+  };
 
   return (
     <>

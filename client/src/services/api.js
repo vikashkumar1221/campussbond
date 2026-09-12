@@ -125,7 +125,8 @@ export const chatService = {
 
 // --- AI Assistant APIs ---
 export const assistantService = {
-  ask: (query, userName) => api.post('/assistant/query', { query, userName }),
+  ask: (query, userName, history = []) =>
+    api.post('/assistant/query', { query, userName, history }),
 };
 
 export default api;
