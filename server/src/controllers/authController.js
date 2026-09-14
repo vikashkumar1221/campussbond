@@ -212,3 +212,68 @@ export async function login(req, res) {
 export async function getMe(req, res) {
   res.status(200).json({ user: req.user });
 }
+
+/**
+ * Update current user's profile details & skills.
+ * PUT /api/auth/profile
+ */
+export async function updateProfile(req, res) {
+  try {
+    const {
+      name,
+      branch,
+      semester,
+      skills,
+      bio,
+      interests,
+      githubUrl,
+      linkedinUrl,
+      portfolioUrl,
+      avatar,
+    } = req.body;
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (name !== undefined) user.name = name.trim();
+    if (branch !== undefined) user.branch = branch.trim();
+    if (semester !== undefined) user.semester = Number(semester);
+    if (bio !== undefined) user.bio = bio.trim();
+    if (avatar !== undefined) user.avatar = avatar.trim();
+    if (githubUrl !== undefined) user.githubUrl = githubUrl.trim();
+    if (linkedinUrl !== undefined) user.linkedinUrl = linkedinUrl.trim();
+    if (portfolioUrl !== undefined) user.portfolioUrl = portfolioUrl.trim();
+
+    if (skills !== undefined) {
+      if (Array.isArray(skills)) {
+        user.skills = skills.map((s) => String(s).trim()).filter(Boolean);
+      } else if (typeof skills === 'string') {
+        user.skills = skills
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean);
+      }
+    }
+
+    if (interests !== undefined) {
+      if (Array.isArray(interests)) {
+        user.interests = interests.map((i) => String(i).trim()).filter(Boolean);
+      } else if (typeof interests === 'string') {
+        user.interests = interests
+          .split(',')
+          .map((i) => i.trim())
+          .filter(Boolean);
+      }
+    }
+
+    await user.save();
+    res.status(200).json({
+      message: 'Profile updated successfully',
+      user,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message || 'Failed to update profile' });
+  }
+}

@@ -255,6 +255,14 @@ export default function FeedPage() {
             <span>Campus AI</span>
           </Link>
 
+          <Link
+            to="/skill-match"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/90 hover:bg-white dark:bg-slate-800 text-[#E95E38] text-xs sm:text-sm font-bold shadow-xs hover:shadow-md transition-all cursor-pointer border border-[#E95E38]/30"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-[#E95E38]" />
+            <span>AI Skill Match</span>
+          </Link>
+
           {user && (
             <Link
               to="/profile"
@@ -485,6 +493,16 @@ export default function FeedPage() {
 
               const isExpanded = !!expandedPosts[post._id];
 
+              // Calculate personal AI skill match
+              const userSkillsLower = (user?.skills || []).map((s) => s.toLowerCase());
+              const postSkills = post.skillsNeeded || [];
+              const matchedCount = postSkills.filter((s) =>
+                userSkillsLower.some((u) => u.includes(s.toLowerCase()) || s.toLowerCase().includes(u))
+              ).length;
+              const matchScore = postSkills.length
+                ? Math.min(100, Math.round((matchedCount / postSkills.length) * 85 + (matchedCount > 0 ? 15 : 0)))
+                : 0;
+
               return (
                 <div
                   key={post._id}
@@ -500,6 +518,16 @@ export default function FeedPage() {
                     </div>
 
                     <div className="flex items-center gap-2.5 flex-shrink-0">
+                      {matchedCount > 0 && (
+                        <span
+                          title={`AI calculates ${matchScore}% skill compatibility with your profile!`}
+                          className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 shadow-2xs animate-pulse"
+                        >
+                          <Sparkles className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                          <span>{matchScore}% Match</span>
+                        </span>
+                      )}
+
                       <span
                         onClick={(e) => {
                           e.stopPropagation();

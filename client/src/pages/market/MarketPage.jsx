@@ -33,6 +33,41 @@ import {
   X,
 } from 'lucide-react';
 
+const CATEGORY_ICON_MAP = {
+  books: BookOpen,
+  notes: FileText,
+  kit: PenTool,
+  electronics: Laptop,
+  instruments: Music,
+  furniture: Home,
+  other: ShoppingBag,
+};
+
+function MarketImage({ src, alt, category, className, containerClassName }) {
+  const [hasError, setHasError] = useState(false);
+  const Icon = CATEGORY_ICON_MAP[(category || '').toLowerCase()] || ShoppingBag;
+
+  if (src && !hasError) {
+    return (
+      <img
+        src={src.startsWith('http') ? src : `${src}`}
+        alt={alt}
+        onError={() => setHasError(true)}
+        className={className}
+      />
+    );
+  }
+
+  return (
+    <div className={`flex flex-col items-center justify-center text-gray-400 dark:text-slate-500 gap-1.5 p-4 text-center w-full h-full ${containerClassName || ''}`}>
+      <Icon className="w-8 h-8 stroke-[1.5] text-gray-400 dark:text-slate-500" />
+      <span className="text-[10.5px] font-semibold uppercase tracking-wider text-gray-400 dark:text-slate-500">
+        {category || 'Item'}
+      </span>
+    </div>
+  );
+}
+
 export default function MarketPage() {
   const { user } = useAuth();
   const { theme, toggleTheme } = useTheme();
@@ -326,6 +361,14 @@ export default function MarketPage() {
             <span>Campus AI</span>
           </Link>
 
+          <Link
+            to="/skill-match"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/90 hover:bg-white dark:bg-slate-800 text-[#E95E38] text-xs sm:text-sm font-bold shadow-xs hover:shadow-md transition-all cursor-pointer border border-[#E95E38]/30"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-[#E95E38]" />
+            <span>AI Skill Match</span>
+          </Link>
+
           {user && (
             <Link
               to="/profile"
@@ -559,20 +602,12 @@ export default function MarketPage() {
                 >
                   {/* Top Image Preview */}
                   <div className="h-44 sm:h-48 w-full bg-gray-100 dark:bg-slate-800/50 overflow-hidden relative border-b border-gray-100 dark:border-slate-800 flex items-center justify-center">
-                    {item.image ? (
-                      <img
-                        src={item.image.startsWith('http') ? item.image : `${item.image}`}
-                        alt={item.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="flex flex-col items-center justify-center text-gray-400 dark:text-slate-500 gap-1.5 p-4 text-center">
-                        <ShoppingBag className="w-8 h-8 stroke-[1.5] text-gray-400 dark:text-slate-500" />
-                        <span className="text-[10.5px] font-semibold text-gray-400 dark:text-slate-500 uppercase tracking-wider">
-                          {item.category}
-                        </span>
-                      </div>
-                    )}
+                    <MarketImage
+                      src={item.image}
+                      alt={item.title}
+                      category={item.category}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
 
                     {/* Overlay Badges */}
                     <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-1.5 pointer-events-none">
@@ -707,23 +742,13 @@ export default function MarketPage() {
           return (
             <div className="space-y-5">
               {/* Product Media */}
-              <div className="w-full bg-gray-100 rounded-2xl overflow-hidden border border-gray-200 relative flex items-center justify-center max-h-80 sm:max-h-96">
-                {selectedItem.image ? (
-                  <img
-                    src={
-                      selectedItem.image.startsWith('http')
-                        ? selectedItem.image
-                        : `${selectedItem.image}`
-                    }
-                    alt={selectedItem.title}
-                    className="w-full h-full max-h-80 sm:max-h-96 object-contain sm:object-cover"
-                  />
-                ) : (
-                  <div className="py-16 flex flex-col items-center justify-center text-gray-400 gap-2">
-                    <ShoppingBag className="w-12 h-12" />
-                    <span className="text-xs">No image available</span>
-                  </div>
-                )}
+              <div className="w-full bg-gray-100 dark:bg-slate-900 rounded-2xl overflow-hidden border border-gray-200 dark:border-slate-800 relative flex items-center justify-center max-h-80 sm:max-h-96 min-h-[200px]">
+                <MarketImage
+                  src={selectedItem.image}
+                  alt={selectedItem.title}
+                  category={selectedItem.category}
+                  className="w-full h-full max-h-80 sm:max-h-96 object-contain sm:object-cover"
+                />
 
                 {/* Sold Overlay */}
                 {selectedItem.status === 'sold' && (

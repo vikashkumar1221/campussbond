@@ -110,6 +110,14 @@ export default function ProfilePage() {
           >
             <span>Campus AI</span>
           </Link>
+
+          <Link
+            to="/skill-match"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/90 hover:bg-white dark:bg-slate-800 text-[#E95E38] text-xs sm:text-sm font-bold shadow-xs hover:shadow-md transition-all cursor-pointer border border-[#E95E38]/30"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-[#E95E38]" />
+            <span>AI Skill Match</span>
+          </Link>
         </div>
 
         {/* ─── Middle Row: Title & Slogan ─── */}
@@ -165,6 +173,41 @@ export default function ProfilePage() {
                   <span className="bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 px-2.5 py-1 rounded-xl text-[11px] font-semibold text-gray-700 dark:text-slate-300">
                     Semester {user.semester}
                   </span>
+                )}
+              </div>
+
+              {/* Verified Skills Preview */}
+              <div className="flex flex-wrap items-center gap-1.5 pt-1.5">
+                {(user?.skills && user.skills.length > 0) ? (
+                  <>
+                    {user.skills.slice(0, 4).map((sk, i) => (
+                      <span
+                        key={i}
+                        className="px-2 py-0.5 rounded-md bg-[#FDF3ED] dark:bg-amber-950/40 text-[#E95E38] border border-[#F3DFD5] dark:border-amber-950/60 font-bold text-[10px]"
+                      >
+                        {sk}
+                      </span>
+                    ))}
+                    {user.skills.length > 4 && (
+                      <span className="text-[10px] text-gray-400 font-bold">
+                        +{user.skills.length - 4} more
+                      </span>
+                    )}
+                    <Link
+                      to="/skill-match?tab=profile"
+                      className="text-[11px] font-bold text-[#E95E38] hover:underline ml-1"
+                    >
+                      Edit Skills →
+                    </Link>
+                  </>
+                ) : (
+                  <Link
+                    to="/skill-match?tab=profile"
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-[#E95E38] hover:underline"
+                  >
+                    <Sparkles className="w-3 h-3" />
+                    <span>Add your skills for AI matching →</span>
+                  </Link>
                 )}
               </div>
             </div>

@@ -59,6 +59,7 @@ export const authService = {
   resendOtp: (data) => api.post('/auth/resend-otp', data),
   login: (data) => api.post('/auth/login', data),
   getMe: () => api.get('/auth/me'),
+  updateProfile: (data) => api.put('/auth/profile', data),
 };
 
 // --- Events & Collaborations APIs ---
@@ -127,6 +128,14 @@ export const chatService = {
 export const assistantService = {
   ask: (query, userName, history = []) =>
     api.post('/assistant/query', { query, userName, history }),
+};
+
+// --- AI Skill Match APIs ---
+export const skillMatchService = {
+  getMatchedEvents: () => api.get('/skill-match/events'),
+  getMatchedTeammates: (params) => api.get('/skill-match/teammates', { params }),
+  searchSkillMatches: (query) => api.post('/skill-match/query', { query }),
+  extractSkills: (text) => api.post('/skill-match/extract', { text }),
 };
 
 export default api;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { eventService, chatService } from '../../services/api';
+import { eventService, chatService, skillMatchService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import Modal from '../../components/Modal';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -33,6 +33,8 @@ export default function EventDetailPage() {
   const [chatNote, setChatNote] = useState('');
   const [chatSending, setChatSending] = useState(false);
   const [sentRequests, setSentRequests] = useState({});
+  const [recommendedTeammates, setRecommendedTeammates] = useState([]);
+  const [loadingRecommendations, setLoadingRecommendations] = useState(false);
 
   const fetchEvent = async () => {
     try {
@@ -53,6 +55,23 @@ export default function EventDetailPage() {
   const currentUserId = user?._id || user?.id;
   const creatorId = event?.createdBy?._id || event?.createdBy;
   const isOwner = Boolean(currentUserId && creatorId && String(creatorId) === String(currentUserId));
+
+  useEffect(() => {
+    if (isOwner && id) {
+      const fetchRecommendations = async () => {
+        try {
+          setLoadingRecommendations(true);
+          const res = await skillMatchService.getMatchedTeammates({ eventId: id });
+          setRecommendedTeammates((res.data.candidates || []).slice(0, 4));
+        } catch (err) {
+          console.error('Failed to load AI teammate recommendations', err);
+        } finally {
+          setLoadingRecommendations(false);
+        }
+      };
+      fetchRecommendations();
+    }
+  }, [isOwner, id]);
 
   // Review applicant (Approve / Reject)
   const handleReview = async (applicantId, status) => {
@@ -333,6 +352,84 @@ export default function EventDetailPage() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* ─── AI Recommended Campus Teammates (Owner Only) ─── */}
+      {isOwner && recommendedTeammates.length > 0 && (
+        <div className="bg-gradient-to-r from-[#FDF3ED]/90 via-[#FCEAE1]/90 to-[#F8DDD0]/90 dark:from-[#1A1412] dark:via-[#221816] dark:to-[#1A1412] border border-[#F3DFD5] dark:border-amber-950/60 rounded-3xl p-6 sm:p-8 space-y-4 shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-[#E95E38] text-white">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-gray-950 dark:text-white">
+                  AI Recommended Teammates for This Project
+                </h2>
+                <p className="text-xs text-gray-600 dark:text-slate-400">
+                  Campus students whose verified skills best match your requirement for "{(event.skillsNeeded || []).join(', ')}"
+                </p>
+              </div>
+            </div>
+
+            <Link
+              to={`/skill-match?tab=teammates`}
+              className="text-xs font-bold text-[#E95E38] hover:underline"
+            >
+              Open Full Matchmaker →
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+            {recommendedTeammates.map((cand) => (
+              <div
+                key={cand._id}
+                className="bg-white/95 dark:bg-[#0E1626]/95 border border-[#F0DDD3] dark:border-slate-800 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-2xs"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-full bg-[#EDE7E3] text-gray-900 font-bold text-sm flex items-center justify-center flex-shrink-0">
+                    {cand.name?.charAt(0) || 'U'}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-bold text-xs sm:text-sm text-gray-950 dark:text-white truncate">
+                        {cand.name}
+                      </h4>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        {cand.matchPercentage}% Match
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-gray-500 truncate">
+                      {cand.branch} • Sem {cand.semester}
+                    </p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {(cand.skills || []).slice(0, 3).map((sk, idx) => (
+                        <span
+                          key={idx}
+                          className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-slate-800 text-[10px] font-medium text-gray-700 dark:text-slate-300"
+                        >
+                          {sk}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleOpenChatModal({
+                      user: cand,
+                    });
+                  }}
+                  className="flex-shrink-0 px-3 py-1.5 rounded-xl bg-[#0B1528] hover:bg-black text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                >
+                  Invite
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

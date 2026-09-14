@@ -1,13 +1,12 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useSearch } from '../context/SearchContext';
 import {
   Home,
   Users,
-  Search,
   Plus,
   X,
   HelpCircle,
+  Sparkles,
 } from 'lucide-react';
 
 export default function Sidebar({ isOpen, onClose }){
@@ -19,6 +18,13 @@ export default function Sidebar({ isOpen, onClose }){
       path: '/',
       icon: Home,
       isActive: () => location.pathname === '/' || location.pathname.startsWith('/events'),
+    },
+    {
+      name: 'Skill Match',
+      path: '/skill-match',
+      icon: Sparkles,
+      badge: 'AI',
+      isActive: () => location.pathname.startsWith('/skill-match'),
     },
     {
       name: 'Clubs',
@@ -81,8 +87,6 @@ export default function Sidebar({ isOpen, onClose }){
   };
 
   const NavContent = () => {
-    const { searchQuery, setSearchQuery } = useSearch();
-
     return (
       <div className="flex flex-col h-full justify-between relative overflow-hidden select-none">
         {/* ─── Top Section: Logo & Nav Links ─── */}
@@ -135,29 +139,6 @@ export default function Sidebar({ isOpen, onClose }){
             )}
           </div>
 
-          {/* ─── Search Pill in Sidebar (matching exact screenshot design) ─── */}
-          <div className="mb-3.5">
-            <div className="w-full flex items-center gap-3.5 px-4.5 py-3 rounded-full bg-[#BCB5A3] text-[#1D1819] font-semibold text-[15px] shadow-xs focus-within:ring-2 focus-within:ring-white/40 transition-all">
-              <Search className="w-5 h-5 text-[#1D1819] stroke-[2.2] flex-shrink-0" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search..."
-                className="w-full bg-transparent text-[#1D1819] placeholder-[#1D1819]/60 font-semibold text-[15px] focus:outline-none"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery('')}
-                  className="text-[#1D1819]/70 hover:text-[#1D1819] p-0.5 cursor-pointer ml-1"
-                  title="Clear"
-                >
-                  <X className="w-4 h-4 stroke-[2.5]" />
-                </button>
-              )}
-            </div>
-          </div>
 
           {/* Navigation Items */}
           <nav className="space-y-1.5">
@@ -181,7 +162,16 @@ export default function Sidebar({ isOpen, onClose }){
                     active ? 'text-[#1D1819] stroke-[2.2]' : 'text-[#F5F4F3] stroke-[2]'
                   }`}
                 />
-                <span>{item.name}</span>
+                <span className="flex-1 text-left">{item.name}</span>
+                {item.badge && (
+                  <span className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                    active
+                      ? 'bg-[#1D1819] text-white'
+                      : 'bg-[#E95E38] text-white shadow-2xs'
+                  }`}>
+                    {item.badge}
+                  </span>
+                )}
               </Link>
             );
           })}

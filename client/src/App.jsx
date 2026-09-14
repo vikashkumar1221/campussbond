@@ -18,6 +18,7 @@ import ClubsPage from './pages/clubs/ClubsPage';
 import ChatPage from './pages/chat/ChatPage';
 import ProfilePage from './pages/profile/ProfilePage';
 import CampusAssistantPage from './pages/assistant/CampusAssistantPage';
+import SkillMatchPage from './pages/skillmatch/SkillMatchPage';
 
 // Protected Route wrapper: requires authenticated user
 function ProtectedRoute({ children }) {
@@ -98,7 +99,7 @@ function AppLayout() {
 
       <div className="flex-1 flex flex-col min-w-0">
         {/* ─── Desktop Header: AI, Theme Toggle & Profile (shown on pages without Hero banner) ─── */}
-        {!['/', '/market', '/lostfound', '/clubs', '/profile'].includes(location.pathname) && (
+        {!['/', '/market', '/lostfound', '/clubs', '/profile', '/skill-match'].includes(location.pathname) && (
           <header className="hidden md:flex sticky top-0 z-20 bg-white/90 dark:bg-[#0E1626]/90 backdrop-blur-md border-b border-gray-200/70 dark:border-slate-800/80 px-8 py-3 items-center justify-end gap-3 transition-colors">
             <div className="flex items-center gap-3 flex-shrink-0">
               <button
@@ -225,6 +226,15 @@ function AppLayout() {
               }
             />
             <Route path="/campus-assistant" element={<Navigate to="/assistant" replace />} />
+            <Route
+              path="/skill-match"
+              element={
+                <ProtectedRoute>
+                  <SkillMatchPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/skill-matching" element={<Navigate to="/skill-match" replace />} />
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

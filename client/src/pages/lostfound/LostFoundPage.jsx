@@ -33,6 +33,69 @@ import {
   Send,
 } from 'lucide-react';
 
+function LostFoundCardImage({ item }) {
+  const [hasError, setHasError] = useState(false);
+
+  if (!item.image || hasError) {
+    return null;
+  }
+
+  const src = item.image.startsWith('http') ? item.image : `${item.image}`;
+
+  return (
+    <div className="h-48 sm:h-64 w-full rounded-2xl bg-gray-100 dark:bg-slate-800/50 overflow-hidden border border-gray-200/80 dark:border-slate-800 relative">
+      <img
+        src={src}
+        alt={item.title}
+        onError={() => setHasError(true)}
+        className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+      />
+      {item.status === 'resolved' && (
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-[1px] flex items-center justify-center">
+          <span className="text-xs sm:text-sm font-bold uppercase tracking-widest text-white border border-white/30 px-3.5 py-1.5 rounded-xl bg-emerald-700/90 shadow-lg">
+            Resolved
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LostFoundModalImage({ item }) {
+  const [hasError, setHasError] = useState(false);
+
+  if (!item.image || hasError) {
+    return (
+      <div className="py-8 sm:py-10 bg-[#FDF3ED]/60 dark:bg-slate-800/40 rounded-2xl border border-dashed border-[#F0DDD3] dark:border-slate-700 flex flex-col items-center justify-center text-[#8E7E7A] gap-2">
+        <Tag className="w-10 h-10 text-[#E95E38]/60" />
+        <span className="text-xs font-semibold text-[#5C504D] dark:text-slate-300">
+          No photo available for this item report
+        </span>
+      </div>
+    );
+  }
+
+  const src = item.image.startsWith('http') ? item.image : `${item.image}`;
+
+  return (
+    <div className="w-full bg-stone-100 dark:bg-[#151D2C] rounded-2xl overflow-hidden border border-[#F0DDD3] dark:border-slate-800 relative flex items-center justify-center max-h-80 sm:max-h-96">
+      <img
+        src={src}
+        alt={item.title}
+        onError={() => setHasError(true)}
+        className="w-full h-full max-h-80 sm:max-h-96 object-contain"
+      />
+      {item.status === 'resolved' && (
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] flex items-center justify-center">
+          <span className="text-xs sm:text-sm font-bold uppercase tracking-widest text-white border border-white/30 px-4 py-2 rounded-xl bg-emerald-600/90 shadow-lg flex items-center gap-2">
+            <CheckCircle className="w-4 h-4" /> RESOLVED / RECOVERED
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function LostFoundPage() {
   const { user } = useAuth();
   const { theme, toggleTheme } = useTheme();
@@ -246,6 +309,14 @@ export default function LostFoundPage() {
             className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#E95E38] hover:bg-[#D7522D] text-white text-xs sm:text-sm font-semibold shadow-xs hover:shadow-md transition-all cursor-pointer"
           >
             <span>Campus AI</span>
+          </Link>
+
+          <Link
+            to="/skill-match"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/90 hover:bg-white dark:bg-slate-800 text-[#E95E38] text-xs sm:text-sm font-bold shadow-xs hover:shadow-md transition-all cursor-pointer border border-[#E95E38]/30"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-[#E95E38]" />
+            <span>AI Skill Match</span>
           </Link>
 
           {user && (
@@ -497,22 +568,7 @@ export default function LostFoundPage() {
                   </div>
 
                   {/* Photo if present */}
-                  {item.image && (
-                    <div className="h-48 sm:h-64 w-full rounded-2xl bg-gray-100 dark:bg-slate-800/50 overflow-hidden border border-gray-200/80 dark:border-slate-800 relative">
-                      <img
-                        src={item.image.startsWith('http') ? item.image : `${item.image}`}
-                        alt={item.title}
-                        className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
-                      />
-                      {item.status === 'resolved' && (
-                        <div className="absolute inset-0 bg-black/50 backdrop-blur-[1px] flex items-center justify-center">
-                          <span className="text-xs sm:text-sm font-bold uppercase tracking-widest text-white border border-white/30 px-3.5 py-1.5 rounded-xl bg-emerald-700/90 shadow-lg">
-                            Resolved
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  <LostFoundCardImage item={item} />
 
                   {/* Description */}
                   {item.description && (
@@ -766,33 +822,7 @@ export default function LostFoundPage() {
           return (
             <div className="space-y-5">
               {/* Product / Item Media */}
-              {selectedItem.image ? (
-                <div className="w-full bg-stone-100 dark:bg-[#151D2C] rounded-2xl overflow-hidden border border-[#F0DDD3] dark:border-slate-800 relative flex items-center justify-center max-h-80 sm:max-h-96">
-                  <img
-                    src={
-                      selectedItem.image.startsWith('http')
-                        ? selectedItem.image
-                        : `${selectedItem.image}`
-                    }
-                    alt={selectedItem.title}
-                    className="w-full h-full max-h-80 sm:max-h-96 object-contain"
-                  />
-                  {selectedItem.status === 'resolved' && (
-                    <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] flex items-center justify-center">
-                      <span className="text-xs sm:text-sm font-bold uppercase tracking-widest text-white border border-white/30 px-4 py-2 rounded-xl bg-emerald-600/90 shadow-lg flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4" /> RESOLVED / RECOVERED
-                      </span>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="py-8 sm:py-10 bg-[#FDF3ED]/60 dark:bg-slate-800/40 rounded-2xl border border-dashed border-[#F0DDD3] dark:border-slate-700 flex flex-col items-center justify-center text-[#8E7E7A] gap-2">
-                  <Tag className="w-10 h-10 text-[#E95E38]/60" />
-                  <span className="text-xs font-semibold text-[#5C504D] dark:text-slate-300">
-                    No photo uploaded for this item report
-                  </span>
-                </div>
-              )}
+              <LostFoundModalImage item={selectedItem} />
 
               {/* Badges, Type, Category & Title */}
               <div className="space-y-3">

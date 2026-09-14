@@ -14,149 +14,153 @@ export async function seedDemoDataIfEmpty() {
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash('password123', salt);
 
-    // 1. Ensure student users exist
-    let vguUser = await User.findOne({ email: '21bcon101@vgu.ac.in' });
-    if (!vguUser) {
-      vguUser = await User.create({
-        name: 'Jitesh Jangir',
+    // 1. Ensure student users exist with diverse skills & profiles for AI matching
+    const seedStudents = [
+      {
         email: '21bcon101@vgu.ac.in',
-        passwordHash,
+        name: 'Jitesh Jangir',
         branch: 'CSE',
         semester: 6,
-        isVerified: true,
         campusScore: 150,
-      });
-    }
-
-    let demoUser = await User.findOne({ email: 'student@campusbond.edu' });
-    if (!demoUser) {
-      demoUser = await User.create({
-        name: 'Aarav Sharma',
-        email: 'student@campusbond.edu',
-        passwordHash,
-        branch: 'CSE',
-        semester: 6,
-        isVerified: true,
-        campusScore: 120,
-      });
-    }
-
-    let testUser = await User.findOne({ email: 'test@campusbond.edu' });
-    if (!testUser) {
-      testUser = await User.create({
-        name: 'Vikash',
+        skills: ['React', 'Node.js', 'MongoDB', 'Express', 'Tailwind CSS', 'System Design'],
+        bio: '6th sem CSE at VGU. Passionate full-stack developer and campus tech community lead.',
+        interests: ['Full-Stack Development', 'Hackathons', 'System Design'],
+      },
+      {
         email: 'test@campusbond.edu',
-        passwordHash,
+        name: 'Vikash',
         branch: 'CSE',
         semester: 4,
-        isVerified: true,
         campusScore: 50,
-      });
-    }
-
-    let devUser = await User.findOne({ email: 'ananya@campusbond.edu' });
-    if (!devUser) {
-      devUser = await User.create({
-        name: 'Ananya Gupta',
+        skills: ['React', 'Node.js', 'JavaScript', 'Tailwind CSS', 'Python', 'UI/UX Design'],
+        bio: '4th semester CSE student passionate about full-stack web development, hackathons, and AI tools.',
+        interests: ['Hackathons', 'Web Development', 'Open Source', 'UI Design'],
+      },
+      {
+        email: 'student@campusbond.edu',
+        name: 'Aarav Sharma',
+        branch: 'CSE',
+        semester: 6,
+        campusScore: 120,
+        skills: ['C++', 'Algorithms', 'Data Structures', 'Python', 'Competitive Programming', 'React'],
+        bio: '6th sem CSE. ICPC Amritapuri regional qualifier. Solves complex algorithmic challenges and systems architecture.',
+        interests: ['Competitive Programming', 'Algorithms', 'Backend Systems'],
+      },
+      {
         email: 'ananya@campusbond.edu',
-        passwordHash,
+        name: 'Ananya Gupta',
         branch: 'AI & DS',
         semester: 4,
-        isVerified: true,
         campusScore: 85,
-      });
-    }
-
-    let rohanUser = await User.findOne({ email: 'rohan@campusbond.edu' });
-    if (!rohanUser) {
-      rohanUser = await User.create({
-        name: 'Rohan Verma',
+        skills: ['Python', 'Machine Learning', 'AI/ML', 'PyTorch', 'Computer Vision', 'Deep Learning'],
+        bio: '4th sem AI & Data Science. Computer vision and biomedical image segmentation researcher. Active Kaggle competitor.',
+        interests: ['Artificial Intelligence', 'Computer Vision', 'Kaggle', 'PyTorch'],
+      },
+      {
         email: 'rohan@campusbond.edu',
-        passwordHash,
+        name: 'Rohan Verma',
         branch: 'Mechanical',
         semester: 6,
-        isVerified: true,
         campusScore: 90,
-      });
-    }
-
-    let priyaUser = await User.findOne({ email: 'priya@campusbond.edu' });
-    if (!priyaUser) {
-      priyaUser = await User.create({
-        name: 'Priya Singh',
+        skills: ['Robotics', 'ROS (Robotics)', 'C++', 'SolidWorks', 'Fusion 360', 'Embedded Systems'],
+        bio: 'Mechanical engineering 6th sem. Building autonomous UGVs and robotic arms. CAD modeller and 3D printing enthusiast.',
+        interests: ['Robotics', 'Autonomous Vehicles', 'Hardware Prototyping'],
+      },
+      {
         email: 'priya@campusbond.edu',
-        passwordHash,
+        name: 'Priya Singh',
         branch: 'ECE',
         semester: 4,
-        isVerified: true,
         campusScore: 110,
-      });
-    }
-
-    let kabirUser = await User.findOne({ email: 'kabir@campusbond.edu' });
-    if (!kabirUser) {
-      kabirUser = await User.create({
-        name: 'Kabir Mehra',
+        skills: ['Arduino', 'ESP32 / Embedded', 'IoT', 'Hardware', 'Bluetooth LE', 'C++'],
+        bio: 'ECE 4th sem. IoT and sensor systems geek. Passionate about connected healthcare hardware and smart campus sensors.',
+        interests: ['IoT', 'Smart Hardware', 'Sensor Networks', 'Microcontrollers'],
+      },
+      {
         email: 'kabir@campusbond.edu',
-        passwordHash,
+        name: 'Kabir Mehra',
         branch: 'Design & Media',
         semester: 5,
-        isVerified: true,
         campusScore: 75,
-      });
-    }
-
-    let nehaUser = await User.findOne({ email: 'neha@campusbond.edu' });
-    if (!nehaUser) {
-      nehaUser = await User.create({
-        name: 'Neha Patel',
+        skills: ['UI/UX Design', 'Figma', 'Video Editing', 'Photography', 'Adobe Illustrator', 'Graphic Design'],
+        bio: 'Design & Media student. Crafting clean mobile interfaces, design systems, and directing campus cultural documentaries.',
+        interests: ['Product Design', 'Cinematography', 'Creative Direction'],
+      },
+      {
         email: 'neha@campusbond.edu',
-        passwordHash,
+        name: 'Neha Patel',
         branch: 'EEE',
         semester: 6,
-        isVerified: true,
         campusScore: 105,
-      });
-    }
-
-    let adityaUser = await User.findOne({ email: 'aditya@campusbond.edu' });
-    if (!adityaUser) {
-      adityaUser = await User.create({
-        name: 'Aditya Roy',
+        skills: ['MATLAB', 'Simulink', 'Altium PCB', 'CAN Bus', 'Embedded C', 'Electrical Systems'],
+        bio: 'EEE 6th sem. Lead electrical engineer for Formula Student. BMS architecture, power electronics, and custom PCB layout.',
+        interests: ['Electric Vehicles', 'Power Electronics', 'Formula Bharat'],
+      },
+      {
         email: 'aditya@campusbond.edu',
-        passwordHash,
+        name: 'Aditya Roy',
         branch: 'IT',
         semester: 5,
-        isVerified: true,
         campusScore: 95,
-      });
-    }
-
-    let siddharthUser = await User.findOne({ email: 'siddharth@campusbond.edu' });
-    if (!siddharthUser) {
-      siddharthUser = await User.create({
-        name: 'Siddharth Jain',
+        skills: ['Solidity / Web3', 'Web3', 'Flutter', 'Smart Contracts', 'React', 'Cloud & DevOps'],
+        bio: '5th sem IT. Building decentralized identity protocols and cross-platform mobile apps for collegiate events.',
+        interests: ['Web3', 'Mobile Engineering', 'Distributed Systems'],
+      },
+      {
         email: 'siddharth@campusbond.edu',
-        passwordHash,
+        name: 'Siddharth Jain',
         branch: 'CSE',
         semester: 3,
-        isVerified: true,
         campusScore: 60,
-      });
-    }
-
-    let tanviUser = await User.findOne({ email: 'tanvi@campusbond.edu' });
-    if (!tanviUser) {
-      tanviUser = await User.create({
-        name: 'Tanvi Kulkarni',
+        skills: ['Three.js', 'WebGL', 'Python', 'CyberSecurity', 'Reverse Engineering', 'CTF / Security'],
+        bio: '3rd sem CSE. 3D creative web developer by day, CTF player and binary exploitation researcher by night.',
+        interests: ['3D Web Graphics', 'Cyber Security', 'CTF Challenges'],
+      },
+      {
         email: 'tanvi@campusbond.edu',
-        passwordHash,
+        name: 'Tanvi Kulkarni',
         branch: 'Civil & Env',
         semester: 5,
-        isVerified: true,
         campusScore: 80,
-      });
+        skills: ['React Native', 'Firebase', 'Logistics', 'UI/UX Design', 'Event Management'],
+        bio: 'Civil & Environmental engineering. Building sustainability tech and coordinating university food redistribution programs.',
+        interests: ['Sustainability Tech', 'Community Organizing', 'App Development'],
+      },
+    ];
+
+    const studentMap = {};
+    for (const s of seedStudents) {
+      const userDoc = await User.findOneAndUpdate(
+        { email: s.email },
+        {
+          $set: {
+            name: s.name,
+            branch: s.branch,
+            semester: s.semester,
+            campusScore: s.campusScore,
+            skills: s.skills,
+            bio: s.bio,
+            interests: s.interests,
+            isVerified: true,
+            passwordHash,
+          },
+        },
+        { upsert: true, new: true }
+      );
+      studentMap[s.email] = userDoc;
     }
+
+    const vguUser = studentMap['21bcon101@vgu.ac.in'];
+    const demoUser = studentMap['student@campusbond.edu'];
+    const testUser = studentMap['test@campusbond.edu'];
+    const devUser = studentMap['ananya@campusbond.edu'];
+    const rohanUser = studentMap['rohan@campusbond.edu'];
+    const priyaUser = studentMap['priya@campusbond.edu'];
+    const kabirUser = studentMap['kabir@campusbond.edu'];
+    const nehaUser = studentMap['neha@campusbond.edu'];
+    const adityaUser = studentMap['aditya@campusbond.edu'];
+    const siddharthUser = studentMap['siddharth@campusbond.edu'];
+    const tanviUser = studentMap['tanvi@campusbond.edu'];
 
     // 2. Seed 20 Team Collaboration / Hackathon Posts
     const eventCount = await Event.countDocuments();

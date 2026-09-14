@@ -77,18 +77,6 @@ const getCategoryStyle = (category = '') => {
 };
 
 const getClubSign = (category = '', name = '', image = null) => {
-  if (image) {
-    return (
-      <div className="w-12 h-12 rounded-2xl bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0 shadow-xs flex items-center justify-center">
-        <img
-          src={image.startsWith('http') ? image : `${image}`}
-          alt={name}
-          className="w-full h-full object-cover"
-        />
-      </div>
-    );
-  }
-
   const cat = (category || '').toLowerCase();
   const n = (name || '').toLowerCase();
 
@@ -220,6 +208,25 @@ const getClubSign = (category = '', name = '', image = null) => {
     </div>
   );
 };
+
+function ClubLogo({ category = '', name = '', image = null }) {
+  const [imgFailed, setImgFailed] = useState(false);
+
+  if (image && !imgFailed) {
+    return (
+      <div className="w-12 h-12 rounded-2xl bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 overflow-hidden flex-shrink-0 shadow-xs flex items-center justify-center">
+        <img
+          src={image.startsWith('http') ? image : `${image}`}
+          alt={name}
+          onError={() => setImgFailed(true)}
+          className="w-full h-full object-cover"
+        />
+      </div>
+    );
+  }
+
+  return getClubSign(category, name);
+}
 
 export default function ClubsPage() {
   const { user } = useAuth();
@@ -633,7 +640,7 @@ export default function ClubsPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-center gap-3.5 min-w-0">
                       <div className="transition-transform duration-200 group-hover:scale-105 flex-shrink-0">
-                        {getClubSign(club.category, club.name, club.image)}
+                        <ClubLogo category={club.category} name={club.name} image={club.image} />
                       </div>
                       <div className="min-w-0">
                         <h3 className="font-bold text-lg sm:text-xl text-gray-950 dark:text-white group-hover:text-[#E95E38] dark:group-hover:text-[#F3704B] transition-colors leading-snug tracking-tight truncate">
@@ -813,7 +820,7 @@ export default function ClubsPage() {
             {/* Top: Icon + Title + Category Badge */}
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0">
-                {getClubSign(selectedClub.category, selectedClub.name, selectedClub.image)}
+                <ClubLogo category={selectedClub.category} name={selectedClub.name} image={selectedClub.image} />
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="text-xl font-bold text-gray-950 dark:text-white leading-tight">

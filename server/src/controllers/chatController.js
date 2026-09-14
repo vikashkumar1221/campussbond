@@ -22,11 +22,12 @@ export async function getCampusStudents(req, res) {
         { name: { $regex: search, $options: 'i' } },
         { branch: { $regex: search, $options: 'i' } },
         { email: { $regex: search, $options: 'i' } },
+        { skills: { $regex: search, $options: 'i' } },
       ];
     }
 
     const students = await User.find(query)
-      .select('name email branch semester avatar campusScore isVerified role')
+      .select('name email branch semester avatar campusScore isVerified role skills bio interests githubUrl')
       .sort({ name: 1 })
       .limit(60);
 
