@@ -13,6 +13,8 @@ node_modules/
 **/.expo/
 dist/
 **/dist/
+.vite/
+**/.vite/
 web-build/
 
 # Logs
