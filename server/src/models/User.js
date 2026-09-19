@@ -17,6 +17,8 @@ const userSchema = new mongoose.Schema(
     branch: { type: String, trim: true, default: '' }, // e.g. "CSE", "B.Pharm"
     semester: { type: Number, min: 1, max: 12 },
     avatar: { type: String, default: '' },
+    phone: { type: String, trim: true, default: '' },
+    location: { type: String, trim: true, default: '' },
 
     // Verification
     isVerified: { type: Boolean, default: false },

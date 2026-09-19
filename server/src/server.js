@@ -88,7 +88,7 @@ app.use('/api/skill-match', skillMatchRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-const PORT = Number(process.env.PORT) || 5000;
+const PORT = Number(process.env.PORT) || 5001;
 
 function listenOnPort(port) {
   const server = app.listen(port, () => {
@@ -97,8 +97,8 @@ function listenOnPort(port) {
 
   server.on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
-      const fallback = port === 5000 ? 5001 : port + 1;
-      console.warn(`\n⚠️  Port ${port} is in use (often macOS AirPlay Receiver).`);
+      const fallback = port === 5001 ? 5002 : port + 1;
+      console.warn(`\n⚠️  Port ${port} is in use.`);
       console.warn(`👉 Automatically switching to fallback port: http://localhost:${fallback}\n`);
       listenOnPort(fallback);
     } else {

@@ -230,6 +230,8 @@ export async function updateProfile(req, res) {
       linkedinUrl,
       portfolioUrl,
       avatar,
+      phone,
+      location,
     } = req.body;
 
     const user = await User.findById(req.user._id);
@@ -242,6 +244,8 @@ export async function updateProfile(req, res) {
     if (semester !== undefined) user.semester = Number(semester);
     if (bio !== undefined) user.bio = bio.trim();
     if (avatar !== undefined) user.avatar = avatar.trim();
+    if (phone !== undefined) user.phone = phone.trim();
+    if (location !== undefined) user.location = location.trim();
     if (githubUrl !== undefined) user.githubUrl = githubUrl.trim();
     if (linkedinUrl !== undefined) user.linkedinUrl = linkedinUrl.trim();
     if (portfolioUrl !== undefined) user.portfolioUrl = portfolioUrl.trim();

@@ -21,8 +21,8 @@ function resolveBaseUrl() {
     Constants.expoGoConfig?.debuggerHost ||
     Constants.manifest?.debuggerHost ||
     '';
-  const host = hostUri.split(':')[0] || 'localhost';
-  return `http://${host}:5000`;
+  const port = process.env.EXPO_PUBLIC_BACKEND_PORT || 5001;
+  return `http://${host}:${port}`;
 }
 
 export const BASE_URL = resolveBaseUrl();

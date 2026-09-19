@@ -25,6 +25,14 @@ async function notifyDbReady() {
   }
 }
 
+// Register Mongoose connection state listeners
+mongoose.connection.on('disconnected', () => {
+  console.warn('⚠️ MongoDB connection lost. Driver attempting automatic reconnect...');
+});
+mongoose.connection.on('reconnected', () => {
+  console.log('✅ MongoDB reconnected successfully.');
+});
+
 /**
  * Connect to MongoDB using the URI in the environment or in-memory fallback.
  */
@@ -37,8 +45,8 @@ export async function connectDB() {
   if (uri) {
     try {
       const conn = await mongoose.connect(uri, {
-        serverSelectionTimeoutMS: 3000,
-        connectTimeoutMS: 5000,
+        serverSelectionTimeoutMS: 5000,
+        connectTimeoutMS: 10000,
       });
       console.log(`✅ MongoDB connected: ${conn.connection.host}/${conn.connection.name}`);
       isConnecting = false;
@@ -46,11 +54,14 @@ export async function connectDB() {
       await notifyDbReady();
       return;
     } catch (err) {
-      console.warn(`⚠️ Could not connect to configured MONGO_URI (${err.message}). Falling back to local development database...`);
+      console.warn(`⚠️ Could not connect to configured MONGO_URI (${err.message}). Retrying in 5s...`);
+      isConnecting = false;
+      setTimeout(() => connectDB(), 5000);
+      return;
     }
   }
 
-  // Fallback for seamless local development: start in-memory MongoDB
+  // Fallback for seamless local development: start in-memory MongoDB ONLY if no MONGO_URI is set
   try {
     if (mongodInstance) {
       try {
@@ -64,8 +75,8 @@ export async function connectDB() {
     mongodInstance = await MongoMemoryServer.create();
     const memUri = mongodInstance.getUri();
     const conn = await mongoose.connect(memUri, {
-      serverSelectionTimeoutMS: 3000,
-      connectTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 10000,
     });
     console.log(`✅ Local development MongoDB ready: ${conn.connection.host}/${conn.connection.name}`);
     startHeartbeat();
@@ -87,6 +98,8 @@ export async function reconnectDB() {
   await connectDB();
 }
 
+let consecutivePingFailures = 0;
+
 /**
  * Periodically verify that database is responsive.
  * Detects silently stalled sockets (e.g. after laptop sleeps and wakes up).
@@ -97,20 +110,26 @@ function startHeartbeat() {
   heartbeatInterval = setInterval(async () => {
     if (mongoose.connection.readyState === 1) {
       try {
-        // Test ping with 2.5s timeout
+        // Test ping with generous 10s timeout
         await Promise.race([
           mongoose.connection.db?.admin()?.ping(),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Ping timeout')), 2500)),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Ping timeout')), 10000)),
         ]);
+        consecutivePingFailures = 0;
       } catch (err) {
-        console.warn(`⚠️ Database ping failed (${err.message}). Self-healing triggered...`);
-        await reconnectDB();
+        consecutivePingFailures += 1;
+        console.warn(`⚠️ Database ping failed (${err.message}) [${consecutivePingFailures}/3]`);
+        if (consecutivePingFailures >= 3) {
+          console.warn('⚠️ Multiple consecutive database pings failed. Reconnecting...');
+          consecutivePingFailures = 0;
+          await reconnectDB();
+        }
       }
     } else if (mongoose.connection.readyState === 0 && !isConnecting) {
       console.warn('⚠️ Database disconnected. Self-healing triggered...');
       await reconnectDB();
     }
-  }, 10000);
+  }, 30000);
 
   heartbeatInterval.unref?.();
 }

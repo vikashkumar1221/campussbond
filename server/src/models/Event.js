@@ -41,6 +41,8 @@ const eventSchema = new mongoose.Schema(
     skillsNeeded: [{ type: String, trim: true }], // e.g. ["React", "UI/UX"]
     teamSize: { type: Number, min: 1, default: 1 }, // number of teammates needed
     deadline: { type: Date },
+    imageUrl: { type: String, default: '' },
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     status: { type: String, enum: ['open', 'closed'], default: 'open' },

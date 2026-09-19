@@ -93,7 +93,7 @@ function AppLayout() {
   }
 
   return (
-    <div className="min-h-screen flex bg-[#F6F8FA] dark:bg-[#070B14] text-[#0A0B0D] dark:text-[#F1F5F9] transition-colors duration-200">
+    <div className="min-h-screen flex bg-[#F8F6F3] dark:bg-[#0C0A09] text-[#1E1917] dark:text-[#F1F5F9] transition-colors duration-200">
       {/* ─── Persistent Desktop Left Sidebar + Mobile Drawer ─── */}
       <Sidebar isOpen={mobileSidebarOpen} onClose={() => setMobileSidebarOpen(false)} />
 

@@ -70,6 +70,7 @@ export const eventService = {
   deleteEvent: (id) => api.delete(`/events/${id}`),
   applyToEvent: (id, message) => api.post(`/events/${id}/apply`, { message }),
   expressInterest: (id) => api.post(`/events/${id}/interest`),
+  toggleLike: (id) => api.post(`/events/${id}/like`),
   addComment: (id, text) => api.post(`/events/${id}/comments`, { text }),
   updateEventStatus: (id, status) => api.patch(`/events/${id}/status`, { status }),
   deleteEvent: (id) => api.delete(`/events/${id}`),

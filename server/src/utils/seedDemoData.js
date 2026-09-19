@@ -7,8 +7,12 @@ import Club from '../models/Club.js';
 import Conversation from '../models/Conversation.js';
 import Message from '../models/Message.js';
 
+let hasSeeded = false;
+
 export async function seedDemoDataIfEmpty() {
+  if (hasSeeded) return;
   try {
+    hasSeeded = true;
     await User.updateMany({ email: 'test@campusbond.edu' }, { $set: { name: 'Vikash' } });
 
     const salt = await bcrypt.genSalt(10);
@@ -126,6 +130,26 @@ export async function seedDemoDataIfEmpty() {
         bio: 'Civil & Environmental engineering. Building sustainability tech and coordinating university food redistribution programs.',
         interests: ['Sustainability Tech', 'Community Organizing', 'App Development'],
       },
+      {
+        email: 'rohit@campusbond.edu',
+        name: 'Rohit Mehta',
+        branch: 'ECE',
+        semester: 6,
+        campusScore: 95,
+        skills: ['Lead Guitar', 'Percussion', 'Live Audio Mixing', 'Rock Fusion'],
+        bio: 'ECE 6th sem. Lead guitarist and sound engineer for The Resonance college band.',
+        interests: ['Music', 'Live Audio Mixing', 'Rock Fusion'],
+      },
+      {
+        email: 'sneha@campusbond.edu',
+        name: 'Sneha Verma',
+        branch: 'BBA',
+        semester: 4,
+        campusScore: 88,
+        skills: ['Environment', 'Volunteering', 'Campus Drive', 'Public Relations'],
+        bio: 'BBA 4th sem. Campus Sustainability Club lead, organizing tree plantation and waste reduction drives.',
+        interests: ['Environment', 'Volunteering', 'Community Building'],
+      },
     ];
 
     const studentMap = {};
@@ -161,10 +185,12 @@ export async function seedDemoDataIfEmpty() {
     const adityaUser = studentMap['aditya@campusbond.edu'];
     const siddharthUser = studentMap['siddharth@campusbond.edu'];
     const tanviUser = studentMap['tanvi@campusbond.edu'];
+    const rohitUser = studentMap['rohit@campusbond.edu'];
+    const snehaUser = studentMap['sneha@campusbond.edu'];
 
     // 2. Seed 20 Team Collaboration / Hackathon Posts
     const eventCount = await Event.countDocuments();
-    if (eventCount < 20) {
+    if (eventCount < 20 || !(await Event.findOne({ title: 'Sustainability Club: Volunteers Needed' }))) {
       if (eventCount > 0) {
         console.log('🔄 Refreshing sample events to full 20 posts...');
         await Event.deleteMany({});
@@ -174,11 +200,12 @@ export async function seedDemoDataIfEmpty() {
       {
         title: 'Smart India Hackathon 2026: Need Frontend & ML Teammates',
         description:
-          'Working on an AI-driven energy audit system for institutional campuses. We currently have a backend engineer and hardware lead. Looking for a React/Tailwind frontend developer and an ML student with OpenCV/PyTorch experience.',
+          "Looking for passionate frontend and ML teammates to build an innovative solution for SIH 2026. Let's create something impactful together!",
         category: 'hackathon',
         skillsNeeded: ['React', 'Tailwind', 'AI/ML', 'PyTorch', 'UI/UX'],
         teamSize: 4,
-        deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        deadline: new Date('2026-09-18T23:59:59'),
+        imageUrl: '/images/sih_hackathon.jpg',
         status: 'open',
         createdBy: demoUser._id,
         applicants: [
@@ -189,15 +216,49 @@ export async function seedDemoDataIfEmpty() {
           },
         ],
         comments: [
-          {
-            user: devUser._id,
-            text: 'Is this project targeting the software or hardware edition?',
-          },
-          {
-            user: testUser._id,
-            text: 'Can I join as a frontend contributor?',
-          },
+          { user: devUser._id, text: 'Is this project targeting the software or hardware edition?' },
+          { user: testUser._id, text: 'Can I join as a frontend contributor?' },
+          { user: rohanUser._id, text: 'Great problem statement! All the best.' },
         ],
+        likes: [],
+        createdAt: new Date('2026-09-11T10:00:00'),
+      },
+      {
+        title: 'Inter-College Battle of the Bands: Lead Guitarist & Drummer',
+        description:
+          'Forming a band for the inter-college music fest. Looking for a lead guitarist and drummer. All genres welcome!',
+        category: 'cultural',
+        skillsNeeded: ['Lead Guitar', 'Percussion', 'Live Audio Mixing', 'Rock Fusion'],
+        teamSize: 5,
+        deadline: new Date('2026-09-26T23:59:59'),
+        imageUrl: '/images/laptop_code.jpg',
+        status: 'open',
+        createdBy: rohitUser._id,
+        applicants: [],
+        comments: [
+          { user: testUser._id, text: 'What tracks are you planning to cover?' },
+          { user: demoUser._id, text: 'Count me in for audio engineering support!' },
+        ],
+        likes: [demoUser._id],
+        createdAt: new Date('2026-09-10T11:00:00'),
+      },
+      {
+        title: 'Sustainability Club: Volunteers Needed',
+        description:
+          "Join our initiative to make campus greener! We're looking for volunteers for tree plantation and awareness drives.",
+        category: 'project',
+        skillsNeeded: ['Environment', 'Volunteering', 'Campus Drive'],
+        teamSize: 10,
+        deadline: new Date('2026-09-30T23:59:59'),
+        imageUrl: '/images/plant_seedling.jpg',
+        status: 'open',
+        createdBy: snehaUser._id,
+        applicants: [],
+        comments: [
+          { user: testUser._id, text: 'Would love to volunteer for the Sunday plantation drive!' },
+        ],
+        likes: [testUser._id, demoUser._id, devUser._id, rohanUser._id],
+        createdAt: new Date('2026-09-09T09:00:00'),
       },
       {
         title: 'Autonomous Drone Navigation & Obstacle Avoidance',
@@ -207,6 +268,7 @@ export async function seedDemoDataIfEmpty() {
         skillsNeeded: ['ROS', 'C++', 'Fusion360', 'Embedded Systems'],
         teamSize: 3,
         deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+        imageUrl: '/images/drone_robotics.jpg',
         status: 'open',
         createdBy: devUser._id,
         applicants: [],
@@ -220,6 +282,7 @@ export async function seedDemoDataIfEmpty() {
         skillsNeeded: ['Figma', 'Flutter', 'FinTech', 'API Design'],
         teamSize: 3,
         deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+        imageUrl: '/images/laptop_code.jpg',
         status: 'open',
         createdBy: demoUser._id,
         applicants: [],
@@ -233,6 +296,7 @@ export async function seedDemoDataIfEmpty() {
         skillsNeeded: ['Video Editing', 'Acting', 'Sound Design', 'Storyboarding'],
         teamSize: 5,
         deadline: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
+        imageUrl: '/images/filmmaking_camera.jpg',
         status: 'open',
         createdBy: kabirUser._id,
         applicants: [],
@@ -246,6 +310,7 @@ export async function seedDemoDataIfEmpty() {
         skillsNeeded: ['Three.js', 'WebGL', 'Python', 'GIS Data', 'React'],
         teamSize: 4,
         deadline: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000),
+        imageUrl: '/images/space_satellite.jpg',
         status: 'open',
         createdBy: siddharthUser._id,
         applicants: [],
@@ -259,21 +324,9 @@ export async function seedDemoDataIfEmpty() {
         skillsNeeded: ['Next.js', 'FastAPI', 'LangChain', 'OpenAI API', 'WebRTC'],
         teamSize: 3,
         deadline: new Date(Date.now() + 9 * 24 * 60 * 60 * 1000),
+        imageUrl: '/images/ai_interview.jpg',
         status: 'open',
         createdBy: testUser._id,
-        applicants: [],
-        comments: [],
-      },
-      {
-        title: 'Inter-College Battle of the Bands: Lead Guitarist & Drummer',
-        description:
-          "Our college rock band 'The Resonance' is prepping for the regional Battle of Bands. Looking for a lead guitarist comfortable with rock/fusion solos and an experienced drummer.",
-        category: 'cultural',
-        skillsNeeded: ['Lead Guitar', 'Percussion', 'Live Audio Mixing', 'Rock Fusion'],
-        teamSize: 4,
-        deadline: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
-        status: 'open',
-        createdBy: kabirUser._id,
         applicants: [],
         comments: [],
       },
@@ -285,6 +338,7 @@ export async function seedDemoDataIfEmpty() {
         skillsNeeded: ['MATLAB', 'Simulink', 'Altium', 'CAN Bus', 'Embedded C'],
         teamSize: 4,
         deadline: new Date(Date.now() + 18 * 24 * 60 * 60 * 1000),
+        imageUrl: '/images/formula_ev_car.jpg',
         status: 'open',
         createdBy: nehaUser._id,
         applicants: [],
@@ -298,6 +352,7 @@ export async function seedDemoDataIfEmpty() {
         skillsNeeded: ['PyTorch', 'Computer Vision', 'Data Augmentation', 'CUDA'],
         teamSize: 2,
         deadline: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000),
+        imageUrl: '/images/medical_imaging.jpg',
         status: 'open',
         createdBy: devUser._id,
         applicants: [],
@@ -311,6 +366,7 @@ export async function seedDemoDataIfEmpty() {
         skillsNeeded: ['Arduino', 'ESP32', 'Node.js', 'MQTT', 'Hardware'],
         teamSize: 3,
         deadline: new Date(Date.now() + 11 * 24 * 60 * 60 * 1000),
+        imageUrl: '/images/iot_hardware.jpg',
         status: 'open',
         createdBy: priyaUser._id,
         applicants: [],
@@ -324,6 +380,7 @@ export async function seedDemoDataIfEmpty() {
         skillsNeeded: ['Algorithms', 'Data Structures', 'C++', 'Graph Theory', 'DP'],
         teamSize: 3,
         deadline: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000),
+        imageUrl: '/images/laptop_code.jpg',
         status: 'open',
         createdBy: demoUser._id,
         applicants: [],
@@ -337,6 +394,7 @@ export async function seedDemoDataIfEmpty() {
         skillsNeeded: ['Solidity', 'Ethers.js', 'React', 'Smart Contracts'],
         teamSize: 3,
         deadline: new Date(Date.now() + 13 * 24 * 60 * 60 * 1000),
+        imageUrl: '/images/laptop_code.jpg',
         status: 'open',
         createdBy: adityaUser._id,
         applicants: [],
@@ -350,6 +408,7 @@ export async function seedDemoDataIfEmpty() {
         skillsNeeded: ['Stage Lighting', 'Costume Design', 'Set Construction', 'Sound Mixing'],
         teamSize: 4,
         deadline: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000),
+        imageUrl: '/images/filmmaking_camera.jpg',
         status: 'open',
         createdBy: tanviUser._id,
         applicants: [],
@@ -363,6 +422,7 @@ export async function seedDemoDataIfEmpty() {
         skillsNeeded: ['SolidWorks', 'Power Electronics', 'Welding', 'Vehicle Dynamics'],
         teamSize: 5,
         deadline: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000),
+        imageUrl: '/images/formula_ev_car.jpg',
         status: 'open',
         createdBy: rohanUser._id,
         applicants: [],
@@ -376,6 +436,7 @@ export async function seedDemoDataIfEmpty() {
         skillsNeeded: ['Reverse Engineering', 'Binary Exploitation', 'Wireshark', 'Cryptography'],
         teamSize: 4,
         deadline: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000),
+        imageUrl: '/images/cybersecurity_terminal.jpg',
         status: 'open',
         createdBy: siddharthUser._id,
         applicants: [],
@@ -389,6 +450,7 @@ export async function seedDemoDataIfEmpty() {
         skillsNeeded: ['React Native', 'Firebase', 'Logistics', 'UI Design'],
         teamSize: 3,
         deadline: new Date(Date.now() + 16 * 24 * 60 * 60 * 1000),
+        imageUrl: '/images/plant_seedling.jpg',
         status: 'open',
         createdBy: tanviUser._id,
         applicants: [],
@@ -402,6 +464,7 @@ export async function seedDemoDataIfEmpty() {
         skillsNeeded: ['IMU Sensors', 'Bluetooth LE', 'TensorFlow Lite', 'Swift'],
         teamSize: 3,
         deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        imageUrl: '/images/medical_imaging.jpg',
         status: 'open',
         createdBy: priyaUser._id,
         applicants: [],
@@ -415,6 +478,7 @@ export async function seedDemoDataIfEmpty() {
         skillsNeeded: ['Photography', 'Curating', 'Adobe Lightroom', 'Event Planning'],
         teamSize: 3,
         deadline: new Date(Date.now() + 17 * 24 * 60 * 60 * 1000),
+        imageUrl: '/images/filmmaking_camera.jpg',
         status: 'open',
         createdBy: kabirUser._id,
         applicants: [],
@@ -428,6 +492,7 @@ export async function seedDemoDataIfEmpty() {
         skillsNeeded: ['SLAM', 'Computer Vision', 'LiDAR', 'Motor Drivers', 'Python'],
         teamSize: 4,
         deadline: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000),
+        imageUrl: '/images/drone_robotics.jpg',
         status: 'open',
         createdBy: rohanUser._id,
         applicants: [],
@@ -441,12 +506,39 @@ export async function seedDemoDataIfEmpty() {
         skillsNeeded: ['Flutter', 'Google Cloud', 'Maps API', 'Mesh Networking', 'System Design'],
         teamSize: 4,
         deadline: new Date(Date.now() + 19 * 24 * 60 * 60 * 1000),
+        imageUrl: '/images/google_solution.jpg',
         status: 'open',
         createdBy: adityaUser._id,
         applicants: [],
         comments: [],
       },
     ]);
+
+      // Ensure specific mockup timestamps so top 3 posts match user screenshot order
+      await Event.updateMany(
+        {
+          title: {
+            $nin: [
+              'Smart India Hackathon 2026: Need Frontend & ML Teammates',
+              'Inter-College Battle of the Bands: Lead Guitarist & Drummer',
+              'Sustainability Club: Volunteers Needed',
+            ],
+          },
+        },
+        { $set: { createdAt: new Date('2026-09-01T00:00:00.000Z') } }
+      );
+      await Event.updateOne(
+        { title: 'Sustainability Club: Volunteers Needed' },
+        { $set: { createdAt: new Date('2026-09-09T09:00:00.000Z') } }
+      );
+      await Event.updateOne(
+        { title: 'Inter-College Battle of the Bands: Lead Guitarist & Drummer' },
+        { $set: { createdAt: new Date('2026-09-10T11:00:00.000Z') } }
+      );
+      await Event.updateOne(
+        { title: 'Smart India Hackathon 2026: Need Frontend & ML Teammates' },
+        { $set: { createdAt: new Date('2026-09-11T10:00:00.000Z') } }
+      );
     }
 
     // 3. Seed Marketplace Listings

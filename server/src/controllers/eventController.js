@@ -17,7 +17,7 @@ export async function createEvent(req, res) {
   const validationError = firstValidationError(req);
   if (validationError) return res.status(400).json({ message: validationError });
 
-  const { title, description, category, skillsNeeded, teamSize, deadline } = req.body;
+  const { title, description, category, skillsNeeded, teamSize, deadline, imageUrl } = req.body;
 
   const event = await Event.create({
     title,
@@ -31,6 +31,7 @@ export async function createEvent(req, res) {
           .filter(Boolean),
     teamSize,
     deadline,
+    imageUrl: imageUrl || '',
     createdBy: req.user._id,
   });
 
@@ -173,6 +174,24 @@ export async function expressInterest(req, res) {
   await convo.populate('event', 'title');
 
   res.status(200).json({ conversation: convo, alreadyInterested: already });
+}
+
+/**
+  * Toggle like / interest heart on an event.
+  * POST /api/events/:id/like
+  */
+export async function toggleLike(req, res) {
+  const event = await Event.findById(req.params.id);
+  if (!event) return res.status(404).json({ message: 'Post not found.' });
+  if (!event.likes) event.likes = [];
+  const idx = event.likes.findIndex((id) => String(id) === String(req.user._id));
+  if (idx > -1) {
+    event.likes.splice(idx, 1);
+  } else {
+    event.likes.push(req.user._id);
+  }
+  await event.save();
+  res.status(200).json({ likes: event.likes, liked: idx === -1 });
 }
 
 /**
