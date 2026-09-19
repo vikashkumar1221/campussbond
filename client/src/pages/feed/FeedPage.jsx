@@ -576,15 +576,6 @@ export default function FeedPage() {
           </svg>
         </div>
 
-        {/* Floating Badge in Bottom-Right Corner */}
-        <div className="absolute right-6 bottom-6 z-10 hidden sm:flex items-center gap-3 bg-[#1F1614]/80 backdrop-blur-md border border-white/15 rounded-2xl px-4 py-2.5 text-white shadow-lg select-none">
-          <MapPin className="w-4 h-4 text-[#EE5933] shrink-0" />
-          <div className="leading-tight">
-            <p className="font-bold text-xs">Same Campus</p>
-            <p className="text-[11px] text-[#DDD1C6] font-normal mt-0.5">Bigger Opportunities</p>
-          </div>
-        </div>
-
         {/* Left Side: Headline & Description */}
         <div className="relative z-10 max-w-xl space-y-2 mb-8">
           <p className="text-[11px] sm:text-xs font-extrabold uppercase tracking-[0.25em] text-[#8E7E7A] dark:text-amber-200/70 mb-1">
@@ -599,7 +590,7 @@ export default function FeedPage() {
         </div>
 
         {/* Bottom Filter Tabs inside Hero Banner */}
-        <div className="relative z-10 flex items-center gap-6 sm:gap-8 overflow-x-auto no-scrollbar border-b border-[#E8DEC9]/60 dark:border-white/10 pt-4">
+        <div className="relative z-10 flex items-center gap-6 sm:gap-8 overflow-x-auto no-scrollbar pt-4">
           {[
             { label: 'All Topics', value: '' },
             { label: 'Hackathons', value: 'hackathon' },
