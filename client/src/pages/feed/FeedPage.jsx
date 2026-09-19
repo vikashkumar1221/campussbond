@@ -364,7 +364,7 @@ export default function FeedPage() {
   });
 
   return (
-    <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-6">
+    <div className="w-full max-w-7xl xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       {/* ─── TOP HEADER BAR ─── */}
       <div className="flex items-center justify-between gap-4 relative">
         {/* Search Bar with Embedded Filters pill */}
@@ -546,31 +546,34 @@ export default function FeedPage() {
       </div>
 
       {/* ─── HERO BANNER: DISCOVER OPPORTUNITIES ─── */}
-      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-[#FBF6F0] via-[#FAF3EC] to-[#F5ECE3] dark:from-[#1E1715] dark:via-[#261D1A] dark:to-[#1C1513] border border-[#EEDBCE] dark:border-[#3A2822] p-6 sm:p-8 lg:p-9 shadow-2xs min-h-[260px] flex flex-col justify-between">
-        {/* Real Campus Photo on the Right */}
-        <div className="absolute right-0 top-0 bottom-0 w-full sm:w-3/5 md:w-[52%] lg:w-[54%] pointer-events-none select-none overflow-hidden">
+      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-[#FDF3ED] via-[#FCEAE1] to-[#F8DDD0] dark:from-[#1E1715] dark:via-[#261D1A] dark:to-[#1C1513] border border-[#F3DFD5] dark:border-amber-950/40 p-6 sm:p-8 lg:p-10 shadow-xs min-h-[340px] sm:min-h-[360px] lg:min-h-[380px] flex flex-col justify-between">
+        {/* Real Campus Photo on the Right - Expansive view matching Clubs page */}
+        <div className="absolute right-0 top-0 bottom-0 w-3/5 sm:w-[62%] md:w-[60%] lg:w-[62%] xl:w-[65%] pointer-events-none select-none overflow-hidden">
           <img
-            src="/images/vgu_campus_real.jpg?v=4"
-            alt="Campus Architecture"
-            className="w-full h-full object-cover object-[center_60%] opacity-90 dark:opacity-35"
+            src="/images/vgu_campus_real.jpg?v=5"
+            alt="Vivekananda Global University (VGU) Campus"
+            className="w-full h-full object-cover object-[center_88%] opacity-90 dark:opacity-40 transition-all"
             style={{
-              maskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 18%, rgba(0,0,0,0.85) 50%, rgba(0,0,0,1) 100%)',
-              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 18%, rgba(0,0,0,0.85) 50%, rgba(0,0,0,1) 100%)',
+              maskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 15%, rgba(0,0,0,0.85) 50%, rgba(0,0,0,1) 100%)',
+              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 15%, rgba(0,0,0,0.85) 50%, rgba(0,0,0,1) 100%)',
             }}
           />
         </div>
 
         {/* Cursive Handwriting Slogan over Image */}
-        <div className="hidden md:flex flex-col items-start absolute right-24 lg:right-32 top-10 select-none z-10 pointer-events-none drop-shadow-md">
-          <span className="font-handwriting text-2xl lg:text-3xl font-bold text-white leading-tight">
+        <div className="hidden lg:flex flex-col items-start -rotate-8 select-none absolute right-24 xl:right-36 top-10 z-10 pointer-events-none drop-shadow-sm">
+          <span className="font-['Caveat'] text-2xl lg:text-3xl xl:text-4xl font-bold text-[#4A3E3C] dark:text-amber-100 leading-none">
             People
           </span>
-          <span className="font-handwriting text-2xl lg:text-3xl font-bold text-white leading-tight">
+          <span className="font-['Caveat'] text-2xl lg:text-3xl xl:text-4xl font-bold text-[#4A3E3C] dark:text-amber-100 leading-none">
             Ideas
           </span>
-          <span className="font-handwriting text-2xl lg:text-3xl font-bold text-white leading-tight">
+          <span className="font-['Caveat'] text-2xl lg:text-3xl xl:text-4xl font-bold text-[#4A3E3C] dark:text-amber-100 leading-none">
             Possibilities
           </span>
+          <svg className="w-24 h-2.5 mt-0.5 text-[#EE5933]" viewBox="0 0 100 8" fill="none">
+            <path d="M 2 5 C 30 2, 70 3, 98 4" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" />
+          </svg>
         </div>
 
         {/* Floating Badge in Bottom-Right Corner */}
@@ -584,14 +587,14 @@ export default function FeedPage() {
 
         {/* Left Side: Headline & Description */}
         <div className="relative z-10 max-w-xl space-y-2 mb-8">
-          <p className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] text-[#EE5933]">
+          <p className="text-[11px] sm:text-xs font-extrabold uppercase tracking-[0.25em] text-[#8E7E7A] dark:text-amber-200/70 mb-1">
             — OPPORTUNITIES AWAIT
           </p>
-          <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-black tracking-tight text-[#1E1917] dark:text-white leading-[1.1]">
+          <h1 className="text-3xl sm:text-4xl lg:text-[44px] xl:text-[48px] font-black tracking-tight text-[#0F172A] dark:text-white leading-[1.12]">
             Discover <span className="text-[#EE5933]">Opportunities</span>
           </h1>
-          <p className="text-xs sm:text-sm text-[#6E615D] dark:text-slate-300 font-normal leading-relaxed pt-1">
-            Find hackathons, project teams, competitions and more across your campus.
+          <p className="text-xs sm:text-sm text-[#5C504D] dark:text-slate-300 font-medium max-w-md mt-1.5 leading-relaxed">
+            Find hackathons, project teams, competitions and more across Vivekananda Global University.
           </p>
         </div>
 
