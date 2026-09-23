@@ -2,6 +2,7 @@ import { validationResult } from 'express-validator';
 import Event from '../models/Event.js';
 import Conversation from '../models/Conversation.js';
 import Message from '../models/Message.js';
+import { createNotification } from './notificationController.js';
 
 function firstValidationError(req) {
   const errors = validationResult(req);
@@ -105,6 +106,17 @@ export async function addComment(req, res) {
   await event.save();
   await event.populate('comments.user', 'name branch avatar');
 
+  if (String(event.createdBy) !== String(req.user._id)) {
+    createNotification({
+      recipient: event.createdBy,
+      sender: req.user._id,
+      type: 'event',
+      title: 'New Comment on your post',
+      message: `${req.user.name} commented: "${text.length > 50 ? text.substring(0, 47) + '...' : text}"`,
+      link: `/events/${event._id}`,
+    });
+  }
+
   res.status(201).json({ comments: event.comments });
 }
 
@@ -130,6 +142,15 @@ export async function applyToEvent(req, res) {
 
   event.applicants.push({ user: req.user._id, message: req.body.message || '' });
   await event.save();
+
+  createNotification({
+    recipient: event.createdBy,
+    sender: req.user._id,
+    type: 'application',
+    title: 'New Team Application 🎯',
+    message: `${req.user.name} applied to join "${event.title}".`,
+    link: `/events/${event._id}`,
+  });
 
   res.status(201).json({ message: 'Your request was sent. The poster will review it.', event });
 }
@@ -168,6 +189,15 @@ export async function expressInterest(req, res) {
     convo.lastMessage = text;
     convo.lastMessageAt = new Date();
     await convo.save();
+
+    createNotification({
+      recipient: event.createdBy,
+      sender: req.user._id,
+      type: 'event',
+      title: 'New Interest in your post ✨',
+      message: `${req.user.name} is interested in "${event.title}".`,
+      link: `/events/${event._id}`,
+    });
   }
 
   await convo.populate('participants', 'name branch semester');
@@ -217,6 +247,15 @@ export async function reviewApplicant(req, res) {
   applicant.status = status;
   await event.save();
   await event.populate('applicants.user', 'name branch semester avatar');
+
+  createNotification({
+    recipient: applicant.user._id || applicant.user,
+    sender: req.user._id,
+    type: 'application',
+    title: status === 'approved' ? 'Application Accepted! 🎉' : 'Application Update',
+    message: `Your application for "${event.title}" has been ${status}.`,
+    link: `/events/${event._id}`,
+  });
 
   res.status(200).json({ message: `Applicant ${status}.`, event });
 }

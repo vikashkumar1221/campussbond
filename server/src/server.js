@@ -14,6 +14,7 @@ import marketRoutes from './routes/marketRoutes.js';
 import clubRoutes from './routes/clubRoutes.js';
 import assistantRoutes from './routes/assistantRoutes.js';
 import skillMatchRoutes from './routes/skillMatchRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
 import { UPLOAD_DIR } from './middleware/upload.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
 
@@ -83,6 +84,7 @@ app.use('/api/market', marketRoutes);
 app.use('/api/clubs', clubRoutes);
 app.use('/api/assistant', assistantRoutes);
 app.use('/api/skill-match', skillMatchRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // ---- Error handling (must be last) ----
 app.use(notFound);

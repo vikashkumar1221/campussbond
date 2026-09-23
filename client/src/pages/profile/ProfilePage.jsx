@@ -10,6 +10,7 @@ import {
   clubService,
 } from '../../services/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import NotificationBell from '../../components/NotificationBell';
 import {
   Mail,
   Phone,
@@ -233,17 +234,8 @@ export default function ProfilePage() {
             <Sun className="w-5 h-5" />
           </button>
 
-          {/* Notification Bell with Badge */}
-          <div className="relative">
-            <button
-              type="button"
-              className="p-2.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-all cursor-pointer"
-              title="Notifications"
-            >
-              <Bell className="w-5 h-5" />
-              <span className="w-2.5 h-2.5 rounded-full bg-rose-500 absolute top-2 right-2 ring-2 ring-white dark:ring-slate-900" />
-            </button>
-          </div>
+          {/* Interactive Notification Bell */}
+          <NotificationBell />
 
           {/* Mini User Profile Badge */}
           <div className="flex items-center gap-3 pl-2 border-l border-slate-200 dark:border-slate-800">

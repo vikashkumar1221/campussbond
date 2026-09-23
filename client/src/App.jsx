@@ -5,6 +5,7 @@ import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { SearchProvider } from './context/SearchContext';
 import Sidebar from './components/Sidebar';
 import LoadingSpinner from './components/LoadingSpinner';
+import NotificationBell from './components/NotificationBell';
 import { Menu, Sun, Moon } from 'lucide-react';
 
 // Pages
@@ -111,6 +112,8 @@ function AppLayout() {
                 {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
               </button>
 
+              <NotificationBell buttonClassName="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 transition-colors cursor-pointer relative" />
+
               <Link
                 to="/assistant"
                 className="inline-flex items-center px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold bg-[#E95E38] hover:bg-[#D7522D] text-white shadow-xs hover:shadow-md transition-all"
@@ -147,12 +150,15 @@ function AppLayout() {
             <Link to="/" className="font-display font-black text-lg text-gray-950 dark:text-white">
               Campus Bond
             </Link>
-            <Link
-              to="/profile"
-              className="w-8 h-8 rounded-full bg-gray-100 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 flex items-center justify-center text-gray-950 dark:text-white font-bold text-xs shadow-2xs"
-            >
-              {user?.name?.charAt(0) || 'U'}
-            </Link>
+            <div className="flex items-center gap-2">
+              <NotificationBell buttonClassName="p-1.5 rounded-full hover:bg-black/[0.04] dark:hover:bg-white/10 text-gray-700 dark:text-slate-200 transition-colors relative cursor-pointer" />
+              <Link
+                to="/profile"
+                className="w-8 h-8 rounded-full bg-gray-100 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 flex items-center justify-center text-gray-950 dark:text-white font-bold text-xs shadow-2xs"
+              >
+                {user?.name?.charAt(0) || 'U'}
+              </Link>
+            </div>
           </div>
         </header>
 

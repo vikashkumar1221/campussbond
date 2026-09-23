@@ -2,6 +2,7 @@ import Conversation from '../models/Conversation.js';
 import Message from '../models/Message.js';
 import Event from '../models/Event.js';
 import User from '../models/User.js';
+import { createNotification } from './notificationController.js';
 
 /** Has `userId` shown interest in `event` (any applicant status)? */
 function hasShownInterest(event, userId) {
@@ -86,6 +87,15 @@ export async function openConversation(req, res) {
       lastMessage: (message || '').trim() || 'Chat request sent',
       lastMessageAt: new Date(),
     });
+
+    createNotification({
+      recipient: other,
+      sender: req.user._id,
+      type: 'chat',
+      title: 'New Chat Request 💬',
+      message: `${req.user.name} sent you a chat request: "${(message || '').trim() || 'Hi! I would like to connect on Campus Bond.'}"`,
+      link: '/chat',
+    });
   } else if (convo.status === 'declined') {
     // If previously declined, re-open as pending request
     convo.status = 'pending';
@@ -127,6 +137,17 @@ export async function respondToChatRequest(req, res) {
     convo.status = 'declined';
   }
   await convo.save();
+
+  if (action === 'accept' && convo.requestedBy) {
+    createNotification({
+      recipient: convo.requestedBy._id || convo.requestedBy,
+      sender: req.user._id,
+      type: 'chat',
+      title: 'Chat Request Accepted 🎉',
+      message: `${req.user.name} accepted your chat request. You can now chat!`,
+      link: '/chat',
+    });
+  }
 
   await convo.populate('participants', 'name branch semester avatar isVerified');
   if (convo.event) {
@@ -210,6 +231,18 @@ export async function sendMessage(req, res) {
     convo.lastMessage = text;
     convo.lastMessageAt = new Date();
     await convo.save();
+
+    const otherParticipant = convo.participants.find((p) => String(p) !== String(req.user._id));
+    if (otherParticipant) {
+      createNotification({
+        recipient: otherParticipant,
+        sender: req.user._id,
+        type: 'chat',
+        title: `Message from ${req.user.name}`,
+        message: text.length > 60 ? text.substring(0, 57) + '...' : text,
+        link: '/chat',
+      });
+    }
 
     await message.populate('sender', 'name');
     res.status(201).json({ message, conversation: convo });

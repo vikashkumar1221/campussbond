@@ -139,4 +139,13 @@ export const skillMatchService = {
   extractSkills: (text) => api.post('/skill-match/extract', { text }),
 };
 
+// --- Notifications APIs ---
+export const notificationService = {
+  getNotifications: () => api.get('/notifications'),
+  markAsRead: (id) => api.patch(`/notifications/${id}/read`),
+  markAllAsRead: () => api.patch('/notifications/read-all'),
+  deleteNotification: (id) => api.delete(`/notifications/${id}`),
+  clearAll: () => api.delete('/notifications'),
+};
+
 export default api;

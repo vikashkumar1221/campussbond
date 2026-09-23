@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import Club from '../models/Club.js';
 import { UPLOAD_DIR } from '../middleware/upload.js';
+import { createNotification } from './notificationController.js';
 
 function removeImageFile(imagePath) {
   if (!imagePath) return;
@@ -78,6 +79,17 @@ export async function joinClub(req, res) {
   if (!isMember(club, req.user._id)) {
     club.members.push(req.user._id);
     await club.save();
+
+    if (club.createdBy && String(club.createdBy) !== String(req.user._id)) {
+      createNotification({
+        recipient: club.createdBy,
+        sender: req.user._id,
+        type: 'club',
+        title: 'New Club Member 👥',
+        message: `${req.user.name} joined "${club.name}".`,
+        link: '/clubs',
+      });
+    }
   }
   res.status(200).json({ memberCount: club.members.length, isMember: true });
 }

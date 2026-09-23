@@ -6,6 +6,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useSearch } from '../../context/SearchContext';
 import Modal from '../../components/Modal';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import NotificationBell from '../../components/NotificationBell';
 import {
   Compass,
   Plus,
@@ -16,10 +17,8 @@ import {
   MessageSquare,
   Sparkles,
   Send,
-  SlidersHorizontal,
   Sun,
   Moon,
-  Bell,
   ChevronDown,
   X,
   Zap,
@@ -49,8 +48,6 @@ export default function FeedPage() {
   const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
   const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
 
-  const [filterMenuOpen, setFilterMenuOpen] = useState(false);
-  const [notifMenuOpen, setNotifMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -387,49 +384,7 @@ export default function FeedPage() {
                 <X className="w-3.5 h-3.5" />
               </button>
             )}
-            {/* Filters · 3 Button */}
-            <button
-              type="button"
-              onClick={() => setFilterMenuOpen(!filterMenuOpen)}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F5EFE9] hover:bg-[#EADBCE] dark:bg-white/10 text-xs font-semibold text-[#5C504D] dark:text-slate-200 transition-colors shrink-0 cursor-pointer select-none"
-            >
-              <SlidersHorizontal className="w-3.5 h-3.5 stroke-[2.2]" />
-              <span>Filters · 3</span>
-            </button>
           </div>
-
-          {/* Filter Dropdown / Panel */}
-          {filterMenuOpen && (
-            <div className="absolute top-full left-0 mt-2 w-full bg-white dark:bg-[#1C1614] border border-[#E8DEC9] dark:border-[#382823] rounded-2xl p-4 shadow-xl z-30 animate-in fade-in slide-in-from-top-1 duration-150 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#221614] dark:text-white uppercase tracking-wider">
-                  Active Filters
-                </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCategory('');
-                    setSearchQuery('');
-                    setFilterMenuOpen(false);
-                  }}
-                  className="text-xs text-[#EE5933] font-semibold hover:underline cursor-pointer"
-                >
-                  Reset All
-                </button>
-              </div>
-              <div className="flex flex-wrap gap-2 pt-1">
-                <span className="px-3 py-1 rounded-full bg-[#FEF4F0] border border-[#F5DDD2] text-[#EE5933] text-xs font-medium">
-                  Campus: Vivekananda Global University
-                </span>
-                <span className="px-3 py-1 rounded-full bg-[#FEF4F0] border border-[#F5DDD2] text-[#EE5933] text-xs font-medium">
-                  Status: Open Opportunities
-                </span>
-                <span className="px-3 py-1 rounded-full bg-[#FEF4F0] border border-[#F5DDD2] text-[#EE5933] text-xs font-medium">
-                  Verified Students Only
-                </span>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Right Utility Bar: Theme Toggle, Notifications, User Profile */}
@@ -448,45 +403,8 @@ export default function FeedPage() {
             )}
           </button>
 
-          {/* Notifications Bell with Dot */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setNotifMenuOpen(!notifMenuOpen)}
-              className="p-2 rounded-full hover:bg-black/[0.04] dark:hover:bg-white/10 text-[#4A3E3C] dark:text-slate-200 transition-colors relative cursor-pointer"
-              title="Notifications"
-            >
-              <Bell className="w-5 h-5 stroke-[2]" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#EE5933] rounded-full ring-2 ring-[#F8F6F3] dark:ring-[#0C0A09]" />
-            </button>
-
-            {/* Notification Dropdown */}
-            {notifMenuOpen && (
-              <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 bg-white dark:bg-[#1C1614] border border-[#E8DEC9] dark:border-[#382823] rounded-2xl p-4 shadow-xl z-30 animate-in fade-in duration-150 space-y-3">
-                <div className="flex items-center justify-between border-b border-gray-100 dark:border-white/5 pb-2">
-                  <span className="text-xs font-bold text-[#221614] dark:text-white uppercase tracking-wider">
-                    Notifications
-                  </span>
-                  <span className="text-[10px] bg-[#FEF4F0] text-[#EE5933] font-bold px-2 py-0.5 rounded-full">
-                    1 New
-                  </span>
-                </div>
-                <div className="space-y-2.5 text-xs">
-                  <div className="p-2.5 rounded-xl bg-[#FEF4F0] dark:bg-white/[0.04] border border-[#F5DDD2] dark:border-white/5 space-y-1">
-                    <p className="font-bold text-[#1E1917] dark:text-white">Smart India Hackathon</p>
-                    <p className="text-[#6E615D] dark:text-slate-300 text-[11px]">
-                      Aarav Sharma added details for frontend &amp; ML roles.
-                    </p>
-                    <span className="text-[10px] text-[#A3968F] block pt-0.5">10m ago</span>
-                  </div>
-                  <div className="p-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors space-y-1">
-                    <p className="font-medium text-[#1E1917] dark:text-white">Inter-College Band Fest</p>
-                    <p className="text-[#8E7E7A] text-[11px]">Auditions closing in 7 days.</p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+          {/* Interactive Notifications Bell */}
+          <NotificationBell />
 
           {/* User Profile Dropdown */}
           <div className="relative">
